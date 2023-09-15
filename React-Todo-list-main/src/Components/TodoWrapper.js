@@ -5,8 +5,19 @@ import { v4 as uuidv4 } from "uuid";
 import { EditTodoForm } from "./EditTodoForm";
 
 export const TodoWrapper = () => {
-  const [todos, setTodos] = useState([]);
+  const storedItems = JSON.parse(localStorage.getItem('items'));
+  const [todos, setTodos] = useState(storedItems ? storedItems: []);
 
+
+  /**
+   * To set the todo items while any change in todos
+   */
+  useEffect(() => {
+    localStorage.setItem('items', JSON.stringify(todos));
+    console.log(`Updated TODOs: ${JSON.stringify(todos)}`)
+
+  }, [todos]);
+  
 
   const addTodo = (todo) => {
     setTodos([
