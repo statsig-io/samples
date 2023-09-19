@@ -3,15 +3,22 @@ import { Todo } from "./Todo";
 import { TodoForm } from "./TodoForm";
 import { v4 as uuidv4 } from "uuid";
 import { EditTodoForm } from "./EditTodoForm";
-import { Statsig } from "statsig-react";
+import { Statsig, useExperiment } from "statsig-react";
 import {
   TODO_COMPLETED,
   TODO_CREATED,
   TODO_DELETED,
   TODO_EDITED,
+  TODO_LAST_VIEWED,
 } from "../Constant";
 
+/**
+ * Main component to display the list of todos
+ * And handling statsig experiment to sort the todo list
+ * @returns 
+ */
 export const TodoWrapper = () => {
+  const { config } = useExperiment("item_sorting");
   const storedItems = JSON.parse(localStorage.getItem("items"));
   const [todos, setTodos] = useState(storedItems ? storedItems : []);
 
@@ -21,12 +28,43 @@ export const TodoWrapper = () => {
   useEffect(() => {
     localStorage.setItem("items", JSON.stringify(todos));
     console.log(`Updated TODOs: ${JSON.stringify(todos)}`);
+    console.log(`Experiment Config: ${JSON.stringify(config)}`);
+    let { value } = config;
+
+    console.log(`Sorted Order is ${value.sort_order}`);
+
+    if (value.sort_order === "oldest_first") {
+      sortTodos(false);
+    } else if (value.sort_order === "newest_first") {
+      sortTodos(true);
+    }
   }, [todos]);
 
+  /**
+   * To log statsig event with 
+   * tag,info and metadata
+   * @param {*} tag 
+   * @param {*} task 
+   * @param {*} message 
+   */
   const logEvent = (tag, task, message) => {
-    Statsig.logEvent(tag, task, message);
-
+    Statsig.logEvent(tag, task.toString(), message);
     console.log(`Event logged ${tag}`);
+  };
+
+  /**
+   * Sorting the todo list based on the experiment
+   * @param {*} isNewestFirst
+   */
+  const sortTodos = (isNewestFirst) => {
+    const sortedTodos = [...todos].sort((a, b) => {
+      if (a.createdDate < b.createdDate) return isNewestFirst ? 1: -1;
+      if (a.createdDate > b.createdDate) return isNewestFirst ? -1: 1;
+      return 0;
+    });
+
+    console.log(`Sorted todos : ${JSON.stringify(sortedTodos)}`);
+    //setTodos(sortedTodos);
   };
 
   /**
@@ -44,10 +82,10 @@ export const TodoWrapper = () => {
       isEditing: false,
       createdDate: new Date(),
       modifiedDate: new Date(),
+      lastViewed: false,
     };
 
     setTodos([...todos, todo]);
-
     logEvent(TODO_CREATED, task, todo);
   };
 
@@ -59,6 +97,25 @@ export const TodoWrapper = () => {
     setTodos(todos.filter((todo) => todo.id !== deleteTodo.id));
 
     logEvent(TODO_DELETED, deleteTodo.task, deleteTodo);
+  };
+
+  /**
+   *
+   * @param {*} lastViewedTodo
+   */
+  const onLastView = (lastViewedTodo) => {
+    setTodos(
+      todos.map((todo) =>
+        todo.id === lastViewedTodo.id
+          ? {
+              ...todo,
+              lastViewed: !lastViewedTodo.lastViewed,
+            }
+          : todo
+      )
+    );
+
+    logEvent(TODO_LAST_VIEWED, lastViewedTodo.task, lastViewedTodo);
   };
 
   /**
@@ -78,7 +135,7 @@ export const TodoWrapper = () => {
       )
     );
 
-    logEvent(TODO_COMPLETED, completedTodo.task,completedTodo);
+    logEvent(TODO_COMPLETED, completedTodo.task, completedTodo);
   };
 
   /**
@@ -101,7 +158,7 @@ export const TodoWrapper = () => {
         todo.id === editedTodo.id
           ? {
               ...todo,
-              task:editedTask,
+              task: editedTask,
               isEditing: !todo.isEditing,
               modifiedDate: new Date(),
             }
@@ -126,6 +183,7 @@ export const TodoWrapper = () => {
             deleteTodo={deleteTodo}
             editTodo={editTodo}
             toggleComplete={toggleComplete}
+            onLastView={onLastView}
           />
         )
       )}
