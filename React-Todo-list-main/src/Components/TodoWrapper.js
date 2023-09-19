@@ -4,84 +4,111 @@ import { TodoForm } from "./TodoForm";
 import { v4 as uuidv4 } from "uuid";
 import { EditTodoForm } from "./EditTodoForm";
 import { Statsig } from "statsig-react";
-
+import {
+  TODO_COMPLETED,
+  TODO_CREATED,
+  TODO_DELETED,
+  TODO_EDITED,
+} from "../Constant";
 
 export const TodoWrapper = () => {
-  const storedItems = JSON.parse(localStorage.getItem('items'));
-  const [todos, setTodos] = useState(storedItems ? storedItems: []);
-
+  const storedItems = JSON.parse(localStorage.getItem("items"));
+  const [todos, setTodos] = useState(storedItems ? storedItems : []);
 
   /**
    * To set the todo items while any change in todos
    */
   useEffect(() => {
-    localStorage.setItem('items', JSON.stringify(todos));
-    console.log(`Updated TODOs: ${JSON.stringify(todos)}`)
-
+    localStorage.setItem("items", JSON.stringify(todos));
+    console.log(`Updated TODOs: ${JSON.stringify(todos)}`);
   }, [todos]);
-  
 
-  const logEvent = (tag, message) => {
-    Statsig.logEvent(tag,message)
+  const logEvent = (tag, task, message) => {
+    Statsig.logEvent(tag, task, message);
 
-    console.log(`Event logged ${tag}`)
-  }
+    console.log(`Event logged ${tag}`);
+  };
 
-  const addTodo = (todo) => {
-    setTodos([
-      ...todos,
-      { id: uuidv4(), 
-        serialNumber: todos[todos.length-1] ? todos[todos.length-1].serialNumber+1 : 1,
-        task: todo, 
-        completed: false, 
-        isEditing: false, 
-        createdDate: new Date(), 
-        modifiedDate: new Date() },
-    ]);
+  /**
+   * Create a todo task
+   * @param {*} todo
+   */
+  const addTodo = (task) => {
+    let todo = {
+      id: uuidv4(),
+      serialNumber: todos[todos.length - 1]
+        ? todos[todos.length - 1].serialNumber + 1
+        : 1,
+      task: task,
+      completed: false,
+      isEditing: false,
+      createdDate: new Date(),
+      modifiedDate: new Date(),
+    };
 
-    logEvent("TODO_ADDED",todo)
-  }
+    setTodos([...todos, todo]);
 
-  const deleteTodo = (id) =>{
-   setTodos(todos.filter((todo) => todo.id !== id));
+    logEvent(TODO_CREATED, task, todo);
+  };
 
-   logEvent("TODO_DELETED",id)
+  /**
+   * To delete the todo
+   * @param {*} deleteTodo
+   */
+  const deleteTodo = (deleteTodo) => {
+    setTodos(todos.filter((todo) => todo.id !== deleteTodo.id));
 
-  }
+    logEvent(TODO_DELETED, deleteTodo.task, deleteTodo);
+  };
 
-  const toggleComplete = (id) => {
-    let item;
+  /**
+   * To toggle the task complete or incomplete
+   * @param {*} task
+   */
+  const toggleComplete = (completedTodo) => {
     setTodos(
       todos.map((todo) =>
-        todo.id === id ? { 
-          ...todo, completed: !todo.completed , modifiedDate: new Date()
-        } : todo
+        todo.id === completedTodo.id
+          ? {
+              ...todo,
+              completed: !todo.completed,
+              modifiedDate: new Date(),
+            }
+          : todo
       )
-      
     );
 
-    logEvent("TODO_COMPLETED",id)
+    logEvent(TODO_COMPLETED, completedTodo.task,completedTodo);
+  };
 
-  }
-
-  const editTodo = (id) => {
+  /**
+   * To Edit the task
+   * @param {*} task
+   */
+  const editTodo = (editTodo) => {
     setTodos(
       todos.map((todo) =>
-        todo.id === id ? { ...todo, isEditing: !todo.isEditing, modifiedDate: new Date() } : todo
+        todo.id === editTodo.id
+          ? { ...todo, isEditing: !todo.isEditing, modifiedDate: new Date() }
+          : todo
       )
     );
-    logEvent("TODO_EDITED",id)
+  };
 
-  }
-
-  const editTask = (task, id) => {
+  const editTask = (editedTask, editedTodo) => {
     setTodos(
       todos.map((todo) =>
-        todo.id === id ? { ...todo, task, isEditing: !todo.isEditing, modifiedDate: new Date() } : todo
+        todo.id === editedTodo.id
+          ? {
+              ...todo,
+              task:editedTask,
+              isEditing: !todo.isEditing,
+              modifiedDate: new Date(),
+            }
+          : todo
       )
     );
-    logEvent("TASK_EDITED",id,JSON.stringify(task))
-
+    logEvent(TODO_EDITED, editedTask, editedTodo);
   };
 
   return (

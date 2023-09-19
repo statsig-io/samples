@@ -12,6 +12,9 @@ const SS_CLIENT_SDK_KEY = "client-wWQtJlfJfEnLSIuP6QcnTATHyGVHUnJ2URTGLOVrwrl";
 
 function App() {
 
+  /**
+   * initialzing user
+   */
   const [user, setUser] = useState({  userID: "user-us",  email: "upendra.singh@ltts.com"});
   console.log("User: ", user)
   const [deleteFeatureFlag, setDeleteFeatureFlag] = useState(false);
@@ -23,6 +26,7 @@ function App() {
     options={{
       environment: { tier: "staging" },
     }}
+    user = {user}
   >
     <div className="App">
       <TodoWrapper />
