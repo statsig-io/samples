@@ -8,4 +8,7 @@ export const TODO_COMPLETED = "TODO_COMPLETED";
 export const TODO_CREATED = "TODO_CREATED";
 export const TODO_DELETED = "TODO_DELETED";
 export const TODO_LAST_VIEWED = "TODO_LAST_VIEWED";
+export const EXPERIMENT_SORTING = "item_sorting";
+export const SS_CLIENT_SDK_KEY = "client-wWQtJlfJfEnLSIuP6QcnTATHyGVHUnJ2URTGLOVrwrl";
+
 

@@ -3,8 +3,10 @@ import { Todo } from "./Todo";
 import { TodoForm } from "./TodoForm";
 import { v4 as uuidv4 } from "uuid";
 import { EditTodoForm } from "./EditTodoForm";
-import { Statsig, useExperiment } from "statsig-react";
+import { Statsig, useExperiment, useGate } from "statsig-react";
 import {
+  EXPERIMENT_SORTING,
+  FEATURE_GATE_1,
   TODO_COMPLETED,
   TODO_CREATED,
   TODO_DELETED,
@@ -15,12 +17,43 @@ import {
 /**
  * Main component to display the list of todos
  * And handling statsig experiment to sort the todo list
- * @returns 
+ * Getting the feature to enable or disable the delete option
+ * @returns
  */
 export const TodoWrapper = () => {
-  const { config } = useExperiment("item_sorting");
+  /**
+   * To get the feature gate value from statsig console
+   */
+  const { value, isLoading } = useGate(FEATURE_GATE_1);
+  /**
+   * To get the experiment config from statsig console
+   */
+  const { config } = useExperiment(EXPERIMENT_SORTING);
+
+  console.log(`Feature gate value is: ${value}`);
+  console.log(`isLoading ${isLoading}`);
+  console.log(`Experiment config is: ${JSON.stringify(config)}`);
+
   const storedItems = JSON.parse(localStorage.getItem("items"));
   const [todos, setTodos] = useState(storedItems ? storedItems : []);
+  const [sortingOrder, setSortingOrder] = useState("default");
+  const [featureValue, setFeatureValue] = useState(false);
+
+  /**
+   * Experiment keys
+   */
+  const NEWEST_FIRST = "newest_first";
+
+  /**
+   * Setting the experiment and feature value
+   * 
+   */
+  useEffect(() => {
+    console.log(`Experiment Config: ${JSON.stringify(config)}`);
+    setSortingOrder(config.value.sort_order);
+    setFeatureValue(value);
+    console.log(`Sorted Order is ${sortingOrder}`);
+  }, []);
 
   /**
    * To set the todo items while any change in todos
@@ -28,24 +61,14 @@ export const TodoWrapper = () => {
   useEffect(() => {
     localStorage.setItem("items", JSON.stringify(todos));
     console.log(`Updated TODOs: ${JSON.stringify(todos)}`);
-    console.log(`Experiment Config: ${JSON.stringify(config)}`);
-    let { value } = config;
-
-    console.log(`Sorted Order is ${value.sort_order}`);
-
-    if (value.sort_order === "oldest_first") {
-      sortTodos(false);
-    } else if (value.sort_order === "newest_first") {
-      sortTodos(true);
-    }
   }, [todos]);
 
   /**
-   * To log statsig event with 
+   * To log statsig event with
    * tag,info and metadata
-   * @param {*} tag 
-   * @param {*} task 
-   * @param {*} message 
+   * @param {*} tag
+   * @param {*} task
+   * @param {*} message
    */
   const logEvent = (tag, task, message) => {
     Statsig.logEvent(tag, task.toString(), message);
@@ -53,17 +76,20 @@ export const TodoWrapper = () => {
   };
 
   /**
+   * Display the todo items based on experiment decision
    * Sorting the todo list based on the experiment
    * @param {*} isNewestFirst
    */
-  const sortTodos = (isNewestFirst) => {
+  const sortTodos = () => {
+    let isNewestFirst = sortingOrder === NEWEST_FIRST;
     const sortedTodos = [...todos].sort((a, b) => {
-      if (a.createdDate < b.createdDate) return isNewestFirst ? 1: -1;
-      if (a.createdDate > b.createdDate) return isNewestFirst ? -1: 1;
+      if (a.createdDate < b.createdDate) return isNewestFirst ? 1 : -1;
+      if (a.createdDate > b.createdDate) return isNewestFirst ? -1 : 1;
       return 0;
     });
 
     console.log(`Sorted todos : ${JSON.stringify(sortedTodos)}`);
+    return sortedTodos;
     //setTodos(sortedTodos);
   };
 
@@ -85,7 +111,11 @@ export const TodoWrapper = () => {
       lastViewed: false,
     };
 
-    setTodos([...todos, todo]);
+    if (sortingOrder === NEWEST_FIRST) {
+      setTodos([todo, ...todos]);
+    } else {
+      setTodos([...todos, todo]);
+    }
     logEvent(TODO_CREATED, task, todo);
   };
 
@@ -170,10 +200,16 @@ export const TodoWrapper = () => {
 
   return (
     <div className="TodoWrapper">
-      <h1>Get Things Done !</h1>
+      <div className="header" style={{ display: "flex" }}>
+        <img
+          src="https://statsig.com/images/horz_logo.svg"
+          style={{ height: "40px", marginRight: "20px" }}
+        ></img>
+        <h1>TODO's</h1>
+      </div>
       <TodoForm addTodo={addTodo} />
       {/* display todos */}
-      {todos.map((todo) =>
+      {sortTodos().map((todo) =>
         todo.isEditing ? (
           <EditTodoForm editTodo={editTask} task={todo} />
         ) : (
@@ -184,6 +220,7 @@ export const TodoWrapper = () => {
             editTodo={editTodo}
             toggleComplete={toggleComplete}
             onLastView={onLastView}
+            featureValue={featureValue}
           />
         )
       )}
