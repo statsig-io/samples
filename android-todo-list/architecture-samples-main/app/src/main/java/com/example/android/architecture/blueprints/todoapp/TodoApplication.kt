@@ -17,7 +17,10 @@
 package com.example.android.architecture.blueprints.todoapp
 
 import android.app.Application
+import android.provider.Settings
+import com.example.android.architecture.blueprints.todoapp.util.StatsIgUtil
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 import timber.log.Timber.DebugTree
 
@@ -31,5 +34,18 @@ class TodoApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         if (BuildConfig.DEBUG) Timber.plant(DebugTree())
+
+        val deviceNameAndId = android.os.Build.MODEL + Settings.Secure.getString(
+            contentResolver,
+            Settings.Secure.ANDROID_ID
+        )
+
+        runBlocking {
+            StatsIgUtil.init(
+                this@TodoApplication,
+                BuildConfig.STATSIG_CLIENT_API_KEY,
+                deviceNameAndId
+            )
+        }
     }
 }
