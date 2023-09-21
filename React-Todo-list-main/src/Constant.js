@@ -10,5 +10,7 @@ export const TODO_DELETED = "TODO_DELETED";
 export const TODO_LAST_VIEWED = "TODO_LAST_VIEWED";
 export const EXPERIMENT_SORTING = "item_sorting";
 export const SS_CLIENT_SDK_KEY = "client-wWQtJlfJfEnLSIuP6QcnTATHyGVHUnJ2URTGLOVrwrl";
+export const DYNAMIC_CONFIG_WARNING_BANNER = "warning_banner"
+export const SS_TODO_APP_CLIENT_KEY = "client-iVVxwevG2GuTIRErepyVB3ZWYmLNwHSABBVwWta7uYF";
 
 

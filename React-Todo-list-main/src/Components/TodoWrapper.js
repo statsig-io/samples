@@ -3,8 +3,10 @@ import { Todo } from "./Todo";
 import { TodoForm } from "./TodoForm";
 import { v4 as uuidv4 } from "uuid";
 import { EditTodoForm } from "./EditTodoForm";
-import { Statsig, useExperiment, useGate } from "statsig-react";
+import { Statsig, useConfig, useExperiment, useGate } from "statsig-react";
 import {
+  DYNAMIC_CONFIG_1,
+  DYNAMIC_CONFIG_WARNING_BANNER,
   EXPERIMENT_SORTING,
   FEATURE_GATE_1,
   TODO_COMPLETED,
@@ -13,6 +15,8 @@ import {
   TODO_EDITED,
   TODO_LAST_VIEWED,
 } from "../Constant";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faWarning } from "@fortawesome/free-solid-svg-icons";
 
 /**
  * Main component to display the list of todos
@@ -28,16 +32,24 @@ export const TodoWrapper = () => {
   /**
    * To get the experiment config from statsig console
    */
-  const { config } = useExperiment(EXPERIMENT_SORTING);
+  const { config : experimentConfig } = useExperiment(EXPERIMENT_SORTING);
+
+  /**
+   * To get the dynamic config
+   */
+  const {config : dynamicConfig} = useConfig(DYNAMIC_CONFIG_WARNING_BANNER);
 
   console.log(`Feature gate value is: ${value}`);
   console.log(`isLoading ${isLoading}`);
-  console.log(`Experiment config is: ${JSON.stringify(config)}`);
+  console.log(`Experiment config is: ${JSON.stringify(experimentConfig)}`);
+  console.log(`Dynamic config is: ${JSON.stringify(dynamicConfig)}`);
+
 
   const storedItems = JSON.parse(localStorage.getItem("items"));
   const [todos, setTodos] = useState(storedItems ? storedItems : []);
   const [sortingOrder, setSortingOrder] = useState("default");
   const [featureValue, setFeatureValue] = useState(false);
+  const [dynamicValue, setDynamicValue] = useState({});
 
   /**
    * Experiment keys
@@ -49,9 +61,10 @@ export const TodoWrapper = () => {
    * 
    */
   useEffect(() => {
-    console.log(`Experiment Config: ${JSON.stringify(config)}`);
-    setSortingOrder(config.value.sort_order);
+    console.log(`Experiment Config: ${JSON.stringify(experimentConfig)}`);
+    setSortingOrder(experimentConfig.value.sort_order);
     setFeatureValue(value);
+    setDynamicValue(dynamicConfig.value)
     console.log(`Sorted Order is ${sortingOrder}`);
   }, []);
 
@@ -200,12 +213,21 @@ export const TodoWrapper = () => {
 
   return (
     <div className="TodoWrapper">
-      <div className="header" style={{ display: "flex" }}>
+      <div className="header" style={{ display: "flex" , alignItems: 'center'}}>
         <img
           src="https://statsig.com/images/horz_logo.svg"
           style={{ height: "40px", marginRight: "20px" }}
         ></img>
         <h1>TODO's</h1>
+        {/**
+         * Adding the warning banner 
+         */}
+        {Object.keys(dynamicValue).length > 0 && (
+          <div style={{marginLeft: "20px" }}>
+          <FontAwesomeIcon style={{ textAlign: 'center',  color : `${dynamicValue.backgroundColor}`}} icon={faWarning} />
+          <p style={{fontSize: "8px", color: `${dynamicValue.textColor}`}}>{dynamicValue.message}</p>
+          </div>
+        )}
       </div>
       <TodoForm addTodo={addTodo} />
       {/* display todos */}
