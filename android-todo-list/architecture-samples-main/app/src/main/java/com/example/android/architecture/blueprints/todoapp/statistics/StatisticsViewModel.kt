@@ -50,8 +50,13 @@ class StatisticsViewModel @Inject constructor(
     private val taskRepository: TaskRepository
 ) : ViewModel() {
 
+    private val sortOrderValue = StatsIgUtil.sortingExperiment(StatsIgUtil.EXPERIMENT_ITEM_SORT).getInt(
+        StatsIgUtil.EXPERIMENT_PARAMETER_SORT_ORDER,
+        StatsIgUtil.DEFAULT_NUMBER
+    )
+
     val uiState: StateFlow<StatisticsUiState> =
-        taskRepository.getTasksStream()
+        taskRepository.getTasksStream(sortOrderValue)
             .map {
                 StatsIgUtil.eventLogWithoutMetadata(StatsIgUtil.LOG_EVENT_TODO_LIST_VIEWED)
                 Async.Success(it)

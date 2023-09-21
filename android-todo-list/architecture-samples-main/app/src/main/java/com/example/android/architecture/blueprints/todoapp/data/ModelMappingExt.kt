@@ -19,6 +19,9 @@ package com.example.android.architecture.blueprints.todoapp.data
 import com.example.android.architecture.blueprints.todoapp.data.source.local.LocalTask
 import com.example.android.architecture.blueprints.todoapp.data.source.network.NetworkTask
 import com.example.android.architecture.blueprints.todoapp.data.source.network.TaskStatus
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 /**
  * Data model mapping extension functions. There are three model types:
@@ -40,6 +43,7 @@ fun Task.toLocal() = LocalTask(
     title = title,
     description = description,
     isCompleted = isCompleted,
+    createdDate = String().getCurrentDateTime()
 )
 
 fun List<Task>.toLocal() = map(Task::toLocal)
@@ -64,6 +68,7 @@ fun NetworkTask.toLocal() = LocalTask(
     title = title,
     description = shortDescription,
     isCompleted = (status == TaskStatus.COMPLETE),
+    createdDate = String().getCurrentDateTime()
 )
 
 @JvmName("networkToLocal")
@@ -74,6 +79,7 @@ fun LocalTask.toNetwork() = NetworkTask(
     id = id,
     title = title,
     shortDescription = description,
+    createdDate = String().getCurrentDateTime(),
     status = if (isCompleted) { TaskStatus.COMPLETE } else { TaskStatus.ACTIVE }
 )
 
@@ -90,3 +96,9 @@ fun NetworkTask.toExternal() = toLocal().toExternal()
 
 @JvmName("networkToExternal")
 fun List<NetworkTask>.toExternal() = map(NetworkTask::toExternal)
+
+fun String.getCurrentDateTime(): String {
+    val current = Calendar.getInstance().time
+    val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
+    return formatter.format(current).toString()
+}

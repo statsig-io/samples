@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.Flow
  */
 interface TaskRepository {
 
-    fun getTasksStream(): Flow<List<Task>>
+    fun getTasksStream(sortOrderValue: Int): Flow<List<Task>>
 
     suspend fun getTasks(forceUpdate: Boolean = false): List<Task>
 

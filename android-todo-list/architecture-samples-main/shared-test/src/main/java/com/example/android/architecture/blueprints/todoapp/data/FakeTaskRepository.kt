@@ -64,7 +64,7 @@ class FakeTaskRepository : TaskRepository {
         return taskId
     }
 
-    override fun getTasksStream(): Flow<List<Task>> = observableTasks
+    override fun getTasksStream(sortOrderValue: Int): Flow<List<Task>> = observableTasks
 
     override fun getTaskStream(taskId: String): Flow<Task?> {
         return observableTasks.map { tasks ->

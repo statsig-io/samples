@@ -20,6 +20,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import com.example.android.architecture.blueprints.todoapp.data.getCurrentDateTime
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -45,6 +46,7 @@ class TaskDaoTest {
             ToDoDatabase::class.java
         ).allowMainThreadQueries().build()
     }
+
     @Test
     fun insertTaskAndGetById() = runTest {
         // GIVEN - insert a task
@@ -53,6 +55,7 @@ class TaskDaoTest {
             description = "description",
             id = "id",
             isCompleted = false,
+            createdDate = String().getCurrentDateTime()
         )
         database.taskDao().upsert(task)
 
@@ -75,6 +78,7 @@ class TaskDaoTest {
             description = "description",
             id = "id",
             isCompleted = false,
+            createdDate = String().getCurrentDateTime()
         )
         database.taskDao().upsert(task)
 
@@ -83,7 +87,8 @@ class TaskDaoTest {
             title = "title2",
             description = "description2",
             isCompleted = true,
-            id = task.id
+            id = task.id,
+            createdDate = String().getCurrentDateTime()
         )
         database.taskDao().upsert(newTask)
 
@@ -103,6 +108,7 @@ class TaskDaoTest {
             description = "description",
             id = "id",
             isCompleted = false,
+            createdDate = String().getCurrentDateTime()
         )
         database.taskDao().upsert(task)
 
@@ -125,6 +131,7 @@ class TaskDaoTest {
             description = "description",
             id = "id",
             isCompleted = false,
+            createdDate = String().getCurrentDateTime()
         )
 
         database.taskDao().upsert(originalTask)
@@ -134,7 +141,8 @@ class TaskDaoTest {
             title = "new title",
             description = "new description",
             isCompleted = true,
-            id = originalTask.id
+            id = originalTask.id,
+            createdDate = String().getCurrentDateTime()
         )
         database.taskDao().upsert(updatedTask)
 
@@ -153,7 +161,8 @@ class TaskDaoTest {
             title = "title",
             description = "description",
             id = "id",
-            isCompleted = true
+            isCompleted = true,
+            createdDate = String().getCurrentDateTime()
         )
         database.taskDao().upsert(task)
 
@@ -176,6 +185,7 @@ class TaskDaoTest {
             description = "description",
             id = "id",
             isCompleted = false,
+            createdDate = String().getCurrentDateTime()
         )
         database.taskDao().upsert(task)
 
@@ -196,6 +206,7 @@ class TaskDaoTest {
                 description = "description",
                 id = "id",
                 isCompleted = false,
+                createdDate = String().getCurrentDateTime()
             )
         )
 
@@ -211,7 +222,13 @@ class TaskDaoTest {
     fun deleteCompletedTasksAndGettingTasks() = runTest {
         // Given a completed task inserted
         database.taskDao().upsert(
-            LocalTask(title = "completed", description = "task", id = "id", isCompleted = true)
+            LocalTask(
+                title = "completed",
+                description = "task",
+                id = "id",
+                isCompleted = true,
+                createdDate = String().getCurrentDateTime()
+            )
         )
 
         // When deleting completed tasks

@@ -11,6 +11,7 @@ import com.statsig.androidsdk.StatsigUser
  */
 object StatsIgUtil {
 
+    const val DEFAULT_NUMBER = -1
     private const val FEATURE_GATE_DELETE_TODO_ACCESS = "enable_delete_todo"
     private const val TEST_MOBILE_DYNAMIC_CONFIG = "mobile_dynamic_config"
     const val LOG_EVENT_APP_OPENED = "app opened"
@@ -20,6 +21,8 @@ object StatsIgUtil {
     const val LOG_EVENT_TODO_DELETED = "todo_deleted"
     const val LOG_EVENT_TODO_LIST_LOADED = "todo_loaded"
     const val LOG_EVENT_TODO_LIST_VIEWED = "list_viewed"
+    const val EXPERIMENT_ITEM_SORT = "item_sorting"
+    const val EXPERIMENT_PARAMETER_SORT_ORDER = "sort_order"
 
     /**
      * Suspended init function to initialize the Statsig SDK.
@@ -70,6 +73,15 @@ object StatsIgUtil {
         metadata: Map<String, String>? = null
     ) {
         Statsig.logEvent(eventName, value, metadata)
+    }
+
+    /**
+     * The Experiment function for item_sorting.
+     *
+     * @param experimentName Name of the experiment.
+     */
+    fun sortingExperiment(experimentName: String): DynamicConfig {
+        return Statsig.getExperiment(experimentName)
     }
 
 }

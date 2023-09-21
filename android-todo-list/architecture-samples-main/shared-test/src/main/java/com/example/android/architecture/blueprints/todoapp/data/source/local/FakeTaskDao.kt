@@ -69,6 +69,18 @@ class FakeTaskDao(initialTasks: List<LocalTask>? = emptyList()) : TaskDao {
         return 0
     }
 
+    override fun orderNewestDateWise(): Flow<List<LocalTask>> {
+        TODO("Not yet implemented")
+    }
+
+    override fun orderOldestDateWise(): Flow<List<LocalTask>> {
+        TODO("Not yet implemented")
+    }
+
+    override fun orderAlphabetically(): Flow<List<LocalTask>> {
+        TODO("Not yet implemented")
+    }
+
     override fun observeAll(): Flow<List<LocalTask>> {
         TODO("Not implemented")
     }

@@ -16,6 +16,7 @@
 
 package com.example.android.architecture.blueprints.todoapp.data.source.network
 
+import com.example.android.architecture.blueprints.todoapp.data.getCurrentDateTime
 import javax.inject.Inject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
@@ -29,12 +30,14 @@ class TaskNetworkDataSource @Inject constructor() : NetworkDataSource {
         NetworkTask(
             id = "PISA",
             title = "Build tower in Pisa",
-            shortDescription = "Ground looks good, no foundation work required."
+            shortDescription = "Ground looks good, no foundation work required.",
+            createdDate = String().getCurrentDateTime()
         ),
         NetworkTask(
             id = "TACOMA",
             title = "Finish bridge in Tacoma",
-            shortDescription = "Found awesome girders at half the cost!"
+            shortDescription = "Found awesome girders at half the cost!",
+            createdDate = String().getCurrentDateTime()
         )
     )
 

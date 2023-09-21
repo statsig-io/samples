@@ -29,6 +29,7 @@ import com.example.android.architecture.blueprints.todoapp.tasks.TasksFilterType
 import com.example.android.architecture.blueprints.todoapp.tasks.TasksFilterType.ALL_TASKS
 import com.example.android.architecture.blueprints.todoapp.tasks.TasksFilterType.COMPLETED_TASKS
 import com.example.android.architecture.blueprints.todoapp.util.Async
+import com.example.android.architecture.blueprints.todoapp.util.StatsIgUtil
 import com.example.android.architecture.blueprints.todoapp.util.WhileUiSubscribed
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -60,6 +61,11 @@ class TasksViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
+    private val sortOrderValue = StatsIgUtil.sortingExperiment(StatsIgUtil.EXPERIMENT_ITEM_SORT).getInt(
+        StatsIgUtil.EXPERIMENT_PARAMETER_SORT_ORDER,
+        StatsIgUtil.DEFAULT_NUMBER
+    )
+
     private val _savedFilterType =
         savedStateHandle.getStateFlow(TASKS_FILTER_SAVED_STATE_KEY, ALL_TASKS)
 
@@ -67,7 +73,7 @@ class TasksViewModel @Inject constructor(
     private val _userMessage: MutableStateFlow<Int?> = MutableStateFlow(null)
     private val _isLoading = MutableStateFlow(false)
     private val _filteredTasksAsync =
-        combine(taskRepository.getTasksStream(), _savedFilterType) { tasks, type ->
+        combine(taskRepository.getTasksStream(sortOrderValue), _savedFilterType) { tasks, type ->
             filterTasks(tasks, type)
         }
             .map { Async.Success(it) }

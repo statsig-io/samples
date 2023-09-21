@@ -107,4 +107,29 @@ interface TaskDao {
      */
     @Query("DELETE FROM task WHERE isCompleted = 1")
     suspend fun deleteCompleted(): Int
+
+    /**
+     * Observes list of tasks by newest date first.
+     *
+     * @return all tasks.
+     */
+    @Query("SELECT * FROM task ORDER BY createdDate DESC")
+    fun orderNewestDateWise(): Flow<List<LocalTask>>
+
+    /**
+     * Observes list of tasks by oldest date first.
+     *
+     * @return all tasks.
+     */
+    @Query("SELECT * FROM task ORDER BY createdDate")
+    fun orderOldestDateWise(): Flow<List<LocalTask>>
+
+
+    /**
+     * Observes list of tasks alphabetically by name constraint.
+     *
+     * @return all tasks.
+     */
+    @Query("SELECT * FROM task ORDER BY title")
+    fun orderAlphabetically(): Flow<List<LocalTask>>
 }

@@ -20,15 +20,16 @@ import com.example.android.architecture.blueprints.todoapp.data.source.local.Tas
 import com.example.android.architecture.blueprints.todoapp.data.source.network.NetworkDataSource
 import com.example.android.architecture.blueprints.todoapp.di.ApplicationScope
 import com.example.android.architecture.blueprints.todoapp.di.DefaultDispatcher
-import java.util.UUID
-import javax.inject.Inject
-import javax.inject.Singleton
+import com.example.android.architecture.blueprints.todoapp.util.StatsIgUtil
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.UUID
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Default implementation of [TaskRepository]. Single entry point for managing tasks' data.
@@ -83,10 +84,42 @@ class DefaultTaskRepository @Inject constructor(
         }
     }
 
-    override fun getTasksStream(): Flow<List<Task>> {
-        return localDataSource.observeAll().map { tasks ->
-            withContext(dispatcher) {
-                tasks.toExternal()
+    override fun getTasksStream(sortOrderValue: Int): Flow<List<Task>> {
+        StatsIgUtil.eventLogWithMetadata(
+            "${StatsIgUtil.EXPERIMENT_ITEM_SORT} ",
+            "${StatsIgUtil.EXPERIMENT_PARAMETER_SORT_ORDER} $sortOrderValue"
+        )
+        return when (sortOrderValue) {
+            1 -> {
+                localDataSource.orderAlphabetically().map { tasks ->
+                    withContext(dispatcher) {
+                        tasks.toExternal()
+                    }
+                }
+            }
+
+            2 -> {
+                localDataSource.orderNewestDateWise().map { tasks ->
+                    withContext(dispatcher) {
+                        tasks.toExternal()
+                    }
+                }
+            }
+
+            3 -> {
+                localDataSource.orderOldestDateWise().map { tasks ->
+                    withContext(dispatcher) {
+                        tasks.toExternal()
+                    }
+                }
+            }
+
+            else -> {
+                localDataSource.observeAll().map { tasks ->
+                    withContext(dispatcher) {
+                        tasks.toExternal()
+                    }
+                }
             }
         }
     }
