@@ -22,6 +22,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.android.architecture.blueprints.todoapp.R
 import com.example.android.architecture.blueprints.todoapp.TodoDestinationsArgs
 import com.example.android.architecture.blueprints.todoapp.data.TaskRepository
+import com.example.android.architecture.blueprints.todoapp.util.StatsIgUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -102,6 +103,7 @@ class AddEditTaskViewModel @Inject constructor(
     private fun createNewTask() = viewModelScope.launch {
         taskRepository.createTask(uiState.value.title, uiState.value.description)
         _uiState.update {
+            StatsIgUtil.eventLogWithoutMetadata(StatsIgUtil.LOG_EVENT_TODO_CREATED)
             it.copy(isTaskSaved = true)
         }
     }
@@ -117,6 +119,7 @@ class AddEditTaskViewModel @Inject constructor(
                 description = uiState.value.description,
             )
             _uiState.update {
+                StatsIgUtil.eventLogWithoutMetadata(StatsIgUtil.LOG_EVENT_TODO_UPDATED)
                 it.copy(isTaskSaved = true)
             }
         }
@@ -130,6 +133,7 @@ class AddEditTaskViewModel @Inject constructor(
             taskRepository.getTask(taskId).let { task ->
                 if (task != null) {
                     _uiState.update {
+                        StatsIgUtil.eventLogWithoutMetadata(StatsIgUtil.LOG_EVENT_TODO_LIST_VIEWED)
                         it.copy(
                             title = task.title,
                             description = task.description,
@@ -139,6 +143,7 @@ class AddEditTaskViewModel @Inject constructor(
                     }
                 } else {
                     _uiState.update {
+                        StatsIgUtil.eventLogWithoutMetadata(StatsIgUtil.LOG_EVENT_TODO_LIST_LOADED)
                         it.copy(isLoading = false)
                     }
                 }

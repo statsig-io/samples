@@ -24,9 +24,9 @@ import com.example.android.architecture.blueprints.todoapp.TodoDestinationsArgs
 import com.example.android.architecture.blueprints.todoapp.data.Task
 import com.example.android.architecture.blueprints.todoapp.data.TaskRepository
 import com.example.android.architecture.blueprints.todoapp.util.Async
+import com.example.android.architecture.blueprints.todoapp.util.StatsIgUtil
 import com.example.android.architecture.blueprints.todoapp.util.WhileUiSubscribed
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -34,6 +34,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * UiState for the Details screen.
@@ -70,12 +71,14 @@ class TaskDetailViewModel @Inject constructor(
             Async.Loading -> {
                 TaskDetailUiState(isLoading = true)
             }
+
             is Async.Error -> {
                 TaskDetailUiState(
                     userMessage = taskAsync.errorMessage,
                     isTaskDeleted = isTaskDeleted
                 )
             }
+
             is Async.Success -> {
                 TaskDetailUiState(
                     task = taskAsync.data,
@@ -95,6 +98,7 @@ class TaskDetailViewModel @Inject constructor(
     fun deleteTask() = viewModelScope.launch {
         taskRepository.deleteTask(taskId)
         _isTaskDeleted.value = true
+        StatsIgUtil.eventLogWithoutMetadata(StatsIgUtil.LOG_EVENT_TODO_DELETED)
     }
 
     fun setCompleted(completed: Boolean) = viewModelScope.launch {

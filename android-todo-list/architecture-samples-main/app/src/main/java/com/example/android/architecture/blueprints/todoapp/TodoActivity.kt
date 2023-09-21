@@ -19,6 +19,7 @@ package com.example.android.architecture.blueprints.todoapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import com.example.android.architecture.blueprints.todoapp.util.StatsIgUtil
 import com.google.accompanist.appcompattheme.AppCompatTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -35,5 +36,15 @@ class TodoActivity : ComponentActivity() {
                 TodoNavGraph()
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        StatsIgUtil.eventLogWithoutMetadata(StatsIgUtil.LOG_EVENT_APP_OPENED)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        StatsIgUtil.eventLogWithoutMetadata(StatsIgUtil.LOG_EVENT_APP_BACKGROUNDED)
     }
 }

@@ -13,6 +13,13 @@ object StatsIgUtil {
 
     private const val FEATURE_GATE_DELETE_TODO_ACCESS = "enable_delete_todo"
     private const val TEST_MOBILE_DYNAMIC_CONFIG = "mobile_dynamic_config"
+    const val LOG_EVENT_APP_OPENED = "app opened"
+    const val LOG_EVENT_APP_BACKGROUNDED = "app backgrounded"
+    const val LOG_EVENT_TODO_CREATED = "todo_created"
+    const val LOG_EVENT_TODO_UPDATED = "todo_updated"
+    const val LOG_EVENT_TODO_DELETED = "todo_deleted"
+    const val LOG_EVENT_TODO_LIST_LOADED = "todo_loaded"
+    const val LOG_EVENT_TODO_LIST_VIEWED = "list_viewed"
 
     /**
      * Suspended init function to initialize the Statsig SDK.
@@ -41,6 +48,28 @@ object StatsIgUtil {
      */
     fun isDeleteTodoFeatureEnabled(): Boolean {
         return Statsig.checkGate(FEATURE_GATE_DELETE_TODO_ACCESS)
+    }
+
+    /**
+     * The function to register the event without metadata in the Statsig portal.
+     *
+     * @param eventName Name of the event to be logged.
+     */
+    fun eventLogWithoutMetadata(eventName: String) {
+        Statsig.logEvent(eventName)
+    }
+
+    /**
+     * The function to register the event with metadata in the Statsig portal.
+     *
+     * @param eventName Name of the event to be logged.
+     */
+    fun eventLogWithMetadata(
+        eventName: String,
+        value: String,
+        metadata: Map<String, String>? = null
+    ) {
+        Statsig.logEvent(eventName, value, metadata)
     }
 
 }
