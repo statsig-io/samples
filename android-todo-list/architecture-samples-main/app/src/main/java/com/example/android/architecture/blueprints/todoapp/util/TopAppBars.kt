@@ -161,8 +161,10 @@ fun TaskDetailTopAppBar(onBack: () -> Unit, onDelete: () -> Unit) {
             }
         },
         actions = {
-            IconButton(onClick = onDelete) {
-                Icon(Icons.Filled.Delete, stringResource(id = R.string.menu_delete_task))
+            if (StatsIgUtil.isDeleteTodoFeatureEnabled()) {
+                IconButton(onClick = onDelete) {
+                    Icon(Icons.Filled.Delete, stringResource(id = R.string.menu_delete_task))
+                }
             }
         },
         modifier = Modifier.fillMaxWidth()
