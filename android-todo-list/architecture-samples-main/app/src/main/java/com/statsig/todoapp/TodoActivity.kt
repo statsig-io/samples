@@ -46,6 +46,7 @@ class TodoActivity : ComponentActivity() {
                 initializationDetails.let {
                     if (it.success) {
                         setContent {
+                            Statsig.logEvent(StatsigUtil.APP_OPENED)
                             AppCompatTheme {
                                 TodoNavGraph()
                             }
@@ -73,11 +74,6 @@ class TodoActivity : ComponentActivity() {
 
     private fun showSdkNotInitializedToast() {
         Toast.makeText(this@TodoActivity, "SDK not initialized", Toast.LENGTH_LONG).show()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Statsig.logEvent(StatsigUtil.APP_OPENED)
     }
 
     override fun onPause() {
