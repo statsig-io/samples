@@ -1,13 +1,7 @@
 import "./App.css";
 import { StatsigProvider } from "statsig-react";
-import { useState } from "react";
 import { TodoWrapper } from "./Components/TodoWrapper";
-import { SS_CLIENT_SDK_KEY } from "./Constant";
-
-/** Pass your StatsigUser into the StatsigProviderreturn (   
-   <StatsigProvider      sdkKey="client-key"   
-      waitForInitialization={true}    
-        user={user}    >**/
+import { CLIENT_SDK_KEY } from "./Constant";
 
 /**
  * Entry point of application
@@ -27,7 +21,7 @@ function App() {
 
   return (
     <StatsigProvider
-      sdkKey={SS_CLIENT_SDK_KEY}
+      sdkKey={CLIENT_SDK_KEY}
       waitForInitialization={true}
       options={{
         environment: { tier: "staging" },

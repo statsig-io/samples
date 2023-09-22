@@ -103,7 +103,6 @@ export const TodoWrapper = () => {
 
     console.log(`Sorted todos : ${JSON.stringify(sortedTodos)}`);
     return sortedTodos;
-    //setTodos(sortedTodos);
   };
 
   /**
@@ -218,7 +217,7 @@ export const TodoWrapper = () => {
           src="https://statsig.com/images/horz_logo.svg"
           style={{ height: "40px", marginRight: "20px" }}
         ></img>
-        <h1>TODO's</h1>
+        <h1>TODOs</h1>
         {/**
          * Adding the warning banner 
          */}
