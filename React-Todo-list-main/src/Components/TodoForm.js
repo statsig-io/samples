@@ -1,5 +1,10 @@
 import React, {useState} from 'react'
 
+/**
+ * Form to input and submit the todo item
+ * @param {*} param0 
+ * @returns 
+ */
 export const TodoForm = ({addTodo}) => {
     const [value, setValue] = useState('');
 
