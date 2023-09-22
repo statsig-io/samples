@@ -19,6 +19,7 @@ package com.statsig.todoapp.tasks
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -46,15 +47,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.accompanist.appcompattheme.AppCompatTheme
+import com.statsig.androidsdk.Statsig
 import com.statsig.todoapp.R
 import com.statsig.todoapp.data.Task
 import com.statsig.todoapp.tasks.TasksFilterType.ACTIVE_TASKS
@@ -62,7 +69,6 @@ import com.statsig.todoapp.tasks.TasksFilterType.ALL_TASKS
 import com.statsig.todoapp.tasks.TasksFilterType.COMPLETED_TASKS
 import com.statsig.todoapp.util.LoadingContent
 import com.statsig.todoapp.util.TasksTopAppBar
-import com.google.accompanist.appcompattheme.AppCompatTheme
 
 @OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
@@ -97,6 +103,31 @@ fun TasksScreen(
     ) { paddingValues ->
         val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+        val bannerDynConf = Statsig.getConfig("warning_banner")
+        val bannerWarningMsg =
+            bannerDynConf.getString("message", "NA") ?: stringResource(R.string.not_applicable)
+        val bannerWarningTextColor =
+            bannerDynConf.getString("textColor", "#ffffff") ?: "#ffffff"
+        val bannerWarningBdgColor =
+            bannerDynConf.getString("backgroundColor", "#000000") ?: "#000000"
+
+        if (bannerWarningMsg != stringResource(R.string.not_applicable)) {
+            Text(
+                text = bannerWarningMsg,
+                style = MaterialTheme.typography.h6,
+                textAlign = TextAlign.Center,
+                color = Color(android.graphics.Color.parseColor(bannerWarningTextColor)),
+                fontWeight = FontWeight.Normal,
+                fontSize = 16.sp,
+                modifier = Modifier
+                    .padding(10.dp)
+                    .fillMaxWidth()
+                    .background(
+                        color = Color(android.graphics.Color.parseColor(bannerWarningBdgColor))
+                    )
+                    .padding(2.dp)
+            )
+        }
         TasksContent(
             loading = uiState.isLoading,
             tasks = uiState.items,
@@ -106,7 +137,9 @@ fun TasksScreen(
             onRefresh = viewModel::refresh,
             onTaskClick = onTaskClick,
             onTaskCheckedChange = viewModel::completeTask,
-            modifier = Modifier.padding(paddingValues)
+            modifier = Modifier
+                .padding(top = 10.dp)
+                .padding(paddingValues)
         )
 
         // Check for user messages to display on the screen
@@ -149,6 +182,7 @@ private fun TasksContent(
     ) {
         Column(
             modifier = modifier
+                .padding(top = 20.dp)
                 .fillMaxSize()
                 .padding(horizontal = dimensionResource(id = R.dimen.horizontal_margin))
         ) {
