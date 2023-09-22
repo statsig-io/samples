@@ -25,6 +25,7 @@ import com.google.accompanist.appcompattheme.AppCompatTheme
 import com.statsig.androidsdk.InitializationDetails
 import com.statsig.androidsdk.Statsig
 import com.statsig.androidsdk.StatsigUser
+import com.statsig.todoapp.util.StatsigUtil
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -72,6 +73,16 @@ class TodoActivity : ComponentActivity() {
 
     private fun showSdkNotInitializedToast() {
         Toast.makeText(this@TodoActivity, "SDK not initialized", Toast.LENGTH_LONG).show()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Statsig.logEvent(StatsigUtil.APP_OPENED)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Statsig.logEvent(StatsigUtil.APP_BACKGROUNDED)
     }
 
 }
