@@ -5,7 +5,6 @@ import { v4 as uuidv4 } from "uuid";
 import { EditTodoForm } from "./EditTodoForm";
 import { Statsig, useConfig, useExperiment, useGate } from "statsig-react";
 import {
-  DYNAMIC_CONFIG_1,
   DYNAMIC_CONFIG_WARNING_BANNER,
   EXPERIMENT_SORTING,
   FEATURE_GATE_1,
@@ -32,18 +31,17 @@ export const TodoWrapper = () => {
   /**
    * To get the experiment config from statsig console
    */
-  const { config : experimentConfig } = useExperiment(EXPERIMENT_SORTING);
+  const { config: experimentConfig } = useExperiment(EXPERIMENT_SORTING);
 
   /**
    * To get the dynamic config
    */
-  const {config : dynamicConfig} = useConfig(DYNAMIC_CONFIG_WARNING_BANNER);
+  const { config: dynamicConfig } = useConfig(DYNAMIC_CONFIG_WARNING_BANNER);
 
   console.log(`Feature gate value is: ${value}`);
   console.log(`isLoading ${isLoading}`);
   console.log(`Experiment config is: ${JSON.stringify(experimentConfig)}`);
   console.log(`Dynamic config is: ${JSON.stringify(dynamicConfig)}`);
-
 
   const storedItems = JSON.parse(localStorage.getItem("items"));
   const [todos, setTodos] = useState(storedItems ? storedItems : []);
@@ -58,13 +56,13 @@ export const TodoWrapper = () => {
 
   /**
    * Setting the experiment and feature value
-   * 
+   *
    */
   useEffect(() => {
     console.log(`Experiment Config: ${JSON.stringify(experimentConfig)}`);
     setSortingOrder(experimentConfig.value.sort_order);
     setFeatureValue(value);
-    setDynamicValue(dynamicConfig.value)
+    setDynamicValue(dynamicConfig.value);
     console.log(`Sorted Order is ${sortingOrder}`);
   }, []);
 
@@ -212,19 +210,28 @@ export const TodoWrapper = () => {
 
   return (
     <div className="TodoWrapper">
-      <div className="header" style={{ display: "flex" , alignItems: 'center'}}>
+      <div className="header" style={{ display: "flex", alignItems: "center" }}>
         <img
           src="https://statsig.com/images/horz_logo.svg"
+          alt="Warning banner"
           style={{ height: "40px", marginRight: "20px" }}
         ></img>
         <h1>TODOs</h1>
         {/**
-         * Adding the warning banner 
+         * Adding the warning banner
          */}
         {Object.keys(dynamicValue).length > 0 && (
-          <div style={{marginLeft: "20px" }}>
-          <FontAwesomeIcon style={{ textAlign: 'center',  color : `${dynamicValue.backgroundColor}`}} icon={faWarning} />
-          <p style={{fontSize: "8px", color: `${dynamicValue.textColor}`}}>{dynamicValue.message}</p>
+          <div style={{ marginLeft: "20px" }}>
+            <FontAwesomeIcon
+              style={{
+                textAlign: "center",
+                color: `${dynamicValue.backgroundColor}`,
+              }}
+              icon={faWarning}
+            />
+            <p style={{ fontSize: "8px", color: `${dynamicValue.textColor}` }}>
+              {dynamicValue.message}
+            </p>
           </div>
         )}
       </div>
