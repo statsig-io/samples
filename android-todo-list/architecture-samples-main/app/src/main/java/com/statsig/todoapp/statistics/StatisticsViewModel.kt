@@ -52,9 +52,9 @@ class StatisticsViewModel @Inject constructor(
     private val taskRepository: TaskRepository
 ) : ViewModel() {
 
-    private val sortOrderValue = StatsIgUtil.sortingExperiment(StatsIgUtil.EXPERIMENT_ITEM_SORT).getInt(
-        StatsIgUtil.EXPERIMENT_PARAMETER_SORT_ORDER,
-        StatsIgUtil.DEFAULT_NUMBER
+    private val sortOrderValue = Statsig.getConfig(StatsigUtil.ITEM_SORT).getInt(
+        StatsigUtil.SORT_ORDER,
+        StatsigUtil.DEFAULT_NUMBER
     )
 
     val uiState: StateFlow<StatisticsUiState> =

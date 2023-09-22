@@ -16,7 +16,7 @@
 
 package com.statsig.todoapp.data.source.network
 
-import com.example.android.architecture.blueprints.todoapp.data.getCurrentDateTime
+import com.statsig.todoapp.data.getCurrentDateTime
 import javax.inject.Inject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
