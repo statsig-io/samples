@@ -12,5 +12,6 @@ export const EXPERIMENT_SORTING = "item_sorting";
 export const CLIENT_SDK_KEY = "client-wWQtJlfJfEnLSIuP6QcnTATHyGVHUnJ2URTGLOVrwrl";
 export const DYNAMIC_CONFIG_WARNING_BANNER = "warning_banner"
 export const TODO_APP_CLIENT_KEY = "client-iVVxwevG2GuTIRErepyVB3ZWYmLNwHSABBVwWta7uYF";
+export const LOGIN_TITLE = "Login to TODO"
 
 

@@ -15,7 +15,7 @@ import {
   TODO_LAST_VIEWED,
 } from "../Constant";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faWarning } from "@fortawesome/free-solid-svg-icons";
+import { faSignOut, faWarning } from "@fortawesome/free-solid-svg-icons";
 
 /**
  * Main component to display the list of todos
@@ -23,7 +23,7 @@ import { faWarning } from "@fortawesome/free-solid-svg-icons";
  * Getting the feature to enable or disable the delete option
  * @returns
  */
-export const TodoWrapper = () => {
+export const TodoWrapper = ({ onLogout }) => {
   /**
    * To get the feature gate value from statsig console
    */
@@ -174,7 +174,6 @@ export const TodoWrapper = () => {
           : todo
       )
     );
-
     logEvent(TODO_COMPLETED, completedTodo.task, completedTodo);
   };
 
@@ -213,28 +212,42 @@ export const TodoWrapper = () => {
       <div className="header" style={{ display: "flex", alignItems: "center" }}>
         <img
           src="https://statsig.com/images/horz_logo.svg"
-          alt="Warning banner"
+          alt="Statsig logo"
           style={{ height: "40px", marginRight: "20px" }}
         ></img>
         <h1>TODOs</h1>
-        {/**
-         * Adding the warning banner
-         */}
-        {Object.keys(dynamicValue).length > 0 && (
-          <div style={{ marginLeft: "20px" }}>
-            <FontAwesomeIcon
-              style={{
-                textAlign: "center",
-                color: `${dynamicValue.backgroundColor}`,
-              }}
-              icon={faWarning}
-            />
-            <p style={{ fontSize: "8px", color: `${dynamicValue.textColor}` }}>
-              {dynamicValue.message}
-            </p>
-          </div>
-        )}
+
+        <FontAwesomeIcon
+          style={{
+            marginLeft: "3rem",
+            color: `white`,
+            position: "relative",
+          }}
+          icon={faSignOut}
+          onClick={onLogout}
+        />
       </div>
+      {/**
+       * Adding the warning banner
+       */}
+      {Object.keys(dynamicValue).length > 0 && (
+        <div
+          style={{
+            padding: "1rem",
+            marginTop: ".5rem",
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            backgroundColor: `${dynamicValue.backgroundColor}`,
+          }}
+        >
+          <FontAwesomeIcon style={{ marginRight: "1rem" }} icon={faWarning} />
+          <p style={{ fontSize: "1rem", color: `${dynamicValue.textColor}` }}>
+            {dynamicValue.message}
+          </p>
+        </div>
+      )}
+
       <TodoForm addTodo={addTodo} />
       {/* display todos */}
       {sortTodos().map((todo) =>
