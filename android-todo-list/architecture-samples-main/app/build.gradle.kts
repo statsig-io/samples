@@ -33,14 +33,14 @@ android {
     apikeyProperties.load(FileInputStream(apikeyPropertiesFile))
 
     defaultConfig {
-        applicationId = "com.example.android.architecture.blueprints.main"
+        applicationId = "com.statsig.todoapp"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner =
-            "com.example.android.architecture.blueprints.todoapp.CustomTestRunner"
+            "com.statsig.todoapp.CustomTestRunner"
 
         javaCompileOptions {
             annotationProcessorOptions {

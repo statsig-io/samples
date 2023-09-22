@@ -1,0 +1,181 @@
+/*
+ * Copyright 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.statsig.todoapp
+
+import android.app.Activity
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.animateValue
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.progressSemantics
+import androidx.compose.material.DrawerState
+import androidx.compose.material.DrawerValue
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.ProgressIndicatorDefaults
+import androidx.compose.material.rememberDrawerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.statsig.todoapp.R
+import com.statsig.todoapp.TodoDestinationsArgs.TASK_ID_ARG
+import com.statsig.todoapp.TodoDestinationsArgs.TITLE_ARG
+import com.statsig.todoapp.TodoDestinationsArgs.USER_MESSAGE_ARG
+import com.statsig.todoapp.addedittask.AddEditTaskScreen
+import com.statsig.todoapp.statistics.StatisticsScreen
+import com.statsig.todoapp.taskdetail.TaskDetailScreen
+import com.statsig.todoapp.tasks.TasksScreen
+import com.statsig.todoapp.util.AppModalDrawer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+
+@Composable
+fun TodoNavGraph(
+    modifier: Modifier = Modifier,
+    navController: NavHostController = rememberNavController(),
+    coroutineScope: CoroutineScope = rememberCoroutineScope(),
+    drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed),
+    startDestination: String = TodoDestinations.TASKS_ROUTE,
+    navActions: TodoNavigationActions = remember(navController) {
+        TodoNavigationActions(navController)
+    }
+) {
+    val currentNavBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = currentNavBackStackEntry?.destination?.route ?: startDestination
+
+    NavHost(
+        navController = navController,
+        startDestination = startDestination,
+        modifier = modifier
+    ) {
+        composable(
+            TodoDestinations.TASKS_ROUTE,
+            arguments = listOf(
+                navArgument(USER_MESSAGE_ARG) { type = NavType.IntType; defaultValue = 0 }
+            )
+        ) { entry ->
+            AppModalDrawer(drawerState, currentRoute, navActions) {
+                TasksScreen(
+                    userMessage = entry.arguments?.getInt(USER_MESSAGE_ARG)!!,
+                    onUserMessageDisplayed = { entry.arguments?.putInt(USER_MESSAGE_ARG, 0) },
+                    onAddTask = { navActions.navigateToAddEditTask(R.string.add_task, null) },
+                    onTaskClick = { task -> navActions.navigateToTaskDetail(task.id) },
+                    openDrawer = { coroutineScope.launch { drawerState.open() } }
+                )
+            }
+        }
+        composable(TodoDestinations.STATISTICS_ROUTE) {
+            AppModalDrawer(drawerState, currentRoute, navActions) {
+                StatisticsScreen(openDrawer = { coroutineScope.launch { drawerState.open() } })
+            }
+        }
+        composable(
+            TodoDestinations.ADD_EDIT_TASK_ROUTE,
+            arguments = listOf(
+                navArgument(TITLE_ARG) { type = NavType.IntType },
+                navArgument(TASK_ID_ARG) { type = NavType.StringType; nullable = true },
+            )
+        ) { entry ->
+            val taskId = entry.arguments?.getString(TASK_ID_ARG)
+            AddEditTaskScreen(
+                topBarTitle = entry.arguments?.getInt(TITLE_ARG)!!,
+                onTaskUpdate = {
+                    navActions.navigateToTasks(
+                        if (taskId == null) ADD_EDIT_RESULT_OK else EDIT_RESULT_OK
+                    )
+                },
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable(TodoDestinations.TASK_DETAIL_ROUTE) {
+            TaskDetailScreen(
+                onEditTask = { taskId ->
+                    navActions.navigateToAddEditTask(R.string.edit_task, taskId)
+                },
+                onBack = { navController.popBackStack() },
+                onDeleteTask = { navActions.navigateToTasks(DELETE_RESULT_OK) }
+            )
+        }
+    }
+}
+
+@Composable
+fun Indicator(
+    size: Dp = 32.dp, // indicator size
+    sweepAngle: Float = 90f, // angle (lenght) of indicator arc
+    color: Color = MaterialTheme.colors.primary, // color of indicator arc line
+    strokeWidth: Dp = ProgressIndicatorDefaults.StrokeWidth //width of cicle and ar lines
+) {
+    val transition = rememberInfiniteTransition()
+    val currentArcStartAngle by transition.animateValue(
+        0,
+        360,
+        Int.VectorConverter,
+        infiniteRepeatable(
+            animation = tween(
+                durationMillis = 1100,
+                easing = LinearEasing
+            )
+        )
+    )
+    val stroke = with(LocalDensity.current) {
+        Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Square)
+    }
+    Canvas(
+        Modifier
+            .progressSemantics() // (optional) for Accessibility services
+            .size(size) // canvas size
+            .padding(strokeWidth / 2) //padding. otherwise, not the whole circle will fit in the canvas
+    ) {
+        drawCircle(Color.LightGray, style = stroke)
+
+        // draw arc with the same stroke
+        drawArc(
+            color,
+            // arc start angle
+            // -90 shifts the start position towards the y-axis
+            startAngle = currentArcStartAngle.toFloat() - 90,
+            sweepAngle = sweepAngle,
+            useCenter = false,
+            style = stroke
+        )
+    }
+}
+
+// Keys for navigation
+const val ADD_EDIT_RESULT_OK = Activity.RESULT_FIRST_USER + 1
+const val DELETE_RESULT_OK = Activity.RESULT_FIRST_USER + 2
+const val EDIT_RESULT_OK = Activity.RESULT_FIRST_USER + 3
