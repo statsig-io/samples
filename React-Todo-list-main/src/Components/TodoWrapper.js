@@ -241,7 +241,6 @@ export const TodoWrapper = ({ onLogout }) => {
             backgroundColor: `${dynamicValue.backgroundColor}`,
           }}
         >
-          <FontAwesomeIcon style={{ marginRight: "1rem" }} icon={faWarning} />
           <p style={{ fontSize: "1rem", color: `${dynamicValue.textColor}` }}>
             {dynamicValue.message}
           </p>
