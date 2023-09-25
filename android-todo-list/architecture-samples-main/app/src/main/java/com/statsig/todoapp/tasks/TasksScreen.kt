@@ -48,6 +48,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -105,11 +106,17 @@ fun TasksScreen(
 
         val bannerDynConf = Statsig.getConfig("warning_banner")
         val bannerWarningMsg =
-            bannerDynConf.getString("message", "NA") ?: stringResource(R.string.not_applicable)
+            bannerDynConf.getString("message", stringResource(R.string.not_applicable))
+                ?: stringResource(R.string.not_applicable)
         val bannerWarningTextColor =
-            bannerDynConf.getString("textColor", "#ffffff") ?: "#ffffff"
+            bannerDynConf.getString("textColor", colorResource(R.color.white).toString())
+                ?: colorResource(R.color.white).toString()
         val bannerWarningBdgColor =
-            bannerDynConf.getString("backgroundColor", "#000000") ?: "#000000"
+            bannerDynConf.getString(
+                "backgroundColor",
+                colorResource(R.color.colorPrimaryDark).toString()
+            )
+                ?: colorResource(R.color.colorPrimaryDark).toString()
 
         if (bannerWarningMsg != stringResource(R.string.not_applicable)) {
             Text(
@@ -125,9 +132,10 @@ fun TasksScreen(
                     .background(
                         color = Color(android.graphics.Color.parseColor(bannerWarningBdgColor))
                     )
-                    .padding(2.dp)
+                    .padding(6.dp)
             )
         }
+
         TasksContent(
             loading = uiState.isLoading,
             tasks = uiState.items,
