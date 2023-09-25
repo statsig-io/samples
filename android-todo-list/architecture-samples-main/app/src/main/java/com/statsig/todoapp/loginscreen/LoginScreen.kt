@@ -12,25 +12,26 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.statsig.todoapp.tasks.TasksViewModel
+import com.statsig.todoapp.R
 
 
 @Composable
 fun LoginScreen(
-    viewModel: TasksViewModel = hiltViewModel(),
+    onLoginSuccess: () -> Unit,
+    onLoginFailure: () -> Unit,
+    onBack: () -> Unit,
+    viewModel: LoginScreenViewModel = hiltViewModel()
 ) {
 
     Column(
@@ -39,36 +40,51 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        val username = remember { mutableStateOf(TextFieldValue()) }
-        val password = remember { mutableStateOf(TextFieldValue()) }
-
         Spacer(modifier = Modifier.height(160.dp))
-        Text(text = "Login", style = TextStyle(fontSize = 20.sp, fontFamily = FontFamily.Monospace))
+        Text(
+            text = stringResource(R.string.login),
+            style = TextStyle(fontSize = 20.sp, fontFamily = FontFamily.Monospace)
+        )
 
         Spacer(modifier = Modifier.height(30.dp))
         TextField(
-            label = { Text(text = "Username") },
-            value = username.value,
-            onValueChange = { username.value = it })
+            label = { Text(text = stringResource(R.string.username)) },
+            value = viewModel.userName.value,
+            onValueChange = {
+                viewModel.userName.value = it
+                viewModel.validateUserName()
+            },
+            isError = viewModel.isUserNameValid.value
+        )
 
         Spacer(modifier = Modifier.height(20.dp))
         TextField(
-            label = { Text(text = "Password") },
-            value = password.value,
+            label = { Text(text = stringResource(R.string.password)) },
+            value = viewModel.password.value,
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            onValueChange = { password.value = it })
+            onValueChange = {
+                viewModel.password.value = it
+                viewModel.validatePassword()
+            },
+            isError = viewModel.isPasswordValid.value
+        )
 
         Spacer(modifier = Modifier.height(20.dp))
         Box(modifier = Modifier.padding(40.dp, 0.dp, 40.dp, 0.dp)) {
             Button(
-                onClick = { },
+                onClick = (if (viewModel.isEnabledRegisterButton.value) {
+                    onLoginSuccess
+                } else {
+                    onLoginFailure
+                }),
                 shape = RectangleShape,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp)
+                    .height(50.dp),
+                enabled = viewModel.isEnabledRegisterButton.value
             ) {
-                Text(text = "Login")
+                Text(text = stringResource(R.string.login))
             }
         }
     }

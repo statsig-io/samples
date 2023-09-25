@@ -36,6 +36,7 @@ import com.statsig.todoapp.TodoDestinationsArgs.TASK_ID_ARG
 import com.statsig.todoapp.TodoDestinationsArgs.TITLE_ARG
 import com.statsig.todoapp.TodoDestinationsArgs.USER_MESSAGE_ARG
 import com.statsig.todoapp.addedittask.AddEditTaskScreen
+import com.statsig.todoapp.loginscreen.LoginScreen
 import com.statsig.todoapp.statistics.StatisticsScreen
 import com.statsig.todoapp.taskdetail.TaskDetailScreen
 import com.statsig.todoapp.tasks.TasksScreen
@@ -49,7 +50,7 @@ fun TodoNavGraph(
     navController: NavHostController = rememberNavController(),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed),
-    startDestination: String = TodoDestinations.TASKS_ROUTE,
+    startDestination: String = /*TodoDestinations.TASKS_ROUTE*/TodoDestinations.LOGIN_SCREEN_ROUTE,
     navActions: TodoNavigationActions = remember(navController) {
         TodoNavigationActions(navController)
     }
@@ -108,6 +109,15 @@ fun TodoNavGraph(
                 },
                 onBack = { navController.popBackStack() },
                 onDeleteTask = { navActions.navigateToTasks(DELETE_RESULT_OK) }
+            )
+        }
+        composable(TodoDestinations.LOGIN_SCREEN_ROUTE) {
+            LoginScreen(
+                onLoginSuccess = {
+                    navActions.navigateToTasks()
+                },
+                onLoginFailure = {},
+                onBack = { navController.popBackStack() }
             )
         }
     }

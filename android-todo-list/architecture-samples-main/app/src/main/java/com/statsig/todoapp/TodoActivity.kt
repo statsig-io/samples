@@ -73,7 +73,11 @@ class TodoActivity : ComponentActivity() {
         }
 
     private fun showSdkNotInitializedToast() {
-        Toast.makeText(this@TodoActivity, "SDK not initialized", Toast.LENGTH_LONG).show()
+        Toast.makeText(
+            this@TodoActivity,
+            getString(R.string.sdk_not_initialized),
+            Toast.LENGTH_LONG
+        ).show()
     }
 
     override fun onPause() {

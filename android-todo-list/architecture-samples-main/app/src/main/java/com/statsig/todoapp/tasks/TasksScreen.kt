@@ -145,9 +145,7 @@ fun TasksScreen(
             onRefresh = viewModel::refresh,
             onTaskClick = onTaskClick,
             onTaskCheckedChange = viewModel::completeTask,
-            modifier = Modifier
-                .padding(top = 10.dp)
-                .padding(paddingValues)
+            modifier = Modifier.padding(paddingValues)
         )
 
         // Check for user messages to display on the screen
