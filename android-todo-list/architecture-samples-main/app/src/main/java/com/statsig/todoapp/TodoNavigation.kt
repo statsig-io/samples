@@ -106,4 +106,9 @@ class TodoNavigationActions(private val navController: NavHostController) {
             }
         )
     }
+
+    fun navigateToLoginScreen() {
+        navController.navigate(LOGIN_SCREEN)
+    }
+
 }

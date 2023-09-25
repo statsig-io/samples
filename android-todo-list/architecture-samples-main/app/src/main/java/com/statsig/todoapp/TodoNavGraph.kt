@@ -50,7 +50,7 @@ fun TodoNavGraph(
     navController: NavHostController = rememberNavController(),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed),
-    startDestination: String = /*TodoDestinations.TASKS_ROUTE*/TodoDestinations.LOGIN_SCREEN_ROUTE,
+    startDestination: String = TodoDestinations.LOGIN_SCREEN_ROUTE,
     navActions: TodoNavigationActions = remember(navController) {
         TodoNavigationActions(navController)
     }
@@ -75,7 +75,8 @@ fun TodoNavGraph(
                     onUserMessageDisplayed = { entry.arguments?.putInt(USER_MESSAGE_ARG, 0) },
                     onAddTask = { navActions.navigateToAddEditTask(R.string.add_task, null) },
                     onTaskClick = { task -> navActions.navigateToTaskDetail(task.id) },
-                    openDrawer = { coroutineScope.launch { drawerState.open() } }
+                    openDrawer = { coroutineScope.launch { drawerState.open() } },
+                    onLogoutClick = { navActions.navigateToLoginScreen() }
                 )
             }
         }

@@ -2,9 +2,9 @@ package com.statsig.todoapp.loginscreen
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -34,6 +34,9 @@ class LoginScreenViewModel @Inject constructor() : ViewModel() {
         if (userName.value.length >= 15) {
             isUserNameValid.value = true
             userNameErrMsg.value = "User Name should be less than 15 chars"
+        } else if (userName.value.isDigitsOnly()) {
+            isUserNameValid.value = true
+            userNameErrMsg.value = "User Name cannot be all digits"
         } else {
             isUserNameValid.value = false
             userNameErrMsg.value = ""
@@ -46,7 +49,7 @@ class LoginScreenViewModel @Inject constructor() : ViewModel() {
             isPasswordValid.value = true
             passwordErrMsg.value = "Password should be 123"
         } else if (password.value.isEmpty() || password.value.isBlank()) {
-            isPasswordValid.value = false
+            isPasswordValid.value = true
             passwordErrMsg.value = "Password should not be blank"
         } else {
             isPasswordValid.value = false
@@ -58,9 +61,6 @@ class LoginScreenViewModel @Inject constructor() : ViewModel() {
     fun register() {
         userLogin.name = userName.value
         userLogin.password = password.value
-        Timber.d("username", userName.value)
-        Timber.d("password", password.value)
-        Timber.d("userLogin", userLogin.toString())
     }
 
 }
