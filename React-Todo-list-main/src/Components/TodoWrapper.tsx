@@ -16,6 +16,8 @@ import {
 } from "../Constant";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSignOut, faWarning } from "@fortawesome/free-solid-svg-icons";
+import { ExperimentConfigType } from "AppDtos/DTOS";
+import DynamicValueType from "./AppDtos/DynamicValueType";
 
 /**
  * Main component to display the list of todos
@@ -43,11 +45,12 @@ export const TodoWrapper = ({ onLogout }) => {
   console.log(`Experiment config is: ${JSON.stringify(experimentConfig)}`);
   console.log(`Dynamic config is: ${JSON.stringify(dynamicConfig)}`);
 
-  const storedItems = JSON.parse(localStorage.getItem("items"));
+  const storedItems: any[] | null = JSON.parse(localStorage.getItem("items") || "");
+
   const [todos, setTodos] = useState(storedItems ? storedItems : []);
   const [sortingOrder, setSortingOrder] = useState("default");
   const [featureValue, setFeatureValue] = useState(false);
-  const [dynamicValue, setDynamicValue] = useState({});
+  const [dynamicValue, setDynamicValue] = useState<DynamicValueType>();
 
   /**
    * Experiment keys
@@ -60,7 +63,8 @@ export const TodoWrapper = ({ onLogout }) => {
    */
   useEffect(() => {
     console.log(`Experiment Config: ${JSON.stringify(experimentConfig)}`);
-    setSortingOrder(experimentConfig.value.sort_order);
+    let expConfig: ExperimentConfigType = experimentConfig;
+    setSortingOrder(expConfig.value.sort_order);
     setFeatureValue(value);
     setDynamicValue(dynamicConfig.value);
     console.log(`Sorted Order is ${sortingOrder}`);
