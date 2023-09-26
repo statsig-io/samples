@@ -20,6 +20,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import com.statsig.todoapp.util.StatsigUtil
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -35,24 +36,26 @@ class TaskDaoTest {
 
     // using an in-memory database because the information stored here disappears when the
     // process is killed
-    private lateinit var database: com.statsig.android.architecture.blueprints.todoapp.data.source.local.ToDoDatabase
+    private lateinit var database: ToDoDatabase
 
     // Ensure that we use a new database for each test.
     @Before
     fun initDb() {
         database = Room.inMemoryDatabaseBuilder(
             getApplicationContext(),
-            com.statsig.android.architecture.blueprints.todoapp.data.source.local.ToDoDatabase::class.java
+            ToDoDatabase::class.java
         ).allowMainThreadQueries().build()
     }
+
     @Test
     fun insertTaskAndGetById() = runTest {
         // GIVEN - insert a task
-        val task = com.statsig.android.architecture.blueprints.todoapp.data.source.local.LocalTask(
+        val task = LocalTask(
             title = "title",
             description = "description",
             id = "id",
             isCompleted = false,
+            createdDate = StatsigUtil.getCurrentDateTime()
         )
         database.taskDao().upsert(task)
 
@@ -60,7 +63,7 @@ class TaskDaoTest {
         val loaded = database.taskDao().getById(task.id)
 
         // THEN - The loaded data contains the expected values
-        assertNotNull(loaded as com.statsig.android.architecture.blueprints.todoapp.data.source.local.LocalTask)
+        assertNotNull(loaded as LocalTask)
         assertEquals(task.id, loaded.id)
         assertEquals(task.title, loaded.title)
         assertEquals(task.description, loaded.description)
@@ -70,22 +73,23 @@ class TaskDaoTest {
     @Test
     fun insertTaskReplacesOnConflict() = runTest {
         // Given that a task is inserted
-        val task = com.statsig.android.architecture.blueprints.todoapp.data.source.local.LocalTask(
+        val task = LocalTask(
             title = "title",
             description = "description",
             id = "id",
             isCompleted = false,
+            createdDate = StatsigUtil.getCurrentDateTime()
         )
         database.taskDao().upsert(task)
 
         // When a task with the same id is inserted
-        val newTask =
-            com.statsig.android.architecture.blueprints.todoapp.data.source.local.LocalTask(
-                title = "title2",
-                description = "description2",
-                isCompleted = true,
-                id = task.id
-            )
+        val newTask = LocalTask(
+            title = "title2",
+            description = "description2",
+            isCompleted = true,
+            id = task.id,
+            createdDate = StatsigUtil.getCurrentDateTime()
+        )
         database.taskDao().upsert(newTask)
 
         // THEN - The loaded data contains the expected values
@@ -99,11 +103,12 @@ class TaskDaoTest {
     @Test
     fun insertTaskAndGetTasks() = runTest {
         // GIVEN - insert a task
-        val task = com.statsig.android.architecture.blueprints.todoapp.data.source.local.LocalTask(
+        val task = LocalTask(
             title = "title",
             description = "description",
             id = "id",
             isCompleted = false,
+            createdDate = StatsigUtil.getCurrentDateTime()
         )
         database.taskDao().upsert(task)
 
@@ -121,24 +126,23 @@ class TaskDaoTest {
     @Test
     fun updateTaskAndGetById() = runTest {
         // When inserting a task
-        val originalTask =
-            com.statsig.android.architecture.blueprints.todoapp.data.source.local.LocalTask(
-                title = "title",
-                description = "description",
-                id = "id",
-                isCompleted = false,
-            )
-
+        val originalTask = LocalTask(
+            title = "title",
+            description = "description",
+            id = "id",
+            isCompleted = false,
+            createdDate = StatsigUtil.getCurrentDateTime()
+        )
         database.taskDao().upsert(originalTask)
 
         // When the task is updated
-        val updatedTask =
-            com.statsig.android.architecture.blueprints.todoapp.data.source.local.LocalTask(
-                title = "new title",
-                description = "new description",
-                isCompleted = true,
-                id = originalTask.id
-            )
+        val updatedTask = LocalTask(
+            title = "new title",
+            description = "new description",
+            isCompleted = true,
+            id = originalTask.id,
+            createdDate = StatsigUtil.getCurrentDateTime()
+        )
         database.taskDao().upsert(updatedTask)
 
         // THEN - The loaded data contains the expected values
@@ -152,11 +156,12 @@ class TaskDaoTest {
     @Test
     fun updateCompletedAndGetById() = runTest {
         // When inserting a task
-        val task = com.statsig.android.architecture.blueprints.todoapp.data.source.local.LocalTask(
+        val task = LocalTask(
             title = "title",
             description = "description",
             id = "id",
-            isCompleted = true
+            isCompleted = true,
+            createdDate = StatsigUtil.getCurrentDateTime()
         )
         database.taskDao().upsert(task)
 
@@ -174,11 +179,12 @@ class TaskDaoTest {
     @Test
     fun deleteTaskByIdAndGettingTasks() = runTest {
         // Given a task inserted
-        val task = com.statsig.android.architecture.blueprints.todoapp.data.source.local.LocalTask(
+        val task = LocalTask(
             title = "title",
             description = "description",
             id = "id",
             isCompleted = false,
+            createdDate = StatsigUtil.getCurrentDateTime()
         )
         database.taskDao().upsert(task)
 
@@ -194,11 +200,12 @@ class TaskDaoTest {
     fun deleteTasksAndGettingTasks() = runTest {
         // Given a task inserted
         database.taskDao().upsert(
-            com.statsig.android.architecture.blueprints.todoapp.data.source.local.LocalTask(
+            LocalTask(
                 title = "title",
                 description = "description",
                 id = "id",
                 isCompleted = false,
+                createdDate = StatsigUtil.getCurrentDateTime()
             )
         )
 
@@ -214,11 +221,12 @@ class TaskDaoTest {
     fun deleteCompletedTasksAndGettingTasks() = runTest {
         // Given a completed task inserted
         database.taskDao().upsert(
-            com.statsig.android.architecture.blueprints.todoapp.data.source.local.LocalTask(
+            LocalTask(
                 title = "completed",
                 description = "task",
                 id = "id",
-                isCompleted = true
+                isCompleted = true,
+                createdDate = StatsigUtil.getCurrentDateTime()
             )
         )
 

@@ -16,9 +16,15 @@
 
 package com.statsig.todoapp.data
 
+
 import com.statsig.todoapp.data.source.local.LocalTask
 import com.statsig.todoapp.data.source.network.NetworkTask
 import com.statsig.todoapp.data.source.network.TaskStatus
+import com.statsig.todoapp.util.StatsigUtil
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
+
 
 /**
  * Data model mapping extension functions. There are three model types:
@@ -40,6 +46,7 @@ fun Task.toLocal() = LocalTask(
     title = title,
     description = description,
     isCompleted = isCompleted,
+    createdDate = StatsigUtil.getCurrentDateTime()
 )
 
 fun List<Task>.toLocal() = map(Task::toLocal)
@@ -64,6 +71,7 @@ fun NetworkTask.toLocal() = LocalTask(
     title = title,
     description = shortDescription,
     isCompleted = (status == TaskStatus.COMPLETE),
+    createdDate = StatsigUtil.getCurrentDateTime()
 )
 
 @JvmName("networkToLocal")
@@ -74,7 +82,12 @@ fun LocalTask.toNetwork() = NetworkTask(
     id = id,
     title = title,
     shortDescription = description,
-    status = if (isCompleted) { TaskStatus.COMPLETE } else { TaskStatus.ACTIVE }
+    createdDate = StatsigUtil.getCurrentDateTime(),
+    status = if (isCompleted) {
+        TaskStatus.COMPLETE
+    } else {
+        TaskStatus.ACTIVE
+    }
 )
 
 fun List<LocalTask>.toNetwork() = map(LocalTask::toNetwork)

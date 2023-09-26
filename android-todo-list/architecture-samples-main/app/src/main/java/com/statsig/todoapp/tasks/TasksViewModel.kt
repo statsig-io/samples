@@ -19,12 +19,17 @@ package com.statsig.todoapp.tasks
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.statsig.androidsdk.Statsig
+import com.statsig.todoapp.util.StatsigUtil
+
+
 import com.statsig.todoapp.ADD_EDIT_RESULT_OK
 import com.statsig.todoapp.DELETE_RESULT_OK
 import com.statsig.todoapp.EDIT_RESULT_OK
 import com.statsig.todoapp.R
 import com.statsig.todoapp.data.Task
 import com.statsig.todoapp.data.TaskRepository
+import com.statsig.todoapp.data.TaskSortOrder
 import com.statsig.todoapp.tasks.TasksFilterType.ACTIVE_TASKS
 import com.statsig.todoapp.tasks.TasksFilterType.ALL_TASKS
 import com.statsig.todoapp.tasks.TasksFilterType.COMPLETED_TASKS
@@ -60,6 +65,24 @@ class TasksViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
+    private val sortOrderValue = when(Statsig.getConfig(StatsigUtil.ITEM_SORT).getInt(
+        StatsigUtil.SORT_ORDER,
+        StatsigUtil.DEFAULT_NUMBER
+    )){
+        1 -> {
+            TaskSortOrder.Alphabetical
+        }
+        2 -> {
+            TaskSortOrder.NewestFirst
+        }
+        3 -> {
+            TaskSortOrder.OldestFirst
+        }
+        else -> {
+            TaskSortOrder.None
+        }
+    }
+
     private val _savedFilterType =
         savedStateHandle.getStateFlow(TASKS_FILTER_SAVED_STATE_KEY, ALL_TASKS)
 
@@ -67,7 +90,7 @@ class TasksViewModel @Inject constructor(
     private val _userMessage: MutableStateFlow<Int?> = MutableStateFlow(null)
     private val _isLoading = MutableStateFlow(false)
     private val _filteredTasksAsync =
-        combine(taskRepository.getTasksStream(), _savedFilterType) { tasks, type ->
+        combine(taskRepository.getTasksStream(sortOrderValue), _savedFilterType) { tasks, type ->
             filterTasks(tasks, type)
         }
             .map { Async.Success(it) }

@@ -17,32 +17,14 @@
 package com.statsig.todoapp
 
 import android.app.Activity
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.VectorConverter
-import androidx.compose.animation.core.animateValue
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.progressSemantics
 import androidx.compose.material.DrawerState
 import androidx.compose.material.DrawerValue
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.ProgressIndicatorDefaults
 import androidx.compose.material.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -50,7 +32,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.statsig.todoapp.R
 import com.statsig.todoapp.TodoDestinationsArgs.TASK_ID_ARG
 import com.statsig.todoapp.TodoDestinationsArgs.TITLE_ARG
 import com.statsig.todoapp.TodoDestinationsArgs.USER_MESSAGE_ARG
@@ -132,48 +113,6 @@ fun TodoNavGraph(
     }
 }
 
-@Composable
-fun Indicator(
-    size: Dp = 32.dp, // indicator size
-    sweepAngle: Float = 90f, // angle (lenght) of indicator arc
-    color: Color = MaterialTheme.colors.primary, // color of indicator arc line
-    strokeWidth: Dp = ProgressIndicatorDefaults.StrokeWidth //width of cicle and ar lines
-) {
-    val transition = rememberInfiniteTransition()
-    val currentArcStartAngle by transition.animateValue(
-        0,
-        360,
-        Int.VectorConverter,
-        infiniteRepeatable(
-            animation = tween(
-                durationMillis = 1100,
-                easing = LinearEasing
-            )
-        )
-    )
-    val stroke = with(LocalDensity.current) {
-        Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Square)
-    }
-    Canvas(
-        Modifier
-            .progressSemantics() // (optional) for Accessibility services
-            .size(size) // canvas size
-            .padding(strokeWidth / 2) //padding. otherwise, not the whole circle will fit in the canvas
-    ) {
-        drawCircle(Color.LightGray, style = stroke)
-
-        // draw arc with the same stroke
-        drawArc(
-            color,
-            // arc start angle
-            // -90 shifts the start position towards the y-axis
-            startAngle = currentArcStartAngle.toFloat() - 90,
-            sweepAngle = sweepAngle,
-            useCenter = false,
-            style = stroke
-        )
-    }
-}
 
 // Keys for navigation
 const val ADD_EDIT_RESULT_OK = Activity.RESULT_FIRST_USER + 1

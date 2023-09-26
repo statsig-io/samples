@@ -25,6 +25,7 @@ import com.google.accompanist.appcompattheme.AppCompatTheme
 import com.statsig.androidsdk.InitializationDetails
 import com.statsig.androidsdk.Statsig
 import com.statsig.androidsdk.StatsigUser
+import com.statsig.todoapp.util.StatsigUtil
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -45,6 +46,7 @@ class TodoActivity : ComponentActivity() {
                 initializationDetails.let {
                     if (it.success) {
                         setContent {
+                            Statsig.logEvent(StatsigUtil.APP_OPENED)
                             AppCompatTheme {
                                 TodoNavGraph()
                             }
@@ -72,6 +74,11 @@ class TodoActivity : ComponentActivity() {
 
     private fun showSdkNotInitializedToast() {
         Toast.makeText(this@TodoActivity, "SDK not initialized", Toast.LENGTH_LONG).show()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Statsig.logEvent(StatsigUtil.APP_BACKGROUNDED)
     }
 
 }

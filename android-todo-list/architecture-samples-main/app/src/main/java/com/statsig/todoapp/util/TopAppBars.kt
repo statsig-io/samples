@@ -45,6 +45,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.statsig.todoapp.R
 import com.google.accompanist.appcompattheme.AppCompatTheme
+import com.statsig.androidsdk.Statsig
 
 @Composable
 fun TasksTopAppBar(
@@ -161,8 +162,10 @@ fun TaskDetailTopAppBar(onBack: () -> Unit, onDelete: () -> Unit) {
             }
         },
         actions = {
-            IconButton(onClick = onDelete) {
-                Icon(Icons.Filled.Delete, stringResource(id = R.string.menu_delete_task))
+            if (Statsig.checkGate("enable_delete_todo")) {
+                IconButton(onClick = onDelete) {
+                    Icon(Icons.Filled.Delete, stringResource(id = R.string.menu_delete_task))
+                }
             }
         },
         modifier = Modifier.fillMaxWidth()

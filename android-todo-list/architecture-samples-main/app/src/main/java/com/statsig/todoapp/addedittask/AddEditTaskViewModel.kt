@@ -19,16 +19,18 @@ package com.statsig.todoapp.addedittask
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.statsig.androidsdk.Statsig
 import com.statsig.todoapp.R
 import com.statsig.todoapp.TodoDestinationsArgs
 import com.statsig.todoapp.data.TaskRepository
+import com.statsig.todoapp.util.StatsigUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * UiState for the Add/Edit screen
@@ -102,6 +104,7 @@ class AddEditTaskViewModel @Inject constructor(
     private fun createNewTask() = viewModelScope.launch {
         taskRepository.createTask(uiState.value.title, uiState.value.description)
         _uiState.update {
+            Statsig.logEvent(StatsigUtil.TODO_CREATED)
             it.copy(isTaskSaved = true)
         }
     }
@@ -117,6 +120,7 @@ class AddEditTaskViewModel @Inject constructor(
                 description = uiState.value.description,
             )
             _uiState.update {
+                Statsig.logEvent(StatsigUtil.TODO_UPDATED)
                 it.copy(isTaskSaved = true)
             }
         }
@@ -130,6 +134,7 @@ class AddEditTaskViewModel @Inject constructor(
             taskRepository.getTask(taskId).let { task ->
                 if (task != null) {
                     _uiState.update {
+                        Statsig.logEvent(StatsigUtil.TODO_LIST_VIEWED)
                         it.copy(
                             title = task.title,
                             description = task.description,
@@ -139,6 +144,7 @@ class AddEditTaskViewModel @Inject constructor(
                     }
                 } else {
                     _uiState.update {
+                        Statsig.logEvent(StatsigUtil.TODO_LIST_LOADED)
                         it.copy(isLoading = false)
                     }
                 }

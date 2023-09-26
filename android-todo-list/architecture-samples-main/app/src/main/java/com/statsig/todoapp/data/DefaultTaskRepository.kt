@@ -20,15 +20,15 @@ import com.statsig.todoapp.data.source.local.TaskDao
 import com.statsig.todoapp.data.source.network.NetworkDataSource
 import com.statsig.todoapp.di.ApplicationScope
 import com.statsig.todoapp.di.DefaultDispatcher
-import java.util.UUID
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.UUID
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Default implementation of [TaskRepository]. Single entry point for managing tasks' data.
@@ -83,13 +83,22 @@ class DefaultTaskRepository @Inject constructor(
         }
     }
 
-    override fun getTasksStream(): Flow<List<Task>> {
-        return localDataSource.observeAll().map { tasks ->
+    override fun getTasksStream(sortOrderValue: TaskSortOrder): Flow<List<Task>> {
+
+        val data = when (sortOrderValue) {
+            TaskSortOrder.Alphabetical -> localDataSource.orderAlphabetically()
+            TaskSortOrder.NewestFirst -> localDataSource.orderNewestDateWise()
+            TaskSortOrder.OldestFirst -> localDataSource.orderOldestDateWise()
+            TaskSortOrder.None -> localDataSource.observeAll()
+        }
+
+        return data.map { tasks ->
             withContext(dispatcher) {
                 tasks.toExternal()
             }
         }
     }
+
 
     override suspend fun refreshTask(taskId: String) {
         refresh()
