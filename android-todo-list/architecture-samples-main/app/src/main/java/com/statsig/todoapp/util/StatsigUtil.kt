@@ -2,7 +2,7 @@ package com.statsig.todoapp.util
 
 object StatsigUtil {
 
-    const val DEFAULT_NUMBER = -1
+    const val DEFAULT_NUMBER = 0
     const val APP_OPENED = "app_opened"
     const val APP_BACKGROUNDED = "app_backgrounded"
     const val TODO_CREATED = "todo_created"

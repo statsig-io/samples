@@ -16,12 +16,10 @@
 
 package com.statsig.todoapp.data
 
-import com.statsig.androidsdk.Statsig
 import com.statsig.todoapp.data.source.local.TaskDao
 import com.statsig.todoapp.data.source.network.NetworkDataSource
 import com.statsig.todoapp.di.ApplicationScope
 import com.statsig.todoapp.di.DefaultDispatcher
-import com.statsig.todoapp.util.StatsigUtil
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -85,45 +83,22 @@ class DefaultTaskRepository @Inject constructor(
         }
     }
 
-    override fun getTasksStream(sortOrderValue: Int): Flow<List<Task>> {
-        Statsig.logEvent(
-            "${StatsigUtil.ITEM_SORT} ",
-            "${StatsigUtil.SORT_ORDER} $sortOrderValue"
-        )
-        return when (sortOrderValue) {
-            1 -> {
-                localDataSource.orderAlphabetically().map { tasks ->
-                    withContext(dispatcher) {
-                        tasks.toExternal()
-                    }
-                }
-            }
+    override fun getTasksStream(sortOrderValue: TaskSortOrder): Flow<List<Task>> {
 
-            2 -> {
-                localDataSource.orderNewestDateWise().map { tasks ->
-                    withContext(dispatcher) {
-                        tasks.toExternal()
-                    }
-                }
-            }
+        val data = when (sortOrderValue) {
+            TaskSortOrder.Alphabetical -> localDataSource.orderAlphabetically()
+            TaskSortOrder.NewestFirst -> localDataSource.orderNewestDateWise()
+            TaskSortOrder.OldestFirst -> localDataSource.orderOldestDateWise()
+            TaskSortOrder.None -> localDataSource.observeAll()
+        }
 
-            3 -> {
-                localDataSource.orderOldestDateWise().map { tasks ->
-                    withContext(dispatcher) {
-                        tasks.toExternal()
-                    }
-                }
-            }
-
-            else -> {
-                localDataSource.observeAll().map { tasks ->
-                    withContext(dispatcher) {
-                        tasks.toExternal()
-                    }
-                }
+        return data.map { tasks ->
+            withContext(dispatcher) {
+                tasks.toExternal()
             }
         }
     }
+
 
     override suspend fun refreshTask(taskId: String) {
         refresh()
