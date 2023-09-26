@@ -68,7 +68,7 @@ class TodoActivity : ComponentActivity() {
             Statsig.initialize(
                 this@TodoActivity.application,
                 BuildConfig.STATSIG_CLIENT_API_KEY,
-                StatsigUser("dummy_user_id")
+                StatsigUser(null)
             )
         }
 
