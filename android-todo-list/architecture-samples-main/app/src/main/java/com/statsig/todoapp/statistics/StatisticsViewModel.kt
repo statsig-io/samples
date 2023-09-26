@@ -23,6 +23,7 @@ import com.statsig.androidsdk.Statsig
 import com.statsig.todoapp.R
 import com.statsig.todoapp.data.Task
 import com.statsig.todoapp.data.TaskRepository
+import com.statsig.todoapp.data.TaskSortOrder
 import com.statsig.todoapp.util.Async
 import com.statsig.todoapp.util.StatsigUtil
 import com.statsig.todoapp.util.WhileUiSubscribed
@@ -52,10 +53,23 @@ class StatisticsViewModel @Inject constructor(
     private val taskRepository: TaskRepository
 ) : ViewModel() {
 
-    private val sortOrderValue = Statsig.getConfig(StatsigUtil.ITEM_SORT).getInt(
+    private val sortOrderValue = when(Statsig.getConfig(StatsigUtil.ITEM_SORT).getInt(
         StatsigUtil.SORT_ORDER,
         StatsigUtil.DEFAULT_NUMBER
-    )
+    )){
+        1 -> {
+            TaskSortOrder.Alphabetical
+        }
+        2 -> {
+            TaskSortOrder.NewestFirst
+        }
+        3 -> {
+            TaskSortOrder.OldestFirst
+        }
+        else -> {
+            TaskSortOrder.None
+        }
+    }
 
     val uiState: StateFlow<StatisticsUiState> =
         taskRepository.getTasksStream(sortOrderValue)

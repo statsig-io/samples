@@ -16,11 +16,11 @@
 
 package com.statsig.todoapp.data.source.network
 
-import com.statsig.todoapp.data.getCurrentDateTime
-import javax.inject.Inject
+import com.statsig.todoapp.util.StatsigUtil
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import javax.inject.Inject
 
 class TaskNetworkDataSource @Inject constructor() : NetworkDataSource {
 
@@ -31,13 +31,13 @@ class TaskNetworkDataSource @Inject constructor() : NetworkDataSource {
             id = "PISA",
             title = "Build tower in Pisa",
             shortDescription = "Ground looks good, no foundation work required.",
-            createdDate = String().getCurrentDateTime()
+            createdDate = StatsigUtil.getCurrentDateTime()
         ),
         NetworkTask(
             id = "TACOMA",
             title = "Finish bridge in Tacoma",
             shortDescription = "Found awesome girders at half the cost!",
-            createdDate = String().getCurrentDateTime()
+            createdDate = StatsigUtil.getCurrentDateTime()
         )
     )
 
