@@ -109,18 +109,18 @@ fun TasksScreen(
         val bannerDynConf = Statsig.getConfig("warning_banner")
         val bannerWarningMsg =
             bannerDynConf.getString("message", stringResource(R.string.not_applicable))
-                ?: stringResource(R.string.not_applicable)
         val bannerWarningTextColor =
             bannerDynConf.getString("textColor", colorResource(R.color.white).toString())
-                ?: colorResource(R.color.white).toString()
         val bannerWarningBdgColor =
             bannerDynConf.getString(
                 "backgroundColor",
                 colorResource(R.color.colorPrimaryDark).toString()
             )
-                ?: colorResource(R.color.colorPrimaryDark).toString()
-
-        if (bannerWarningMsg != stringResource(R.string.not_applicable)) {
+        if (!bannerWarningMsg.isNullOrEmpty()
+            && !bannerWarningBdgColor.isNullOrEmpty()
+            && !bannerWarningTextColor.isNullOrEmpty()
+            && bannerWarningMsg != stringResource(R.string.not_applicable)
+        ) {
             Text(
                 text = bannerWarningMsg,
                 style = MaterialTheme.typography.h6,
