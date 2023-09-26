@@ -4,7 +4,12 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.statsig.androidsdk.IStatsigCallback
+import com.statsig.androidsdk.Statsig
+import com.statsig.androidsdk.StatsigUser
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -22,6 +27,8 @@ class LoginScreenViewModel @Inject constructor() : ViewModel() {
     private var passwordErrMsg: MutableState<String> = mutableStateOf("")
 
     var isEnabledRegisterButton: MutableState<Boolean> = mutableStateOf(false)
+
+    val loaderState = mutableStateOf(false)
 
     private fun shouldEnabledRegisterButton() {
         isEnabledRegisterButton.value = userNameErrMsg.value.isEmpty()
@@ -58,9 +65,10 @@ class LoginScreenViewModel @Inject constructor() : ViewModel() {
         shouldEnabledRegisterButton()
     }
 
-    fun register() {
-        userLogin.name = userName.value
-        userLogin.password = password.value
+    fun updateUserId(callback: IStatsigCallback) {
+        viewModelScope.launch {
+            Statsig.updateUserAsync(StatsigUser(userName.value), callback)
+        }
     }
 
 }

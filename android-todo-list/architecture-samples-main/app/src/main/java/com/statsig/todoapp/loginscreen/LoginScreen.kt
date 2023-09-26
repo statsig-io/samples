@@ -1,14 +1,16 @@
 package com.statsig.todoapp.loginscreen
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
@@ -24,6 +26,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.statsig.androidsdk.IStatsigCallback
 import com.statsig.todoapp.R
 
 
@@ -31,9 +34,15 @@ import com.statsig.todoapp.R
 fun LoginScreen(
     onLoginSuccess: () -> Unit,
     onLoginFailure: () -> Unit,
-    onBack: () -> Unit,
     viewModel: LoginScreenViewModel = hiltViewModel()
 ) {
+
+    val updateStatsigUserCallback: IStatsigCallback = object : IStatsigCallback {
+        override fun onStatsigUpdateUser() {
+            viewModel.loaderState.value = false
+            onLoginSuccess.invoke()
+        }
+    }
 
     Column(
         modifier = Modifier.padding(20.dp),
@@ -72,26 +81,37 @@ fun LoginScreen(
         )
 
         Spacer(modifier = Modifier.height(20.dp))
-        Box(modifier = Modifier.padding(40.dp, 0.dp, 40.dp, 0.dp)) {
-            Button(
-                onClick = (if (viewModel.isEnabledRegisterButton.value) {
-                    onLoginSuccess
-                } else {
-                    onLoginFailure
-                }),
-                shape = RectangleShape,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                enabled = viewModel.isEnabledRegisterButton.value
-            ) {
-                Text(
-                    text = stringResource(R.string.login),
-                    style = TextStyle(fontSize = 20.sp, fontFamily = FontFamily.Monospace),
-                    color = Color.Black
-                )
-            }
+        Button(
+            onClick = {
+                viewModel.loaderState.value = true
+                viewModel.updateUserId(updateStatsigUserCallback)
+            },
+            shape = RectangleShape,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
+                .padding(40.dp, 0.dp, 40.dp, 0.dp),
+            enabled = viewModel.isEnabledRegisterButton.value
+        ) {
+            CustomCircularProgressBar(shouldShow = viewModel.loaderState.value)
+            Spacer(modifier = Modifier.width(20.dp))
+            Text(
+                text = stringResource(R.string.login),
+                style = TextStyle(fontSize = 20.sp, fontFamily = FontFamily.Monospace),
+                color = Color.Black
+            )
         }
     }
 
+}
+
+@Composable
+private fun CustomCircularProgressBar(shouldShow: Boolean) {
+    if (shouldShow) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(40.dp),
+            color = Color.Green,
+            strokeWidth = 5.dp
+        )
+    }
 }

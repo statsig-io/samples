@@ -117,8 +117,7 @@ fun TodoNavGraph(
                 onLoginSuccess = {
                     navActions.navigateToTasks()
                 },
-                onLoginFailure = {},
-                onBack = { navController.popBackStack() }
+                onLoginFailure = {}
             )
         }
     }
