@@ -20,7 +20,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import com.statsig.todoapp.data.getCurrentDateTime
+import com.statsig.todoapp.util.StatsigUtil
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -55,7 +55,7 @@ class TaskDaoTest {
             description = "description",
             id = "id",
             isCompleted = false,
-            createdDate = String().getCurrentDateTime()
+            createdDate = StatsigUtil.getCurrentDateTime()
         )
         database.taskDao().upsert(task)
 
@@ -78,7 +78,7 @@ class TaskDaoTest {
             description = "description",
             id = "id",
             isCompleted = false,
-            createdDate = String().getCurrentDateTime()
+            createdDate = StatsigUtil.getCurrentDateTime()
         )
         database.taskDao().upsert(task)
 
@@ -88,7 +88,7 @@ class TaskDaoTest {
             description = "description2",
             isCompleted = true,
             id = task.id,
-            createdDate = String().getCurrentDateTime()
+            createdDate = StatsigUtil.getCurrentDateTime()
         )
         database.taskDao().upsert(newTask)
 
@@ -108,7 +108,7 @@ class TaskDaoTest {
             description = "description",
             id = "id",
             isCompleted = false,
-            createdDate = String().getCurrentDateTime()
+            createdDate = StatsigUtil.getCurrentDateTime()
         )
         database.taskDao().upsert(task)
 
@@ -131,7 +131,7 @@ class TaskDaoTest {
             description = "description",
             id = "id",
             isCompleted = false,
-            createdDate = String().getCurrentDateTime()
+            createdDate = StatsigUtil.getCurrentDateTime()
         )
         database.taskDao().upsert(originalTask)
 
@@ -141,7 +141,7 @@ class TaskDaoTest {
             description = "new description",
             isCompleted = true,
             id = originalTask.id,
-            createdDate = String().getCurrentDateTime()
+            createdDate = StatsigUtil.getCurrentDateTime()
         )
         database.taskDao().upsert(updatedTask)
 
@@ -161,7 +161,7 @@ class TaskDaoTest {
             description = "description",
             id = "id",
             isCompleted = true,
-            createdDate = String().getCurrentDateTime()
+            createdDate = StatsigUtil.getCurrentDateTime()
         )
         database.taskDao().upsert(task)
 
@@ -184,7 +184,7 @@ class TaskDaoTest {
             description = "description",
             id = "id",
             isCompleted = false,
-            createdDate = String().getCurrentDateTime()
+            createdDate = StatsigUtil.getCurrentDateTime()
         )
         database.taskDao().upsert(task)
 
@@ -205,7 +205,7 @@ class TaskDaoTest {
                 description = "description",
                 id = "id",
                 isCompleted = false,
-                createdDate = String().getCurrentDateTime()
+                createdDate = StatsigUtil.getCurrentDateTime()
             )
         )
 
@@ -226,7 +226,7 @@ class TaskDaoTest {
                 description = "task",
                 id = "id",
                 isCompleted = true,
-                createdDate = String().getCurrentDateTime()
+                createdDate = StatsigUtil.getCurrentDateTime()
             )
         )
 
