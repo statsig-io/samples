@@ -4,6 +4,7 @@ import { TodoWrapper } from "./Components/TodoWrapper";
 import { CLIENT_SDK_KEY } from "./Constant";
 import { useState } from "react";
 import { Login } from "./Components/Login";
+import * as React from "react";
 
 /**
  * Entry point of application
@@ -28,14 +29,14 @@ function App() {
    * Setting the user and flag from the login details
    * @param {*} userName
    */
-  const setUserDetails = (userName) => {
+  const setUserDetails = (userName: string) => {
     let localUser = {
       userID: userName,
       email: "upendra.singh@ltts.com",
     };
 
     localStorage.setItem("user", JSON.stringify(localUser));
-    localStorage.setItem("isLoggedIn", true);
+    localStorage.setItem("isLoggedIn", "true");
     setUser(localUser);
     setIsLoggedIn(true);
   };
@@ -45,7 +46,7 @@ function App() {
    */
   const onLogout = () => {
     localStorage.setItem("user", JSON.stringify({}));
-    localStorage.setItem("isLoggedIn", false);
+    localStorage.setItem("isLoggedIn", "false");
     setUser({});
     setIsLoggedIn(false);
   };
@@ -63,7 +64,7 @@ function App() {
           }}
           user={user}
         >
-          <TodoWrapper onLogout = {onLogout} />
+          <TodoWrapper onLogout={onLogout} />
         </StatsigProvider>
       )}
     </div>

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import * as React from "react";
+import { useState } from "react";
 import { LOGIN_TITLE } from "../Constant";
 import { isValidInput, PASSWORD, USER_NAME } from "../validation/UIValidation";
 
@@ -8,7 +9,7 @@ import { isValidInput, PASSWORD, USER_NAME } from "../validation/UIValidation";
  * @param {*} param0
  * @returns
  */
-export const Login = ({ setUser }) => {
+export const Login = ({ setUser }: { setUser: any }) => {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState(null);
@@ -17,7 +18,7 @@ export const Login = ({ setUser }) => {
    * submitting the credentials
    * @param {*} e
    */
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: any) => {
     // prevent default action
     e.preventDefault();
     if (userName && password && !errorMessage) {
@@ -29,7 +30,7 @@ export const Login = ({ setUser }) => {
    * To validate the input field, and updating the recent value
    * @param {*} e
    */
-  const onChangeInput = (e) => {
+  const onChangeInput = (e: any) => {
     const valid = isValidInput(e.target.id, e.target.value);
     console.log(e);
     if (e.target.id === USER_NAME) {

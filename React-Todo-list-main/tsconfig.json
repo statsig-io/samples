@@ -1,17 +1,24 @@
 {
+  "compileOnSave": true,
   "compilerOptions": {
-    "target": "es5",
-    "module": "esnext",
-    "jsx": "react",
-    "strict": true,
-    "esModuleInterop": true,
-    "moduleResolution": "node",  
-    "resolveJsonModule": true,
-    "baseUrl": "./src",
-    "allowJs": true, 
-    "paths": {
-      "*": ["types/*"]
-    }
+      "outDir": "./built",
+      "allowJs": true,
+      "target": "es5",
+      "allowUnreachableCode": false,
+      "noImplicitReturns": true,
+      "noImplicitAny": true,
+      "typeRoots": [ "./typings" ],
+      "outFile": "./built/combined.js",
+      "module": "amd",
+      "jsx": "react"
+
   },
-  "include": ["src"]
+  "include": [
+      "./**/*"
+  ],
+  "exclude": [
+      "./plugins/**/*",
+      "./typings/**/*",
+      "./built/**/*" // This is what fixed it!
+  ]
 }

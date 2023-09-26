@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import * as React from "react";
 import { Todo } from "./Todo";
 import { TodoForm } from "./TodoForm";
 import { v4 as uuidv4 } from "uuid";
@@ -16,8 +16,8 @@ import {
 } from "../Constant";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSignOut, faWarning } from "@fortawesome/free-solid-svg-icons";
-import { ExperimentConfigType } from "AppDtos/DTOS";
-import DynamicValueType from "./AppDtos/DynamicValueType";
+import { DynamicValueType, TODOType } from "../AppDtos/DTOS";
+import { useState, useEffect } from "react";
 
 /**
  * Main component to display the list of todos
@@ -25,7 +25,7 @@ import DynamicValueType from "./AppDtos/DynamicValueType";
  * Getting the feature to enable or disable the delete option
  * @returns
  */
-export const TodoWrapper = ({ onLogout }) => {
+export const TodoWrapper = ({ onLogout }: { onLogout: any }) => {
   /**
    * To get the feature gate value from statsig console
    */
@@ -45,7 +45,9 @@ export const TodoWrapper = ({ onLogout }) => {
   console.log(`Experiment config is: ${JSON.stringify(experimentConfig)}`);
   console.log(`Dynamic config is: ${JSON.stringify(dynamicConfig)}`);
 
-  const storedItems: any[] | null = JSON.parse(localStorage.getItem("items") || "");
+  const storedItems: any[] | null = JSON.parse(
+    localStorage.getItem("items") || ""
+  );
 
   const [todos, setTodos] = useState(storedItems ? storedItems : []);
   const [sortingOrder, setSortingOrder] = useState("default");
@@ -63,7 +65,7 @@ export const TodoWrapper = ({ onLogout }) => {
    */
   useEffect(() => {
     console.log(`Experiment Config: ${JSON.stringify(experimentConfig)}`);
-    let expConfig: ExperimentConfigType = experimentConfig;
+    let expConfig = experimentConfig;
     setSortingOrder(expConfig.value.sort_order);
     setFeatureValue(value);
     setDynamicValue(dynamicConfig.value);
@@ -85,7 +87,7 @@ export const TodoWrapper = ({ onLogout }) => {
    * @param {*} task
    * @param {*} message
    */
-  const logEvent = (tag, task, message) => {
+  const logEvent = (tag: string, task: any, message: any) => {
     Statsig.logEvent(tag, task.toString(), message);
     console.log(`Event logged ${tag}`);
   };
@@ -111,7 +113,7 @@ export const TodoWrapper = ({ onLogout }) => {
    * Create a todo task
    * @param {*} todo
    */
-  const addTodo = (task) => {
+  const addTodo = (task: string) => {
     let todo = {
       id: uuidv4(),
       serialNumber: todos[todos.length - 1]
@@ -137,7 +139,7 @@ export const TodoWrapper = ({ onLogout }) => {
    * To delete the todo
    * @param {*} deleteTodo
    */
-  const deleteTodo = (deleteTodo) => {
+  const deleteTodo = (deleteTodo: TODOType) => {
     setTodos(todos.filter((todo) => todo.id !== deleteTodo.id));
 
     logEvent(TODO_DELETED, deleteTodo.task, deleteTodo);
@@ -147,7 +149,7 @@ export const TodoWrapper = ({ onLogout }) => {
    *
    * @param {*} lastViewedTodo
    */
-  const onLastView = (lastViewedTodo) => {
+  const onLastView = (lastViewedTodo: TODOType) => {
     setTodos(
       todos.map((todo) =>
         todo.id === lastViewedTodo.id
@@ -166,7 +168,7 @@ export const TodoWrapper = ({ onLogout }) => {
    * To toggle the task complete or incomplete
    * @param {*} task
    */
-  const toggleComplete = (completedTodo) => {
+  const toggleComplete = (completedTodo: TODOType) => {
     setTodos(
       todos.map((todo) =>
         todo.id === completedTodo.id
@@ -185,7 +187,7 @@ export const TodoWrapper = ({ onLogout }) => {
    * To Edit the task
    * @param {*} task
    */
-  const editTodo = (editTodo) => {
+  const editTodo = (editTodo: TODOType) => {
     setTodos(
       todos.map((todo) =>
         todo.id === editTodo.id
@@ -195,7 +197,7 @@ export const TodoWrapper = ({ onLogout }) => {
     );
   };
 
-  const editTask = (editedTask, editedTodo) => {
+  const editTask = (editedTask: string, editedTodo: TODOType) => {
     setTodos(
       todos.map((todo) =>
         todo.id === editedTodo.id
