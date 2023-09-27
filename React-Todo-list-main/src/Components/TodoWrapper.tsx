@@ -15,7 +15,7 @@ import {
   TODO_LAST_VIEWED,
 } from "../Constant";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSignOut, faWarning } from "@fortawesome/free-solid-svg-icons";
+import { faSignOut } from "@fortawesome/free-solid-svg-icons";
 import { DynamicValueType, TODOType } from "../AppDtos/DTOS";
 import { useState, useEffect } from "react";
 
@@ -230,13 +230,13 @@ export const TodoWrapper = ({ onLogout }: { onLogout: any }) => {
             position: "relative",
           }}
           icon={faSignOut}
-          onClick={onLogout}
-        />
+          onClick={onLogout}>
+          </FontAwesomeIcon>
       </div>
       {/**
        * Adding the warning banner
        */}
-      {Object.keys(dynamicValue).length > 0 && (
+      {dynamicValue && Object.keys(dynamicValue).length > 0 && (
         <div
           style={{
             padding: "1rem",
