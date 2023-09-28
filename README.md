@@ -6,16 +6,17 @@ This is a React To do list app developed by statsig
 
  #### Tech Stack
 
-  `React` `HTML` `CSS` `Javascript`
+  `React` `HTML` `CSS` `Javascript` `Typescript`
 
  #### Objective
 
-  - Exprlore statsig platfomr
+  - Setup statsig platform and below console features
   - Statsig feature
   - Statsig Experiments
   - Statsig dynamic configuration
+  - Monitor the todo item events like (Add,Delete,Edit,Last Viewed)
 
-  #### Important links
+  #### Console link and react integration
 [Statsig console](console.statsig.com)
 
 [Statsig integration with react](https://docs.statsig.com/client/reactSDK)s
