@@ -3,8 +3,9 @@ import { Todo } from "./Todo";
 import { TodoForm } from "./TodoForm";
 import { v4 as uuidv4 } from "uuid";
 import { EditTodoForm } from "./EditTodoForm";
-import { Statsig, useExperiment, useGate } from "statsig-react";
+import { Statsig, useConfig, useExperiment, useGate } from "statsig-react";
 import {
+  DYNAMIC_CONFIG_WARNING_BANNER,
   EXPERIMENT_SORTING,
   FEATURE_GATE_1,
   TODO_COMPLETED,
@@ -13,6 +14,9 @@ import {
   TODO_EDITED,
   TODO_LAST_VIEWED,
 } from "../Constant";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSignOut } from "@fortawesome/free-solid-svg-icons";
+import { WarningBanner } from "./WarningBanner";
 
 /**
  * Main component to display the list of todos
@@ -20,7 +24,7 @@ import {
  * Getting the feature to enable or disable the delete option
  * @returns
  */
-export const TodoWrapper = () => {
+export const TodoWrapper = ({ onLogout }) => {
   /**
    * To get the feature gate value from statsig console
    */
@@ -28,32 +32,24 @@ export const TodoWrapper = () => {
   /**
    * To get the experiment config from statsig console
    */
-  const { config } = useExperiment(EXPERIMENT_SORTING);
+  const { config: experimentConfig } = useExperiment(EXPERIMENT_SORTING);
+
+  const { config: dynamicConfig } = useConfig(DYNAMIC_CONFIG_WARNING_BANNER);
 
   console.log(`Feature gate value is: ${value}`);
   console.log(`isLoading ${isLoading}`);
-  console.log(`Experiment config is: ${JSON.stringify(config)}`);
+  console.log(`Experiment config is: ${JSON.stringify(experimentConfig)}`);
+  console.log(`Dynamic config is: ${JSON.stringify(dynamicConfig)}`);
 
   const storedItems = JSON.parse(localStorage.getItem("items"));
   const [todos, setTodos] = useState(storedItems ? storedItems : []);
-  const [sortingOrder, setSortingOrder] = useState("default");
-  const [featureValue, setFeatureValue] = useState(false);
 
   /**
    * Experiment keys
    */
   const NEWEST_FIRST = "newest_first";
+  const DEFAULT = "default";
 
-  /**
-   * Setting the experiment and feature value
-   * 
-   */
-  useEffect(() => {
-    console.log(`Experiment Config: ${JSON.stringify(config)}`);
-    setSortingOrder(config.value.sort_order);
-    setFeatureValue(value);
-    console.log(`Sorted Order is ${sortingOrder}`);
-  }, []);
 
   /**
    * To set the todo items while any change in todos
@@ -81,7 +77,8 @@ export const TodoWrapper = () => {
    * @param {*} isNewestFirst
    */
   const sortTodos = () => {
-    let isNewestFirst = sortingOrder === NEWEST_FIRST;
+    let isNewestFirst =
+      experimentConfig.value.sort_order || DEFAULT === NEWEST_FIRST;
     const sortedTodos = [...todos].sort((a, b) => {
       if (a.createdDate < b.createdDate) return isNewestFirst ? 1 : -1;
       if (a.createdDate > b.createdDate) return isNewestFirst ? -1 : 1;
@@ -90,7 +87,6 @@ export const TodoWrapper = () => {
 
     console.log(`Sorted todos : ${JSON.stringify(sortedTodos)}`);
     return sortedTodos;
-    //setTodos(sortedTodos);
   };
 
   /**
@@ -111,7 +107,10 @@ export const TodoWrapper = () => {
       lastViewed: false,
     };
 
-    if (sortingOrder === NEWEST_FIRST) {
+    if (
+      experimentConfig.value &&
+      experimentConfig.value.sort_order === NEWEST_FIRST
+    ) {
       setTodos([todo, ...todos]);
     } else {
       setTodos([...todos, todo]);
@@ -164,7 +163,6 @@ export const TodoWrapper = () => {
           : todo
       )
     );
-
     logEvent(TODO_COMPLETED, completedTodo.task, completedTodo);
   };
 
@@ -200,13 +198,31 @@ export const TodoWrapper = () => {
 
   return (
     <div className="TodoWrapper">
-      <div className="header" style={{ display: "flex" }}>
+      <div className="header" style={{ display: "flex", alignItems: "center" }}>
         <img
           src="https://statsig.com/images/horz_logo.svg"
+          alt="Statsig logo"
           style={{ height: "40px", marginRight: "20px" }}
         ></img>
-        <h1>TODO's</h1>
+        <h1>TODOs</h1>
+
+        <FontAwesomeIcon
+          style={{
+            marginLeft: "3rem",
+            color: `white`,
+            position: "relative",
+          }}
+          icon={faSignOut}
+          onClick={onLogout}
+        />
       </div>
+      {/**
+       * Adding the warning banner
+       */}
+      {Object.keys(dynamicConfig.value).length > 0 && (
+        <WarningBanner dynamicValue={dynamicConfig.value}></WarningBanner>
+      )}
+
       <TodoForm addTodo={addTodo} />
       {/* display todos */}
       {sortTodos().map((todo) =>
@@ -220,7 +236,7 @@ export const TodoWrapper = () => {
             editTodo={editTodo}
             toggleComplete={toggleComplete}
             onLastView={onLastView}
-            featureValue={featureValue}
+            featureValue={value}
           />
         )
       )}

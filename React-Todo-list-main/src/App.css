@@ -79,4 +79,22 @@ h1 {
   color: #c5aeff;
   text-decoration: line-through;
 }
- 
+
+.Login {
+  background: #1A1A40;
+  margin-top: 5rem;
+  padding: 1rem;
+  border-radius: 5px;
+} 
+
+.ErrorMessage {
+  color: #ff0000;
+  margin-bottom: 0.5rem;
+  font-size: .75rem;
+}
+
+.h2 {
+  color: #fff;
+  margin-bottom: 0.5rem;
+  font-size: 1.15rem;
+}
