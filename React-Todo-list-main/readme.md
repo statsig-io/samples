@@ -1,10 +1,7 @@
 # React-Todo-list
-
 This is a React To do list app developed by statsig
 
- 
  ## Tech Stack
-
   `React` `HTML` `CSS` `Javascript`
 
  ## Objective
