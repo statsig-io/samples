@@ -32,7 +32,6 @@ export const Login = ({ setUser }: { setUser: any }) => {
    */
   const onChangeInput = (e: any) => {
     const valid = isValidInput(e.target.id, e.target.value);
-    console.log(e);
     if (e.target.id === USER_NAME) {
       setUserName(e.target.value);
     } else if (e.target.id === PASSWORD) {

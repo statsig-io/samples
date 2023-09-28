@@ -32,7 +32,7 @@ function App() {
   const setUserDetails = (userName: string) => {
     let localUser = {
       userID: userName,
-      email: "upendra.singh@ltts.com",
+      email: "username@todoapp.com",
     };
 
     localStorage.setItem("user", JSON.stringify(localUser));
@@ -53,20 +53,20 @@ function App() {
 
   return (
     <div className="App">
-      {!isLoggedIn ? (
-        <Login setUser={setUserDetails} />
-      ) : (
-        <StatsigProvider
-          sdkKey={CLIENT_SDK_KEY}
-          waitForInitialization={true}
-          options={{
-            environment: { tier: "staging" },
-          }}
-          user={user}
-        >
+     <StatsigProvider
+        sdkKey={CLIENT_SDK_KEY}
+        waitForInitialization={true}
+        options={{
+          environment: { tier: "staging" },
+        }}
+        user={user}
+      >
+        {!isLoggedIn ? (
+          <Login setUser={setUserDetails} />
+        ) : (
           <TodoWrapper onLogout={onLogout} />
-        </StatsigProvider>
-      )}
+        )}
+      </StatsigProvider>
     </div>
   );
 }

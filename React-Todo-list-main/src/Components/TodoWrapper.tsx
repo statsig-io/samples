@@ -16,8 +16,9 @@ import {
 } from "../Constant";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSignOut } from "@fortawesome/free-solid-svg-icons";
-import { DynamicValueType, TODOType } from "../AppDtos/DTOS";
+import { TODOType } from "../AppDtos/DTOS";
 import { useState, useEffect } from "react";
+import { WarningBanner } from "./WarningBanner";
 
 /**
  * Main component to display the list of todos
@@ -35,9 +36,6 @@ export const TodoWrapper = ({ onLogout }: { onLogout: any }) => {
    */
   const { config: experimentConfig } = useExperiment(EXPERIMENT_SORTING);
 
-  /**
-   * To get the dynamic config
-   */
   const { config: dynamicConfig } = useConfig(DYNAMIC_CONFIG_WARNING_BANNER);
 
   console.log(`Feature gate value is: ${value}`);
@@ -50,27 +48,11 @@ export const TodoWrapper = ({ onLogout }: { onLogout: any }) => {
   );
 
   const [todos, setTodos] = useState(storedItems ? storedItems : []);
-  const [sortingOrder, setSortingOrder] = useState("default");
-  const [featureValue, setFeatureValue] = useState(false);
-  const [dynamicValue, setDynamicValue] = useState<DynamicValueType>();
 
   /**
    * Experiment keys
    */
   const NEWEST_FIRST = "newest_first";
-
-  /**
-   * Setting the experiment and feature value
-   *
-   */
-  useEffect(() => {
-    console.log(`Experiment Config: ${JSON.stringify(experimentConfig)}`);
-    let expConfig = experimentConfig;
-    setSortingOrder(expConfig.value.sort_order);
-    setFeatureValue(value);
-    setDynamicValue(dynamicConfig.value);
-    console.log(`Sorted Order is ${sortingOrder}`);
-  }, []);
 
   /**
    * To set the todo items while any change in todos
@@ -98,7 +80,8 @@ export const TodoWrapper = ({ onLogout }: { onLogout: any }) => {
    * @param {*} isNewestFirst
    */
   const sortTodos = () => {
-    let isNewestFirst = sortingOrder === NEWEST_FIRST;
+    let isNewestFirst =
+      experimentConfig.value.sort_order === NEWEST_FIRST;
     const sortedTodos = [...todos].sort((a, b) => {
       if (a.createdDate < b.createdDate) return isNewestFirst ? 1 : -1;
       if (a.createdDate > b.createdDate) return isNewestFirst ? -1 : 1;
@@ -127,7 +110,10 @@ export const TodoWrapper = ({ onLogout }: { onLogout: any }) => {
       lastViewed: false,
     };
 
-    if (sortingOrder === NEWEST_FIRST) {
+    if (
+      experimentConfig.value &&
+      experimentConfig.value.sort_order === NEWEST_FIRST
+    ) {
       setTodos([todo, ...todos]);
     } else {
       setTodos([...todos, todo]);
@@ -236,21 +222,8 @@ export const TodoWrapper = ({ onLogout }: { onLogout: any }) => {
       {/**
        * Adding the warning banner
        */}
-      {dynamicValue && Object.keys(dynamicValue).length > 0 && (
-        <div
-          style={{
-            padding: "1rem",
-            marginTop: ".5rem",
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            backgroundColor: `${dynamicValue.backgroundColor}`,
-          }}
-        >
-          <p style={{ fontSize: "1rem", color: `${dynamicValue.textColor}` }}>
-            {dynamicValue.message}
-          </p>
-        </div>
+     {Object.keys(dynamicConfig.value).length > 0 && (
+        <WarningBanner dynamicValue={dynamicConfig.value}></WarningBanner>
       )}
 
       <TodoForm addTodo={addTodo} />
@@ -266,7 +239,7 @@ export const TodoWrapper = ({ onLogout }: { onLogout: any }) => {
             editTodo={editTodo}
             toggleComplete={toggleComplete}
             onLastView={onLastView}
-            featureValue={featureValue}
+            featureValue={value}
           />
         )
       )}
