@@ -36,6 +36,7 @@ import com.statsig.todoapp.TodoDestinationsArgs.TASK_ID_ARG
 import com.statsig.todoapp.TodoDestinationsArgs.TITLE_ARG
 import com.statsig.todoapp.TodoDestinationsArgs.USER_MESSAGE_ARG
 import com.statsig.todoapp.addedittask.AddEditTaskScreen
+import com.statsig.todoapp.loginscreen.LoginScreen
 import com.statsig.todoapp.statistics.StatisticsScreen
 import com.statsig.todoapp.taskdetail.TaskDetailScreen
 import com.statsig.todoapp.tasks.TasksScreen
@@ -49,7 +50,7 @@ fun TodoNavGraph(
     navController: NavHostController = rememberNavController(),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed),
-    startDestination: String = TodoDestinations.TASKS_ROUTE,
+    startDestination: String = TodoDestinations.LOGIN_SCREEN_ROUTE,
     navActions: TodoNavigationActions = remember(navController) {
         TodoNavigationActions(navController)
     }
@@ -74,7 +75,8 @@ fun TodoNavGraph(
                     onUserMessageDisplayed = { entry.arguments?.putInt(USER_MESSAGE_ARG, 0) },
                     onAddTask = { navActions.navigateToAddEditTask(R.string.add_task, null) },
                     onTaskClick = { task -> navActions.navigateToTaskDetail(task.id) },
-                    openDrawer = { coroutineScope.launch { drawerState.open() } }
+                    openDrawer = { coroutineScope.launch { drawerState.open() } },
+                    onLogoutClick = { navActions.navigateToLoginScreen() }
                 )
             }
         }
@@ -108,6 +110,14 @@ fun TodoNavGraph(
                 },
                 onBack = { navController.popBackStack() },
                 onDeleteTask = { navActions.navigateToTasks(DELETE_RESULT_OK) }
+            )
+        }
+        composable(TodoDestinations.LOGIN_SCREEN_ROUTE) {
+            LoginScreen(
+                onLoginSuccess = {
+                    navActions.navigateToTasks()
+                },
+                onLoginFailure = {}
             )
         }
     }

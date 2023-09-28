@@ -79,6 +79,7 @@ fun TasksScreen(
     onTaskClick: (Task) -> Unit,
     onUserMessageDisplayed: () -> Unit,
     openDrawer: () -> Unit,
+    onLogoutClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: TasksViewModel = hiltViewModel(),
     scaffoldState: ScaffoldState = rememberScaffoldState()
@@ -92,7 +93,8 @@ fun TasksScreen(
                 onFilterActiveTasks = { viewModel.setFiltering(ACTIVE_TASKS) },
                 onFilterCompletedTasks = { viewModel.setFiltering(COMPLETED_TASKS) },
                 onClearCompletedTasks = { viewModel.clearCompletedTasks() },
-                onRefresh = { viewModel.refresh() }
+                onRefresh = { viewModel.refresh() },
+                onLogout = onLogoutClick
             )
         },
         modifier = modifier.fillMaxSize(),
@@ -145,9 +147,7 @@ fun TasksScreen(
             onRefresh = viewModel::refresh,
             onTaskClick = onTaskClick,
             onTaskCheckedChange = viewModel::completeTask,
-            modifier = Modifier
-                .padding(top = 10.dp)
-                .padding(paddingValues)
+            modifier = Modifier.padding(paddingValues)
         )
 
         // Check for user messages to display on the screen

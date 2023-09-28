@@ -68,12 +68,16 @@ class TodoActivity : ComponentActivity() {
             Statsig.initialize(
                 this@TodoActivity.application,
                 BuildConfig.STATSIG_CLIENT_API_KEY,
-                StatsigUser("dummy_user_id")
+                StatsigUser(null)
             )
         }
 
     private fun showSdkNotInitializedToast() {
-        Toast.makeText(this@TodoActivity, "SDK not initialized", Toast.LENGTH_LONG).show()
+        Toast.makeText(
+            this@TodoActivity,
+            getString(R.string.sdk_not_initialized),
+            Toast.LENGTH_LONG
+        ).show()
     }
 
     override fun onPause() {

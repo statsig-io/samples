@@ -22,6 +22,7 @@ import com.statsig.todoapp.TodoDestinationsArgs.TASK_ID_ARG
 import com.statsig.todoapp.TodoDestinationsArgs.TITLE_ARG
 import com.statsig.todoapp.TodoDestinationsArgs.USER_MESSAGE_ARG
 import com.statsig.todoapp.TodoScreens.ADD_EDIT_TASK_SCREEN
+import com.statsig.todoapp.TodoScreens.LOGIN_SCREEN
 import com.statsig.todoapp.TodoScreens.STATISTICS_SCREEN
 import com.statsig.todoapp.TodoScreens.TASKS_SCREEN
 import com.statsig.todoapp.TodoScreens.TASK_DETAIL_SCREEN
@@ -34,6 +35,7 @@ private object TodoScreens {
     const val STATISTICS_SCREEN = "statistics"
     const val TASK_DETAIL_SCREEN = "task"
     const val ADD_EDIT_TASK_SCREEN = "addEditTask"
+    const val LOGIN_SCREEN = "loginScreen"
 }
 
 /**
@@ -53,6 +55,7 @@ object TodoDestinations {
     const val STATISTICS_ROUTE = STATISTICS_SCREEN
     const val TASK_DETAIL_ROUTE = "$TASK_DETAIL_SCREEN/{$TASK_ID_ARG}"
     const val ADD_EDIT_TASK_ROUTE = "$ADD_EDIT_TASK_SCREEN/{$TITLE_ARG}?$TASK_ID_ARG={$TASK_ID_ARG}"
+    const val LOGIN_SCREEN_ROUTE = LOGIN_SCREEN
 }
 
 /**
@@ -103,4 +106,9 @@ class TodoNavigationActions(private val navController: NavHostController) {
             }
         )
     }
+
+    fun navigateToLoginScreen() {
+        navController.navigate(LOGIN_SCREEN)
+    }
+
 }
