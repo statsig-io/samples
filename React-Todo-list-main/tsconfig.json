@@ -1,0 +1,24 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+      "outDir": "./built",
+      "allowJs": true,
+      "target": "es5",
+      "allowUnreachableCode": false,
+      "noImplicitReturns": true,
+      "noImplicitAny": true,
+      "typeRoots": [ "./typings" ],
+      "outFile": "./built/combined.js",
+      "module": "amd",
+      "jsx": "react"
+
+  },
+  "include": [
+      "./**/*"
+  ],
+  "exclude": [
+      "./plugins/**/*",
+      "./typings/**/*",
+      "./built/**/*" 
+  ]
+}

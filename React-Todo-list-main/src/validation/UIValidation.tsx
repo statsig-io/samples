@@ -6,6 +6,11 @@ import {
   USER_MIN_LENGTH,
 } from "../UIConstants";
 
+interface IsValidInputType {
+  isValid: boolean;
+  errorMessage: string | null;
+}
+
 export const USER_NAME = "inputUserName";
 export const PASSWORD = "inputPassword";
 
@@ -15,8 +20,14 @@ export const PASSWORD = "inputPassword";
  * @param {*} inputValue
  * @returns
  */
-export const isValidInput = (inputType, inputValue) => {
-  let returnValue = {
+export const isValidInput = (
+  inputType: string,
+  inputValue: string
+): IsValidInputType => {
+  let returnValue: {
+    isValid: boolean;
+    errorMessage: string | null;
+  } = {
     isValid: false,
     errorMessage: null,
   };
