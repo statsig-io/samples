@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 /*
  * Copyright 2020 The Android Open Source Project
  *
@@ -25,14 +28,19 @@ plugins {
 android {
     compileSdk = libs.versions.compileSdk.get().toInt()
 
+    val apikeyPropertiesFile = rootProject.file("apikey.properties")
+    val apikeyProperties = Properties()
+    apikeyProperties.load(FileInputStream(apikeyPropertiesFile))
+
     defaultConfig {
-        applicationId = "com.example.android.architecture.blueprints.main"
+        applicationId = "com.statsig.todoapp"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "com.example.android.architecture.blueprints.todoapp.CustomTestRunner"
+        testInstrumentationRunner =
+            "com.statsig.todoapp.CustomTestRunner"
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -46,14 +54,28 @@ android {
             isMinifyEnabled = false
             isTestCoverageEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
-            testProguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguardTest-rules.pro")
+            testProguardFiles(
+                getDefaultProguardFile("proguard-android.txt"),
+                "proguardTest-rules.pro"
+            )
+            buildConfigField(
+                "String", "STATSIG_CLIENT_API_KEY",
+                apikeyProperties["STATSIG_CLIENT_API_KEY"].toString()
+            )
         }
 
         getByName("release") {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
-            testProguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguardTest-rules.pro")
+            testProguardFiles(
+                getDefaultProguardFile("proguard-android.txt"),
+                "proguardTest-rules.pro"
+            )
+            buildConfigField(
+                "String", "STATSIG_CLIENT_API_KEY",
+                apikeyProperties["STATSIG_CLIENT_API_KEY"].toString()
+            )
         }
     }
 
@@ -197,4 +219,7 @@ dependencies {
     // AndroidX Test - Hilt testing
     androidTestImplementation(libs.hilt.android.testing)
     kaptAndroidTest(libs.hilt.compiler)
+
+    //Statsig
+    implementation(libs.android.sdk)
 }

@@ -68,5 +68,11 @@
     <!-- Content Descriptions -->
     <string name="tasks_header_image_content_description">Tasks header image</string>
     <string name="no_tasks_image_content_description">No tasks image</string>
+    <string name="not_applicable">NA</string>
+    <string name="sdk_not_initialized">SDK not initialized</string>
+    <string name="username">Username</string>
+    <string name="login">Login</string>
+    <string name="password">Password</string>
+    <string name="logout">Logout</string>
 
 </resources>
