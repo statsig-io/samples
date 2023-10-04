@@ -26,6 +26,8 @@ public class Todo {
 
     private boolean completed;
 
+    private boolean isEdited;
+
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdDate;
 

@@ -38,6 +38,7 @@ public class TodoService {
 
     public Todo updateTodo(Todo todo) {
         todo.setModifiedDate(ZonedDateTime.now().toLocalDateTime());
+        todo.setEdited(true);
         return todoRepository.save(todo);
     }
 
