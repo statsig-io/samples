@@ -1,10 +1,12 @@
 import React, {useState} from 'react';
 import { KeyboardAvoidingView, StyleSheet, Text, View, TextInput, TouchableOpacity, Keyboard, ScrollView, Platform } from 'react-native';
 import Task from './components/Task';
+import { any } from 'prop-types';
 
 export default function App() {
-  const [task, setTask] = useState();
-  const [taskItems, setTaskItems] = useState([]);
+  
+  const [task, setTask] = useState<any>();
+  const [taskItems, setTaskItems] = useState<any[]>([]);
 
   const handleAddTask = () => {
     Keyboard.dismiss();
@@ -12,7 +14,7 @@ export default function App() {
     setTask(null);
   }
 
-  const completeTask = (index) => {
+  const completeTask = (index: any) => {
     let itemsCopy = [...taskItems];
     itemsCopy.splice(index, 1);
     setTaskItems(itemsCopy)
