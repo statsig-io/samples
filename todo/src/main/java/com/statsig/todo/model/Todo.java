@@ -20,13 +20,17 @@ public class Todo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String title;
+    private String task;
 
     private String description;
 
     private boolean completed;
 
-    private boolean isEdited;
+    private boolean edited;
+
+    private int serialNumber;
+
+    private boolean lastViewed;
 
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdDate;
