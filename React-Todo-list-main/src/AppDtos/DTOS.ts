@@ -28,12 +28,14 @@ export interface ExperimentConfigType {
 }
 
 export interface TODOType {
-  id: UUID;
-  serialNumber: number;
+  id: number;
   task: string;
-  completed: boolean;
-  isEditing: boolean;
-  createdDate: Date;
-  modifiedDate: Date;
-  lastViewed: boolean;
+  description: string;
+  completed:boolean;
+  edited:boolean;
+  isEditing: boolean,
+  serialNumber:number;
+  lastViewed:boolean;
+  createdDate:Date;
+  modifiedDate:Date;
 }
