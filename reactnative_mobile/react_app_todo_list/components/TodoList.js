@@ -1,14 +1,14 @@
-import { View, TouchableOpacity, StyleSheet, FlatList } from "react-native";
+import { View, StyleSheet, FlatList } from "react-native";
 import { useEffect } from "react";
 import Task from "./Task";
 
 const TodoList = (props) => {
   useEffect((taskAt, item) => {
-    props.todoTaskDone(taskAt, item);
+    props.deleteTodoFromList(taskAt, item);
   }, []);
 
-  const deleteTodo = (taskAt, item) => {
-    props.todoTaskDone(taskAt, item);
+  const deleteSingleTodo = (taskAt, item) => {
+    props.deleteTodoFromList(taskAt, item);
   };
 
   return (
@@ -20,7 +20,7 @@ const TodoList = (props) => {
             <Task
               text={item}
               itemAt={index}
-              deleteTaskPressed={(taskAt, text) => deleteTodo(taskAt, text)}
+              deleteTodoItem={(taskAt, text) => deleteSingleTodo(taskAt, text)}
             />
           </View>
         </View>

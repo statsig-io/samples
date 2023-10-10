@@ -56,7 +56,9 @@ export default function App() {
 
       <TodoList
         dataList={taskItems}
-        todoTaskDone={(index: any, item: any) => completeTask(index, item)}
+        deleteTodoFromList={(index: any, item: any) =>
+          completeTask(index, item)
+        }
       />
 
       <KeyboardAvoidingTextInput

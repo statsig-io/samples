@@ -2,8 +2,8 @@ import React from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 
 const Task = (props) => {
-  const deleteTodo = (taskAt, text) => {
-    props.deleteTaskPressed(taskAt, text);
+  const deleteTaskPressed = (taskAt, text) => {
+    props.deleteTodoItem(taskAt, text);
   };
 
   return (
@@ -12,7 +12,9 @@ const Task = (props) => {
         <View style={styles.square}></View>
         <Text style={styles.itemText}>{props.text}</Text>
       </View>
-      <TouchableOpacity onPress={() => deleteTodo(props.itemAt, props.text)}>
+      <TouchableOpacity
+        onPress={() => deleteTaskPressed(props.itemAt, props.text)}
+      >
         <Image
           style={styles.imageBackground}
           source={require("../assets/delete.png")}
