@@ -1,17 +1,8 @@
 import React, { useState } from "react";
-import {
-  KeyboardAvoidingView,
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  TouchableOpacity,
-  Keyboard,
-  ScrollView,
-  Platform,
-} from "react-native";
-import Task from "./components/Task";
-import { any } from "prop-types";
+import { REACT_APP_CLIENT_KEY } from "@env";
+import { StyleSheet, Text, View, Keyboard } from "react-native";
+import KeyboardAvoidingTextInput from "./components/KeyboardAvoidingTextInput";
+import TodoList from "./components/TodoList";
 import {
   StatsigProvider,
   useGate,
@@ -19,7 +10,6 @@ import {
   useConfig,
   Statsig,
 } from "statsig-react-native-expo";
-import { REACT_APP_CLIENT_KEY } from "@env";
 
 export default function App() {
   const [task, setTask] = useState<any>();
@@ -33,7 +23,7 @@ export default function App() {
     setTask(null);
   };
 
-  const completeTask = (index: any) => {
+  const completeTask = (index: any, item: any) => {
     let itemsCopy = [...taskItems];
     itemsCopy.splice(index, 1);
     setTaskItems(itemsCopy);
@@ -51,61 +41,30 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      {/* Added this scroll view to enable scrolling when list gets longer than the page */}
-      <ScrollView
-        contentContainerStyle={{
-          flexGrow: 1,
+      <Text style={styles.sectionTitle}>Today's tasks</Text>
+
+      <StatsigProvider
+        sdkKey={API_KEY}
+        user={user}
+        waitForInitialization={true}
+        options={{
+          initCompletionCallback: initCallback,
         }}
-        keyboardShouldPersistTaps="handled"
       >
-        <StatsigProvider
-          sdkKey={API_KEY}
-          user={user}
-          waitForInitialization={true}
-          options={{
-            initCompletionCallback: initCallback,
-          }}
-        >
-          <View />
-        </StatsigProvider>
+        <View />
+      </StatsigProvider>
 
-        {/* Today's Tasks */}
-        <View style={styles.tasksWrapper}>
-          <Text style={styles.sectionTitle}>Today's tasks</Text>
-          <View style={styles.items}>
-            {/* This is where the tasks will go! */}
-            {taskItems.map((item, index) => {
-              return (
-                <TouchableOpacity
-                  key={index}
-                  onPress={() => completeTask(index)}
-                >
-                  <Task text={item} />
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        </View>
-      </ScrollView>
+      <TodoList
+        dataList={taskItems}
+        todoTaskDone={(index: any, item: any) => completeTask(index, item)}
+      />
 
-      {/* Write a task */}
-      {/* Uses a keyboard avoiding view which ensures the keyboard does not cover the items on screen */}
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "android" ? "padding" : "height"}
-        style={styles.writeTaskWrapper}
-      >
-        <TextInput
-          style={styles.input}
-          placeholder={"Write a task"}
-          value={task}
-          onChangeText={(text) => setTask(text)}
-        />
-        <TouchableOpacity onPress={() => handleAddTask()}>
-          <View style={styles.addWrapper}>
-            <Text style={styles.addText}>+</Text>
-          </View>
-        </TouchableOpacity>
-      </KeyboardAvoidingView>
+      <KeyboardAvoidingTextInput
+        placeHolderText={"Write a task"}
+        changeText={(text: String) => setTask(text)}
+        taskValue={task}
+        addTask={handleAddTask}
+      />
     </View>
   );
 }
@@ -115,24 +74,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#E8EAED",
   },
-  tasksWrapper: {
-    paddingTop: 80,
-    paddingHorizontal: 20,
-  },
   sectionTitle: {
     fontSize: 24,
+    marginTop: 60,
+    marginLeft: 20,
+    marginBottom: 20,
     fontWeight: "bold",
-  },
-  items: {
-    marginTop: 30,
-  },
-  writeTaskWrapper: {
-    position: "absolute",
-    bottom: 60,
-    width: "100%",
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
   },
   input: {
     paddingVertical: 15,
