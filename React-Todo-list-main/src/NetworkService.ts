@@ -22,7 +22,7 @@ export const getAllTodos = () => {
 };
 
 /**
- * To create a TODO
+ * To create a TODO, by removing the unwanted fields
  * @param todoData
  * @returns
  */

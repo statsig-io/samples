@@ -1,5 +1,6 @@
-import { v4 as uuidv4 } from "uuid";
-import { UUID } from "../../node_modules/statsig-js/dist/StatsigIdentity";
+/**
+ * Class for all application dtos
+ */
 
 export interface DynamicValueType {
   message: string;
