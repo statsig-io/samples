@@ -1,41 +1,37 @@
-import {
-  View,
-  TouchableOpacity,
-  StyleSheet,
-  FlatList
-} from "react-native";
-import {useEffect} from 'react';
+import { View, TouchableOpacity, StyleSheet, FlatList } from "react-native";
+import { useEffect } from "react";
 import Task from "./Task";
 
 const TodoList = (props) => {
+  useEffect((taskAt, item) => {
+    props.todoTaskDone(taskAt, item);
+  }, []);
 
-useEffect((taskAt, item) => {
-  props.todoTaskDone(taskAt, item)
-}, []);
+  const deleteTodo = (taskAt, item) => {
+    props.todoTaskDone(taskAt, item);
+  };
 
-const deleteTodo = (taskAt, item) => {
-  props.todoTaskDone(taskAt, item)
-}
-
-return(
+  return (
     <FlatList
-        data={props.dataList}
-        renderItem={({ item, index }) => (
-          <View style={styles.tasksWrapper}>
-            <View style={styles.items}>
-              <TouchableOpacity key={index} onPress={() => deleteTodo(index, item)}>
-                <Task text={item} />
-              </TouchableOpacity>
-            </View>
+      data={props.dataList}
+      renderItem={({ item, index }) => (
+        <View style={styles.tasksWrapper}>
+          <View style={styles.items}>
+            <Task
+              text={item}
+              itemAt={index}
+              deleteTaskPressed={(taskAt, text) => deleteTodo(taskAt, text)}
+            />
           </View>
-        )}
-        contentContainerStyle={{
-          flexGrow: 1,
-        }}
-        keyboardShouldPersistTaps="handled"
-      />
-)
-}
+        </View>
+      )}
+      contentContainerStyle={{
+        flexGrow: 1,
+      }}
+      keyboardShouldPersistTaps="handled"
+    />
+  );
+};
 
 const styles = StyleSheet.create({
   tasksWrapper: {
