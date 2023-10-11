@@ -17,7 +17,7 @@ const Task = (props) => {
       >
         <Image
           style={styles.imageBackground}
-          source={require("../assets/delete.png")}
+          source={require("../assets/delete_icon.png")}
         />
       </TouchableOpacity>
       <View style={styles.circular}></View>
@@ -34,8 +34,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     marginBottom: 20,
+    flex: 1,
   },
   itemLeft: {
+    flex: 0.8,
     flexDirection: "row",
     alignItems: "center",
     flexWrap: "wrap",
@@ -51,16 +53,20 @@ const styles = StyleSheet.create({
   itemText: {
     maxWidth: "80%",
   },
+  imageBackground: {
+    width: 10,
+    height: 20,
+    padding: 11,
+    flex: 0.18,
+    marginEnd: -20,
+  },
   circular: {
     width: 12,
     height: 12,
     borderColor: "#55BCF6",
     borderWidth: 2,
     borderRadius: 5,
-  },
-  imageBackground: {
-    width: 15,
-    height: 25,
+    flex: 0.02,
   },
 });
 
