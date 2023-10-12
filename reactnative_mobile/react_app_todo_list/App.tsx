@@ -3,13 +3,7 @@ import { REACT_APP_CLIENT_KEY } from "@env";
 import { StyleSheet, Text, View, Keyboard } from "react-native";
 import KeyboardAvoidingTextInput from "./components/KeyboardAvoidingTextInput";
 import TodoList from "./components/TodoList";
-import {
-  StatsigProvider,
-  useGate,
-  useExperiment,
-  useConfig,
-  Statsig,
-} from "statsig-react-native-expo";
+import { StatsigProvider, useGate } from "statsig-react-native-expo";
 
 export default function App() {
   const [task, setTask] = useState<any>();
@@ -28,8 +22,6 @@ export default function App() {
     itemsCopy.splice(index, 1);
     setTaskItems(itemsCopy);
   };
-
-  const { value, isLoading } = useGate("enable_delete_todo");
 
   const initCallback = (
     initDurationMs: number,

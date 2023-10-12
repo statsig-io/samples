@@ -1,7 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { Statsig } from "statsig-react-native-expo";
 
 const Task = (props) => {
+  const [visibility, setVisibility] = useState(
+    Statsig.checkGate("enable_delete_todo")
+  );
+
   const deleteTaskPressed = (taskAt, text) => {
     props.deleteTodoItem(taskAt, text);
   };
@@ -9,18 +14,22 @@ const Task = (props) => {
   return (
     <View style={styles.item}>
       <View style={styles.itemLeft}>
-        <View style={styles.square}></View>
+        <View style={styles.square} />
         <Text style={styles.itemText}>{props.text}</Text>
       </View>
-      <TouchableOpacity
-        onPress={() => deleteTaskPressed(props.itemAt, props.text)}
-      >
-        <Image
-          style={styles.imageBackground}
-          source={require("../assets/delete_icon.png")}
-        />
-      </TouchableOpacity>
-      <View style={styles.circular}></View>
+      <View>
+        {Statsig.checkGate("enable_delete_todo") ? (
+          <TouchableOpacity
+            onPress={() => deleteTaskPressed(props.itemAt, props.text)}
+          >
+            <Image
+              style={styles.imageBackground}
+              source={require("../assets/delete_icon.png")}
+            />
+          </TouchableOpacity>
+        ) : null}
+      </View>
+      <View style={styles.circular} />
     </View>
   );
 };
