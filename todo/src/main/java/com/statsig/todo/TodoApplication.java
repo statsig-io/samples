@@ -33,13 +33,11 @@ public class TodoApplication {
 //		disableCertificateValidation();
 //		disable4();
 //
-//
-//
+//		//System.setProperty("javax.net.ssl.trustStore", "");
+//		//System.setProperty("javax.net.ssl.trustStorePassword", "changeit");
 //
 //		TodoApplication todoApplication = new TodoApplication();
 //		todoApplication.initializeStatsig();
-
-
 	}
 
 	private void initializeStatsig() throws ExecutionException, InterruptedException{
