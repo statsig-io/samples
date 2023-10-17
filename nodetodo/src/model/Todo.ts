@@ -4,7 +4,6 @@ export interface Todo {
   description: string;
   completed: boolean;
   edited: boolean;
-  isEditing: boolean;
   serialNumber: number;
   lastViewed: boolean;
   createdDate: Date;

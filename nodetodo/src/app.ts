@@ -1,6 +1,9 @@
 import Statsig from "statsig-node";
+import cors from "cors";
 import express, {Request, Response } from 'express';
 import { PORT, SERVER_KEY } from "./constants/AppConstant";
+import {router} from "./network/todoApis"
+import {createTodoTable, db} from "./db/db"
 
 const app = express();
 
@@ -22,9 +25,23 @@ async function initializeStatsig() {
 
 initializeStatsig();
 
+function initializeApp(){
+
+} 
+
+app.use(express.json());
+
+app.use(cors());
+
+db.serialize(() => {
+  createTodoTable();
+});
+
 app.get('/', (req: Request, res: Response) => {
   res.send('A Sample Node Todo App');
 });
+
+app.use('/', router);
 
 app.listen(PORT, () => {
   console.log(`Node server is running on port ${PORT}`);

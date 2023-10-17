@@ -2,7 +2,8 @@ import { Todo } from "../model/Todo";
 import { db } from "./db";
 
 /**
- * Repository class to perform CRUD opertion for TODOS
+ * Repository class to perform database related
+ *  CRUD opertion for TODOS
  */
 export class TodoRepository {
   async create(todoData: Todo) {
@@ -30,11 +31,11 @@ export class TodoRepository {
           createdDate,
           modifiedDate,
         ],
-        function (error) {
+        function (error: any, row: any) {
           if (error) {
             reject(error);
           } else {
-            resolve(this.lastID);
+            resolve(row);
           }
         }
       );
@@ -44,10 +45,16 @@ export class TodoRepository {
   async getById(id: number) {
     return new Promise((resolve, reject) => {
       const query = `SELECT * FROM todos WHERE id = ?`;
-      db.get(query, [id], function (error, row) {
+      db.get(query, [id], function (error: any, row: any) {
         if (error) {
+          console.log(error);
           reject(error);
         } else {
+          if (row) {
+            (row.completed = row.completed === 1 ? true : false),
+              (row.edited = row.edited === 1 ? true : false),
+              (row.lastViewed = row.lastViewed === 1 ? true : false);
+          }
           resolve(row);
         }
       });
@@ -57,7 +64,7 @@ export class TodoRepository {
   async deleteById(id: number) {
     return new Promise((resolve, reject) => {
       const query = `DELETE FROM todos WHERE id = ?`;
-      db.get(query, [id], function (error) {
+      db.run(query, [id], function (error: any) {
         if (error) {
           reject(error);
         } else {
@@ -79,15 +86,15 @@ export class TodoRepository {
         todo.description,
         todo.completed ? 1 : 0,
         todo.edited ? 1 : 0,
-        todo.isEditing ? 1 : 0,
         todo.serialNumber,
         todo.lastViewed ? 1 : 0,
-        todo.modifiedDate.toISOString(),
+        (todo.modifiedDate = new Date()),
         todo.id,
       ];
 
-      db.run(query, values, function (error) {
+      db.run(query, values, function (error: any) {
         if (error) {
+          console.log(error);
           reject(error);
         } else {
           resolve(todo);
@@ -99,11 +106,35 @@ export class TodoRepository {
   async getAll() {
     return new Promise((resolve, reject) => {
       const query = `SELECT * FROM todos`;
-      db.all(query, function (error, rows) {
+      db.all(query, function (error: any, rows: any) {
         if (error) {
+          console.log(error);
           reject(error);
         } else {
-          resolve(rows);
+          const results = rows.map(
+            (row: {
+              id: number;
+              task: string;
+              description: string;
+              completed: number;
+              edited: number;
+              serialNumber: number;
+              lastViewed: number;
+              createdDate: Date;
+              modifiedDate: Date;
+            }) => ({
+              id: row.id,
+              task: row.task,
+              description: row.description,
+              completed: row.completed === 1 ? true : false,
+              edited: row.edited === 1 ? true : false,
+              lastViewed: row.lastViewed === 1 ? true : false,
+              serialNumber: row.serialNumber,
+              createdDate: row.createdDate,
+              modifiedDate: row.modifiedDate,
+            })
+          );
+          resolve(results);
         }
       });
     });

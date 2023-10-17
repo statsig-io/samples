@@ -16,5 +16,4 @@ export async function createTodoTable() {
         modifiedDate TEXT
       )
     `);
-  db.close();
 }
