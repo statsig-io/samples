@@ -4,6 +4,7 @@ import express, {Request, Response } from 'express';
 import { PORT, SERVER_KEY } from "./constants/AppConstant";
 import {router} from "./network/todoApis"
 import {createTodoTable, db} from "./db/db"
+import { initializeFeature } from "./util/util";
 
 const app = express();
 
@@ -25,9 +26,7 @@ async function initializeStatsig() {
 
 initializeStatsig();
 
-function initializeApp(){
-
-} 
+initializeFeature();
 
 app.use(express.json());
 
