@@ -1,13 +1,23 @@
-import { View, StyleSheet, FlatList } from "react-native";
-import { useEffect } from "react";
+import { View, FlatList, StyleSheet } from "react-native";
+import { useEffect, useState } from "react";
 import Task from "./Task";
 
-const TodoList = (props) => {
-  useEffect((taskAt, item) => {
-    props.deleteTodoFromList(taskAt, item);
+type TodoListProps = {
+  dataList: any[];
+  deleteTodoFromList(itemAt: number, itemValue: any): void;
+};
+
+const TodoList = (props: TodoListProps) => {
+  useEffect(() => {
+    props.deleteTodoFromList(itemAt, itemValue);
   }, []);
 
-  const deleteSingleTodo = (taskAt, item) => {
+  const [itemAt, setItemAt] = useState<number>(0);
+  const [itemValue, setItemValue] = useState<any>();
+
+  const deleteSingleTodo = (taskAt: number, item: any) => {
+    setItemAt(taskAt);
+    setItemValue(item);
     props.deleteTodoFromList(taskAt, item);
   };
 
@@ -20,7 +30,9 @@ const TodoList = (props) => {
             <Task
               text={item}
               itemAt={index}
-              deleteTodoItem={(taskAt, text) => deleteSingleTodo(taskAt, text)}
+              deleteTodoItem={(taskAt: number, text: string) =>
+                deleteSingleTodo(taskAt, text)
+              }
             />
           </View>
         </View>
