@@ -43,7 +43,7 @@ export class TodoController {
       const id = await todoRepository.deleteById(req.params.id);
       res.json({ id: id });
     } catch (error) {
-      console.log(error)
+      console.log(error);
       res.status(404).json({ error: "Failed to delete Id" });
     }
   }
@@ -53,7 +53,7 @@ export class TodoController {
       const todos = await todoRepository.getAll();
       res.json(todos);
     } catch (error) {
-      console.log(error)
+      console.log(error);
       res.status(500).json({ error: "Failed to fetch todos" });
     }
   }
