@@ -11,8 +11,8 @@ export class TodoController {
   async create(req: any, res: any) {
     try {
       console.log(req.body);
-      const todoId = await todoRepository.create(req.body);
-      res.json({ id: todoId });
+      const todo = await todoRepository.create(req.body);
+      res.json(todo);
     } catch (error) {
       console.log(error);
       res.status(500).json({ error: "Failed to create todo" });
@@ -43,17 +43,17 @@ export class TodoController {
       const id = await todoRepository.deleteById(req.params.id);
       res.json({ id: id });
     } catch (error) {
+      console.log(error)
       res.status(404).json({ error: "Failed to delete Id" });
     }
   }
 
   async getAll(req: any, res: any) {
-    console.log("Get All called");
     try {
       const todos = await todoRepository.getAll();
-      console.log(JSON.stringify(todos));
       res.json(todos);
     } catch (error) {
+      console.log(error)
       res.status(500).json({ error: "Failed to fetch todos" });
     }
   }

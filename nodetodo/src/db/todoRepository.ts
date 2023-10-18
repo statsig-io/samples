@@ -31,11 +31,18 @@ export class TodoRepository {
           createdDate,
           modifiedDate,
         ],
-        function (error: any, row: any) {
+        function (error: any) {
           if (error) {
             reject(error);
           } else {
-            resolve(row);
+            db.get('SELECT * FROM todos WHERE id = last_insert_rowid()', (err:any, row:any) => {
+              if (err) {
+                console.error(err.message);
+                reject(err)
+              }     
+              console.log(row);
+              resolve(row);
+            });
           }
         }
       );
@@ -88,7 +95,7 @@ export class TodoRepository {
         todo.edited ? 1 : 0,
         todo.serialNumber,
         todo.lastViewed ? 1 : 0,
-        (todo.modifiedDate = new Date()),
+        todo.modifiedDate,
         todo.id,
       ];
 
