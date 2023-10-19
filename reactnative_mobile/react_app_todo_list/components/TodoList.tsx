@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import Task from "./Task";
 
 type TodoListProps = {
-  dataList: any[];
-  deleteTodoFromList(itemAt: number, itemValue: any): void;
+  dataList: string[];
+  deleteTodoFromList(itemAt: number, itemValue: string): void;
 };
 
 const TodoList = (props: TodoListProps) => {
@@ -13,9 +13,9 @@ const TodoList = (props: TodoListProps) => {
   }, []);
 
   const [itemAt, setItemAt] = useState<number>(0);
-  const [itemValue, setItemValue] = useState<any>();
+  const [itemValue, setItemValue] = useState<string>("");
 
-  const deleteSingleTodo = (taskAt: number, item: any) => {
+  const deleteSingleTodo = (taskAt: number, item: string) => {
     setItemAt(taskAt);
     setItemValue(item);
     props.deleteTodoFromList(taskAt, item);
