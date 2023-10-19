@@ -4,8 +4,8 @@ import Task from "./Task";
 import { Statsig } from "statsig-react";
 
 type TodoListProps = {
-  dataList: any[];
-  deleteTodoFromList(itemAt: number, itemValue: any): void;
+  dataList: string[];
+  deleteTodoFromList(itemAt: number, itemValue: string): void;
 };
 
 const TodoList = (props: TodoListProps) => {

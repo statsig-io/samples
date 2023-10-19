@@ -8,7 +8,7 @@ import TodoList from "./components/TodoList";
 
 export default function App() {
   const [task, setTask] = useState<any>("");
-  const [taskItems, setTaskItems] = useState<any[]>([]);
+  const [taskItems, setTaskItems] = useState<string[]>([]);
   const [user, setUser] = useState({ userID: "reactnative_dummy_user_id" });
   const API_KEY: string = REACT_APP_CLIENT_KEY || "";
   const [statsigInitialized, setStatsigInitialized] = useState(false);
