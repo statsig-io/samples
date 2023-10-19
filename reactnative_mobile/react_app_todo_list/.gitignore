@@ -36,3 +36,6 @@ yarn-error.*
 
 # Environment file
 *.env
+
+#VS code folder
+*.vscode

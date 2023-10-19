@@ -1,40 +1,56 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { Statsig } from "statsig-react-native-expo";
 
-const Task = (props) => {
-  const deleteTaskPressed = (taskAt, text) => {
+type TaskProps = {
+  text: string;
+  itemAt: number;
+  deleteTodoItem(itemAt: number, itemValue: string): void;
+};
+
+const Task = (props: TaskProps) => {
+  const [visibility, setVisibility] = useState(
+    Statsig.checkGate("enable_delete_todo")
+  );
+
+  const deleteTaskPressed = (taskAt: number, text: string) => {
     props.deleteTodoItem(taskAt, text);
   };
 
   return (
     <View style={styles.item}>
       <View style={styles.itemLeft}>
-        <View style={styles.square}></View>
+        <View style={styles.square} />
         <Text style={styles.itemText}>{props.text}</Text>
       </View>
-      <TouchableOpacity
-        onPress={() => deleteTaskPressed(props.itemAt, props.text)}
-      >
-        <Image
-          style={styles.imageBackground}
-          source={require("../assets/delete_icon.png")}
-        />
-      </TouchableOpacity>
-      <View style={styles.circular}></View>
+      <View>
+        {visibility ? (
+          <TouchableOpacity
+            onPress={() => deleteTaskPressed(props.itemAt, props.text)}
+          >
+            <Image
+              style={styles.imageBackground}
+              source={require("../assets/delete_icon.png")}
+            />
+          </TouchableOpacity>
+        ) : null}
+      </View>
+      <View style={styles.circular} />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   item: {
+    width: 380,
+    flex: 1,
     backgroundColor: "#FFF",
-    padding: 15,
+    padding: 5,
     borderRadius: 10,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 20,
-    flex: 1,
+    marginBottom: 10,
   },
   itemLeft: {
     flex: 0.8,

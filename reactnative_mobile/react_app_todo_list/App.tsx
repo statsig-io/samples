@@ -1,35 +1,29 @@
-import React, { useState } from "react";
+import { StyleSheet, View, Keyboard, Text, TextInput } from "react-native";
+import { StatsigProvider } from "statsig-react";
 import { REACT_APP_CLIENT_KEY } from "@env";
-import { StyleSheet, Text, View, Keyboard } from "react-native";
+import { useState } from "react";
+import "react-native-get-random-values";
 import KeyboardAvoidingTextInput from "./components/KeyboardAvoidingTextInput";
 import TodoList from "./components/TodoList";
-import {
-  StatsigProvider,
-  useGate,
-  useExperiment,
-  useConfig,
-  Statsig,
-} from "statsig-react-native-expo";
 
 export default function App() {
-  const [task, setTask] = useState<any>();
-  const [taskItems, setTaskItems] = useState<any[]>([]);
+  const [task, setTask] = useState<any>("");
+  const [taskItems, setTaskItems] = useState<string[]>([]);
   const [user, setUser] = useState({ userID: "reactnative_dummy_user_id" });
   const API_KEY: string = REACT_APP_CLIENT_KEY || "";
+  const [statsigInitialized, setStatsigInitialized] = useState(false);
 
-  const handleAddTask = () => {
+  const handleAddTask = async (text: string) => {
     Keyboard.dismiss();
     setTaskItems([...taskItems, task]);
     setTask(null);
   };
 
-  const completeTask = (index: any, item: any) => {
+  const completeTask = (index: any) => {
     let itemsCopy = [...taskItems];
     itemsCopy.splice(index, 1);
     setTaskItems(itemsCopy);
   };
-
-  const { value, isLoading } = useGate("enable_delete_todo");
 
   const initCallback = (
     initDurationMs: number,
@@ -37,12 +31,11 @@ export default function App() {
     message: string | null
   ) => {
     //Continue the app flow after the SDK is initialized.
+    setStatsigInitialized(success);
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.sectionTitle}>Today's tasks</Text>
-
       <StatsigProvider
         sdkKey={API_KEY}
         user={user}
@@ -53,20 +46,29 @@ export default function App() {
       >
         <View />
       </StatsigProvider>
+      {statsigInitialized ? (
+        <View style={styles.childContainer}>
+          <Text style={styles.sectionTitle}>Today's tasks</Text>
 
-      <TodoList
-        dataList={taskItems}
-        deleteTodoFromList={(index: any, item: any) =>
-          completeTask(index, item)
-        }
-      />
+          <KeyboardAvoidingTextInput
+            placeHolderText={"Write a task here"}
+            changeText={(text: String) => setTask(text)}
+            taskValue={task}
+            addTask={(text: string) => handleAddTask(text)}
+          />
 
-      <KeyboardAvoidingTextInput
-        placeHolderText={"Write a task"}
-        changeText={(text: String) => setTask(text)}
-        taskValue={task}
-        addTask={handleAddTask}
-      />
+          <TodoList
+            dataList={taskItems}
+            deleteTodoFromList={(index: any, item: any) => completeTask(index)}
+          />
+        </View>
+      ) : (
+        <View style={styles.childContainer}>
+          <Text style={styles.errorSectionTitle}>
+            Statsig SDK not initialized. Please try reopening the application.
+          </Text>
+        </View>
+      )}
     </View>
   );
 }
@@ -74,7 +76,14 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#E8EAED",
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  childContainer: {
+    alignItems: "center",
+    justifyContent: "space-between",
+    flexDirection: "column",
   },
   sectionTitle: {
     fontSize: 24,
@@ -83,24 +92,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     fontWeight: "bold",
   },
-  input: {
-    paddingVertical: 15,
-    paddingHorizontal: 15,
-    backgroundColor: "#FFF",
-    borderRadius: 60,
-    borderColor: "#C0C0C0",
-    borderWidth: 1,
-    width: 250,
+  errorSectionTitle: {
+    fontSize: 20,
+    marginTop: 60,
+    marginLeft: 20,
+    marginBottom: 20,
+    fontWeight: "bold",
   },
-  addWrapper: {
-    width: 60,
-    height: 60,
-    backgroundColor: "#FFF",
-    borderRadius: 60,
-    justifyContent: "center",
-    alignItems: "center",
-    borderColor: "#C0C0C0",
-    borderWidth: 1,
-  },
-  addText: {},
 });
