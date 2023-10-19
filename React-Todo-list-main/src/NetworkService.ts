@@ -16,7 +16,7 @@ export const getAllTodos = () => {
       })
       .catch((error) => {
         console.error(`Get all todos error: ${error}`);
-        reject([]);
+        reject(error);
       });
   });
 };
@@ -47,7 +47,7 @@ export const postTodo = (todoData: TODOType) => {
       })
       .catch((error) => {
         console.error(`Post error: ${error}`);
-        reject([]);
+        reject(error);
       });
   });
 };
@@ -73,7 +73,7 @@ export const updateTodo = (todoData: TODOType) => {
       })
       .catch((error) => {
         console.error(`Update error: ${error}`);
-        reject([]);
+        reject(error);
       });
   });
 };
@@ -93,7 +93,7 @@ export const getTodoById = (id: number) => {
       })
       .catch((error) => {
         console.error(`Get TODO by ID error: ${error}`);
-        reject([]);
+        reject(error);
       });
   });
 };
@@ -108,13 +108,18 @@ export const deleteTodoById = (id: number) => {
     fetch(BASE_LOCAL_URL + `/${id}`, {
       method: "DELETE",
     })
-      .then((response) => {
-        console.log(`Delete TODO by ID response: ${JSON.stringify(response)}`);
-        resolve(response);
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(`Delete TODO by ID response: ${JSON.stringify(data)}`);
+        if (data && data.error) {
+          reject(data);
+        } else {
+          resolve(data);
+        }
       })
       .catch((error) => {
         console.error(`Delete todo error: ${error}`);
-        reject([]);
+        reject(error);
       });
   });
 };
