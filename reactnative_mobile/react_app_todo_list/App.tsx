@@ -1,7 +1,7 @@
-import { StyleSheet, View, Keyboard, Text, TextInput } from "react-native";
-import { StatsigProvider } from "statsig-react";
+import { StyleSheet, View, Keyboard, Text, AppState } from "react-native";
+import { StatsigProvider, Statsig } from "statsig-react";
 import { REACT_APP_CLIENT_KEY } from "@env";
-import { useState } from "react";
+import { useEffect, useState, Component, useRef } from "react";
 import "react-native-get-random-values";
 import KeyboardAvoidingTextInput from "./components/KeyboardAvoidingTextInput";
 import TodoList from "./components/TodoList";
@@ -12,11 +12,39 @@ export default function App() {
   const [user, setUser] = useState({ userID: "reactnative_dummy_user_id" });
   const API_KEY: string = REACT_APP_CLIENT_KEY || "";
   const [statsigInitialized, setStatsigInitialized] = useState(false);
+  const TODO_CREATED: string = "todo_created";
+  const APP_OPENED: string = "app_opened";
+  const APP_BACKGROUNDED: string = "app_backgrounded";
+
+  const appState = useRef(AppState.currentState);
+
+  const handleAppStateChange = (nextAppState: any) => {
+    if (
+      appState.current.match(/inactive|background/) &&
+      nextAppState === "active"
+    ) {
+      Statsig.logEvent(APP_OPENED);
+    } else {
+      Statsig.logEvent(APP_BACKGROUNDED);
+    }
+    appState.current = nextAppState;
+  };
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener(
+      "change",
+      handleAppStateChange
+    );
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
   const handleAddTask = async (text: string) => {
     Keyboard.dismiss();
     setTaskItems([...taskItems, task]);
     setTask(null);
+    Statsig.logEvent(TODO_CREATED);
   };
 
   const completeTask = (index: any) => {
@@ -30,7 +58,6 @@ export default function App() {
     success: boolean,
     message: string | null
   ) => {
-    //Continue the app flow after the SDK is initialized.
     setStatsigInitialized(success);
   };
 
