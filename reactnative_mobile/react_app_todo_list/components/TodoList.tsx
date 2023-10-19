@@ -1,6 +1,7 @@
 import { View, FlatList, StyleSheet } from "react-native";
 import { useEffect, useState } from "react";
 import Task from "./Task";
+import { Statsig } from "statsig-react";
 
 type TodoListProps = {
   dataList: any[];
@@ -8,17 +9,27 @@ type TodoListProps = {
 };
 
 const TodoList = (props: TodoListProps) => {
+  const TODO_LIST_VIEWED: string = "list_viewed";
+  const TODO_DELETED: string = "todo_deleted";
+  const [itemAt, setItemAt] = useState<number>(0);
+  const [itemValue, setItemValue] = useState<any>();
+
   useEffect(() => {
     props.deleteTodoFromList(itemAt, itemValue);
   }, []);
 
-  const [itemAt, setItemAt] = useState<number>(0);
-  const [itemValue, setItemValue] = useState<any>();
-
   const deleteSingleTodo = (taskAt: number, item: any) => {
     setItemAt(taskAt);
     setItemValue(item);
+    Statsig.logEvent(TODO_DELETED);
     props.deleteTodoFromList(taskAt, item);
+  };
+
+  const listItemAddedComponent = () => {
+    if (props.dataList.length == 1) {
+      Statsig.logEvent(TODO_LIST_VIEWED);
+    }
+    return <View />;
   };
 
   return (
@@ -37,6 +48,7 @@ const TodoList = (props: TodoListProps) => {
           </View>
         </View>
       )}
+      ListFooterComponent={listItemAddedComponent}
       contentContainerStyle={{
         flexGrow: 1,
       }}
