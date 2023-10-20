@@ -1,5 +1,6 @@
-import { v4 as uuidv4 } from "uuid";
-import { UUID } from "../../node_modules/statsig-js/dist/StatsigIdentity";
+/**
+ * Class for all application dtos
+ */
 
 export interface DynamicValueType {
   message: string;
@@ -28,12 +29,14 @@ export interface ExperimentConfigType {
 }
 
 export interface TODOType {
-  id: UUID;
-  serialNumber: number;
+  id: number;
   task: string;
-  completed: boolean;
-  isEditing: boolean;
-  createdDate: Date;
-  modifiedDate: Date;
-  lastViewed: boolean;
+  description: string;
+  completed:boolean;
+  edited:boolean;
+  isEditing: boolean,
+  serialNumber:number;
+  lastViewed:boolean;
+  createdDate:Date;
+  modifiedDate:Date;
 }
