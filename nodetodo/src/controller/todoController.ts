@@ -1,4 +1,10 @@
+import {
+  TAG_TODO_CREATE,
+  TAG_TODO_DELETE,
+  TAG_TODO_EDIT,
+} from "../constants/AppConstant";
 import { TodoRepository } from "../db/todoRepository";
+import { isDeleteFeatureEnable, logEvent } from "../util/util";
 
 const todoRepository = new TodoRepository();
 
@@ -10,9 +16,9 @@ const todoRepository = new TodoRepository();
 export class TodoController {
   async create(req: any, res: any) {
     try {
-      console.log(req.body);
       const todo = await todoRepository.create(req.body);
       res.json(todo);
+      logEvent(TAG_TODO_CREATE, "TODO created", todo);
     } catch (error) {
       console.log(error);
       res.status(500).json({ error: "Failed to create todo" });
@@ -23,6 +29,7 @@ export class TodoController {
     try {
       const data = await todoRepository.update(req.body);
       res.json(data);
+      logEvent(TAG_TODO_EDIT, "TODO edited", data);
     } catch (error) {
       console.log(error);
       res.status(500).json({ error: "Failed to update todo" });
@@ -39,12 +46,19 @@ export class TodoController {
   }
 
   async deleteById(req: any, res: any) {
-    try {
-      const id = await todoRepository.deleteById(req.params.id);
-      res.json({ id: id });
-    } catch (error) {
-      console.log(error)
-      res.status(404).json({ error: "Failed to delete Id" });
+    const enableDelete = await isDeleteFeatureEnable();
+
+    if (!enableDelete) {
+      res.status(401).json({ error: "Not authorized to delete todo" });
+    } else {
+      try {
+        const id = await todoRepository.deleteById(req.params.id);
+        logEvent(TAG_TODO_DELETE, "TODO deleted", { id: id });
+        res.json({ id: id });
+      } catch (error) {
+        console.log(error);
+        res.status(404).json({ error: "Failed to delete Id" });
+      }
     }
   }
 
@@ -53,7 +67,7 @@ export class TodoController {
       const todos = await todoRepository.getAll();
       res.json(todos);
     } catch (error) {
-      console.log(error)
+      console.log(error);
       res.status(500).json({ error: "Failed to fetch todos" });
     }
   }

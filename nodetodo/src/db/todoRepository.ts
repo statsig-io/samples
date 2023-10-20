@@ -40,7 +40,6 @@ export class TodoRepository {
                 console.error(err.message);
                 reject(err)
               }     
-              console.log(row);
               resolve(row);
             });
           }
