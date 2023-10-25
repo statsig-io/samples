@@ -65,7 +65,6 @@ export const TodoWrapper = ({ onLogout }: { onLogout: any }) => {
     getAllTodos()
       .then((data) => {
         setTodos(data);
-        console.log("Return data " + data);
       })
       .catch((error) => {
         console.error(error);
