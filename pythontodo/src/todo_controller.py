@@ -12,7 +12,9 @@ def get_all_todos():
 @app.route('/todos', methods=['POST'])
 def create_todo():
     data = request.get_json()
+    print(data)
     todo = repository.create_todo(data['task'], data['description'],data['completed'], data['edited'],data['createdDate'], data['modifiedDate'],data['lastViewed'],data['serialNumber'])
+    print(todo)
     return jsonify(todo.__dict__), 201
 
 @app.route('/todos/<todo_id>', methods=['GET'])

@@ -2,6 +2,8 @@ from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
 
 
 created_date_str = '2023-10-06T10:41:11.806Z'
@@ -27,9 +29,6 @@ class Todo(Base):
     createdDate = Column(DateTime)
     modifiedDate = Column(DateTime)
     
-    engine = create_engine('sqlite:///todos.db')
-    Base.metadata.create_all(engine)
-
 
     
     def __init__(self, task, description, completed, edited, createdDate, modifiedDate, lastViewed,serialNumber):
@@ -41,4 +40,12 @@ class Todo(Base):
         modifiedDate=datetime.strptime(modifiedDate[:-1], '%Y-%m-%dT%H:%M:%S.%f'),
         self.lastViewed = lastViewed
         self.serialNumber = serialNumber
+        engine = create_engine('sqlite:///todos.db')
+        Base.metadata.create_all(engine)
+        Session = sessionmaker(bind=engine)
+        self.session = Session()
+        
+        def __str__(self):
+         return f"Todo(task={self.task}, description={self.description},completed={self.completed}, edited={self.edited},createdDate={self.createdDate}, modifiedDate={self.modifiedDate},lastViewed={self.lastViewed}, serialNumber={self.serialNumber})"
+
 

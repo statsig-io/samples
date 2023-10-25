@@ -24,5 +24,7 @@ requests.get('https://statsigapi.net/v1', verify=False)
 statsig.initialize("secret-9lbe9aax4FWPyJiLrKfo8GAj1cXX2UUqoDBcG4B7rKW")
 print("the sample print")
 
+for _3 in range(10):
+     print ("Test")
 
 # or with StatsigOptions
