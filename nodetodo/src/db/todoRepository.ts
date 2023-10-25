@@ -35,17 +35,13 @@ export class TodoRepository {
           if (error) {
             reject(error);
           } else {
-            db.get(
-              "SELECT * FROM todos WHERE id = last_insert_rowid()",
-              (err: any, row: any) => {
-                if (err) {
-                  console.error(err.message);
-                  reject(err);
-                }
-                console.log(row);
-                resolve(row);
-              }
-            );
+            db.get('SELECT * FROM todos WHERE id = last_insert_rowid()', (err:any, row:any) => {
+              if (err) {
+                console.error(err.message);
+                reject(err)
+              }     
+              resolve(row);
+            });
           }
         }
       );
