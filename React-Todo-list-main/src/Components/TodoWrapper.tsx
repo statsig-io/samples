@@ -49,9 +49,7 @@ export const TodoWrapper = ({ onLogout }: { onLogout: any }) => {
   console.log(`Experiment config is: ${JSON.stringify(experimentConfig)}`);
   console.log(`Dynamic config is: ${JSON.stringify(dynamicConfig)}`);
 
-  const storedItems: any[] | null = JSON.parse(
-    localStorage.getItem("items") || ""
-  );
+  const storedItems: any[] | null = [];
 
   const [todos, setTodos] = useState(storedItems ? storedItems : []);
 
@@ -71,9 +69,6 @@ export const TodoWrapper = ({ onLogout }: { onLogout: any }) => {
       .catch((error) => {
         console.error(error);
       });
-
-    const data = getAllTodos();
-    console.log("Return data " + data);
   }, []);
 
   /**
@@ -81,7 +76,6 @@ export const TodoWrapper = ({ onLogout }: { onLogout: any }) => {
    */
   useEffect(() => {
     // localStorage.setItem("items", JSON.stringify(todos));
-    console.log(`Updated TODOs: ${JSON.stringify(todos)}`);
   }, [todos]);
 
   /**
@@ -99,7 +93,7 @@ export const TodoWrapper = ({ onLogout }: { onLogout: any }) => {
   /**
    * Display the todo items based on experiment decision
    * Sorting the todo list based on the experiment
-   * @param {*} isNewestFirst
+   * 
    */
   const sortTodos = () => {
     let isNewestFirst = experimentConfig.value.sort_order === NEWEST_FIRST;
@@ -108,14 +102,12 @@ export const TodoWrapper = ({ onLogout }: { onLogout: any }) => {
       if (a.createdDate > b.createdDate) return isNewestFirst ? -1 : 1;
       return 0;
     });
-
-    console.log(`Sorted todos : ${JSON.stringify(sortedTodos)}`);
     return sortedTodos;
   };
 
   /**
    * Create a todo task
-   * @param {*} todo
+   * @param {*} task
    */
   const addTodo = (task: string) => {
     let todo = {
@@ -164,6 +156,7 @@ export const TodoWrapper = ({ onLogout }: { onLogout: any }) => {
       })
       .catch((error) => {
         console.error(error);
+        alert(JSON.stringify(error))
       });
   };
 
