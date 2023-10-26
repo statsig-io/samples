@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { Statsig } from "statsig-react-native-expo";
+import TODOModel from "../models/TODOModel";
 
 type TaskProps = {
-  text: string;
+  text: TODOModel;
   itemAt: number;
-  deleteTodoItem(itemAt: number, itemValue: string): void;
+  deleteTodoItem(itemAt: number, itemValue: TODOModel): void;
 };
 
 const Task = (props: TaskProps) => {
@@ -13,7 +14,7 @@ const Task = (props: TaskProps) => {
     Statsig.checkGate("enable_delete_todo")
   );
 
-  const deleteTaskPressed = (taskAt: number, text: string) => {
+  const deleteTaskPressed = (taskAt: number, text: TODOModel) => {
     props.deleteTodoItem(taskAt, text);
   };
 
@@ -21,7 +22,7 @@ const Task = (props: TaskProps) => {
     <View style={styles.item}>
       <View style={styles.itemLeft}>
         <View style={styles.square} />
-        <Text style={styles.itemText}>{props.text}</Text>
+        <Text style={styles.itemText}>{props.text.task}</Text>
       </View>
       <View>
         {visibility ? (

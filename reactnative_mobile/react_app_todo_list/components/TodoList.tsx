@@ -2,23 +2,26 @@ import { View, FlatList, StyleSheet } from "react-native";
 import { useEffect, useState } from "react";
 import Task from "./Task";
 import { Statsig } from "statsig-react";
+import TODOModel from "../models/TODOModel";
 
 type TodoListProps = {
-  dataList: string[];
-  deleteTodoFromList(itemAt: number, itemValue: string): void;
+  dataList: TODOModel[];
+  deleteTodoFromList(itemAt: number, itemValue: TODOModel): void;
 };
 
 const TodoList = (props: TodoListProps) => {
-  const TODO_LIST_VIEWED: string = "list_viewed";
-  const TODO_DELETED: string = "todo_deleted";
+  const TODO_LIST_VIEWED: string = "CLIENT_TODO_LIST_VIEWED";
+  const TODO_DELETED: string = "CLIENT_TODO_DELETED";
   const [itemAt, setItemAt] = useState<number>(0);
-  const [itemValue, setItemValue] = useState<any>();
+  const [itemValue, setItemValue] = useState<TODOModel>();
 
   useEffect(() => {
-    props.deleteTodoFromList(itemAt, itemValue);
+    if (itemValue != null) {
+      props.deleteTodoFromList(itemAt, itemValue);
+    }
   }, []);
 
-  const deleteSingleTodo = (taskAt: number, item: any) => {
+  const deleteSingleTodo = (taskAt: number, item: TODOModel) => {
     setItemAt(taskAt);
     setItemValue(item);
     Statsig.logEvent(TODO_DELETED);
@@ -26,7 +29,7 @@ const TodoList = (props: TodoListProps) => {
   };
 
   const listItemAddedComponent = () => {
-    if (props.dataList.length == 1) {
+    if (props.dataList != null && props.dataList.length == 1) {
       Statsig.logEvent(TODO_LIST_VIEWED);
     }
     return <View />;
@@ -41,8 +44,8 @@ const TodoList = (props: TodoListProps) => {
             <Task
               text={item}
               itemAt={index}
-              deleteTodoItem={(taskAt: number, text: string) =>
-                deleteSingleTodo(taskAt, text)
+              deleteTodoItem={(taskAt: number, modelObj: TODOModel) =>
+                deleteSingleTodo(taskAt, modelObj)
               }
             />
           </View>

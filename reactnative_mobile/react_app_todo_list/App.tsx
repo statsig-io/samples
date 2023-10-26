@@ -1,22 +1,47 @@
-import { StyleSheet, View, Keyboard, Text, AppState } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Keyboard,
+  Text,
+  AppState,
+  ActivityIndicator,
+} from "react-native";
 import { StatsigProvider, Statsig } from "statsig-react";
 import { REACT_APP_CLIENT_KEY } from "@env";
-import { useEffect, useState, Component, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import "react-native-get-random-values";
 import KeyboardAvoidingTextInput from "./components/KeyboardAvoidingTextInput";
 import TodoList from "./components/TodoList";
+import TODOModel from "./models/TODOModel";
 
 export default function App() {
-  const [task, setTask] = useState<any>("");
-  const [taskItems, setTaskItems] = useState<string[]>([]);
+  const [task, setTask] = useState<string>("");
+
   const [user, setUser] = useState({ userID: "reactnative_dummy_user_id" });
   const API_KEY: string = REACT_APP_CLIENT_KEY || "";
   const [statsigInitialized, setStatsigInitialized] = useState(false);
-  const TODO_CREATED: string = "todo_created";
-  const APP_OPENED: string = "app_opened";
-  const APP_BACKGROUNDED: string = "app_backgrounded";
+
+  const TODO_CREATED: string = "CLIENT_TODO_CREATED";
+  const APP_OPENED: string = "CLIENT_TODO_APP_OPENED";
+  const APP_BACKGROUNDED: string = "CLIENT_TODO_APP_BACKGROUND";
 
   const appState = useRef(AppState.currentState);
+
+  const baseTodoUrl = "http://localhost:8080/todos";
+  const [todoList, setTodoList] = useState<TODOModel[]>([]);
+  const [isLoading, setLoading] = useState(true);
+
+  useEffect(() => {
+    console.log("useEffect called " + todoList.length);
+    fetchTodoList();
+    const subscription = AppState.addEventListener(
+      "change",
+      handleAppStateChange
+    );
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
   const handleAppStateChange = (nextAppState: any) => {
     if (
@@ -30,27 +55,61 @@ export default function App() {
     appState.current = nextAppState;
   };
 
-  useEffect(() => {
-    const subscription = AppState.addEventListener(
-      "change",
-      handleAppStateChange
-    );
-    return () => {
-      subscription.remove();
-    };
-  }, []);
-
-  const handleAddTask = async (text: string) => {
+  const handleAddTask = async (modelObj: TODOModel) => {
     Keyboard.dismiss();
-    setTaskItems([...taskItems, task]);
-    setTask(null);
+    setTask("");
     Statsig.logEvent(TODO_CREATED);
+    addTodoInList(modelObj);
+    fetchTodoList();
   };
 
-  const completeTask = (index: any) => {
-    let itemsCopy = [...taskItems];
-    itemsCopy.splice(index, 1);
-    setTaskItems(itemsCopy);
+  const addTodoInList = async (modelObj: TODOModel) => {
+    fetch(baseTodoUrl, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        serialNumber: modelObj.serialNumber,
+        task: modelObj.task,
+        completed: modelObj.completed,
+        description: modelObj.description,
+        edited: modelObj.edited,
+        createdDate: modelObj.createdDate,
+        modifiedDate: modelObj.modifiedDate,
+        lastViewed: modelObj.lastViewed,
+      }),
+    })
+      .then((response) => {})
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const fetchTodoList = async () => {
+    if (todoList.length > 0) {
+      setTodoList([]);
+    }
+    try {
+      const response = await fetch(baseTodoUrl);
+      const json = await response.json();
+      console.log("fetchTodoList " + JSON.stringify(json));
+      setTodoList(json);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const completeTask = (item: TODOModel) => {
+    fetch(baseTodoUrl + "/{" + item.id + "}")
+      .then((response) => {})
+      .catch((err) => {
+        console.log(err);
+      });
+    fetchTodoList();
   };
 
   const initCallback = (
@@ -79,15 +138,21 @@ export default function App() {
 
           <KeyboardAvoidingTextInput
             placeHolderText={"Write a task here"}
-            changeText={(text: String) => setTask(text)}
+            changeText={(text: string) => setTask(text)}
             taskValue={task}
-            addTask={(text: string) => handleAddTask(text)}
+            addTask={(modelObj: TODOModel) => handleAddTask(modelObj)}
           />
 
-          <TodoList
-            dataList={taskItems}
-            deleteTodoFromList={(index: any, item: any) => completeTask(index)}
-          />
+          {isLoading ? (
+            <ActivityIndicator />
+          ) : (
+            <TodoList
+              dataList={todoList}
+              deleteTodoFromList={(index: any, item: TODOModel) =>
+                completeTask(item)
+              }
+            />
+          )}
         </View>
       ) : (
         <View style={styles.childContainer}>

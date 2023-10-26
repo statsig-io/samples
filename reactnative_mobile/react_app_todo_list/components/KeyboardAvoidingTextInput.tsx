@@ -8,16 +8,20 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
+import TODOModel from "../models/TODOModel";
+import moment from "moment";
 
 type KeyboardAvoidingTextInputProps = {
   placeHolderText: string;
   taskValue: string;
   changeText: (text: string) => void;
-  addTask: (text: string) => void;
+  addTask: (modelObj: TODOModel) => void;
 };
 
 const KeyboardAvoidingTextInput = (props: KeyboardAvoidingTextInputProps) => {
   const [taskDetail, setTaskDetail] = useState<any>();
+  const [srNum, setSrNum] = useState<number>(1);
+  const dateTimeFormat = "YYYY-MM-DD HH:mm:ss";
 
   const textChangeListener = (text: string) => {
     setTaskDetail(text);
@@ -25,8 +29,22 @@ const KeyboardAvoidingTextInput = (props: KeyboardAvoidingTextInputProps) => {
   };
 
   const addTaskListener = (text: string) => {
-    props.addTask(text);
+    const modelObj = new TODOModel(
+      0,
+      srNum,
+      text,
+      text,
+      false,
+      false,
+      false,
+      getCurrentDateTime(),
+      getCurrentDateTime()
+    );
+    setSrNum(srNum + 1);
+    props.addTask(modelObj);
   };
+
+  const getCurrentDateTime = () => new Date(moment().format(dateTimeFormat));
 
   return (
     <KeyboardAvoidingView
