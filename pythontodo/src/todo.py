@@ -1,17 +1,7 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from sqlalchemy.ext.declarative import declarative_base
-from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
-
-
-created_date_str = '2023-10-06T10:41:11.806Z'
-modified_date_str = '2023-10-06T10:41:11.806Z'
-
-datetime_str = '2023-10-06T10:41:11.806Z'
-datetime_obj = datetime.fromisoformat(datetime_str[:-1])
-
 
 
 Base = declarative_base()
@@ -26,8 +16,8 @@ class Todo(Base):
     edited = Column(Boolean)
     serialNumber = Column(Integer)
     lastViewed = Column(Boolean)
-    createdDate = Column(DateTime)
-    modifiedDate = Column(DateTime)
+    createdDate = Column(String)
+    modifiedDate = Column(String)
     
 
     
@@ -36,16 +26,29 @@ class Todo(Base):
         self.description = description
         self.completed = completed
         self.edited = edited
-        createdDate=datetime.strptime(createdDate[:-1], '%Y-%m-%dT%H:%M:%S.%f'),
-        modifiedDate=datetime.strptime(modifiedDate[:-1], '%Y-%m-%dT%H:%M:%S.%f'),
+        self.createdDate=createdDate
+        self.modifiedDate=modifiedDate
         self.lastViewed = lastViewed
         self.serialNumber = serialNumber
+        
         engine = create_engine('sqlite:///todos.db')
         Base.metadata.create_all(engine)
         Session = sessionmaker(bind=engine)
         self.session = Session()
         
-        def __str__(self):
-         return f"Todo(task={self.task}, description={self.description},completed={self.completed}, edited={self.edited},createdDate={self.createdDate}, modifiedDate={self.modifiedDate},lastViewed={self.lastViewed}, serialNumber={self.serialNumber})"
-
-
+    
+    def __str__(self):
+       todo_dict = self.__dict__.copy()
+       todo_dict.pop('_sa_instance_state', None)
+       return str(todo_dict)
+   
+    def getJson(self):
+        return {'serialNumber': self.serialNumber, 
+                 'id':self.id,
+                'task': self.task, 
+                'completed': self.completed, 
+                'description': self.description, 
+                'edited': self.edited,
+                'createdDate': self.createdDate,
+                'modifiedDate': self.modifiedDate, 
+                'lastViewed': self.lastViewed}
