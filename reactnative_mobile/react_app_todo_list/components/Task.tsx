@@ -1,33 +1,54 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { Statsig } from "statsig-react-native-expo";
 import TODOModel from "../models/TODOModel";
 
 type TaskProps = {
-  text: TODOModel;
+  taskData: TODOModel;
   itemAt: number;
   deleteTodoItem(itemAt: number, itemValue: TODOModel): void;
+  completeTodoItem(itemAt: number, itemValue: TODOModel): void;
 };
 
 const Task = (props: TaskProps) => {
+  const [isTaskCompleted, setIsTaskCompleted] = useState(
+    props.taskData.completed
+  );
   const [visibility, setVisibility] = useState(
     Statsig.checkGate("enable_delete_todo")
   );
 
-  const deleteTaskPressed = (taskAt: number, text: TODOModel) => {
-    props.deleteTodoItem(taskAt, text);
+  useEffect(() => {
+    setIsTaskCompleted(props.taskData.completed);
+  }, []);
+
+  const deleteTaskPressed = (taskAt: number, taskData: TODOModel) => {
+    props.deleteTodoItem(taskAt, taskData);
+  };
+
+  const completeTaskPressed = (taskAt: number, taskData: TODOModel) => {
+    if (!isTaskCompleted) {
+      taskData.completed = !isTaskCompleted;
+      props.completeTodoItem(taskAt, taskData);
+    }
   };
 
   return (
     <View style={styles.item}>
       <View style={styles.itemLeft}>
         <View style={styles.square} />
-        <Text style={styles.itemText}>{props.text.task}</Text>
+        <Text
+          style={
+            isTaskCompleted ? styles.itemTextStrike : styles.itemTextNormal
+          }
+        >
+          {props.taskData.task}
+        </Text>
       </View>
       <View>
         {visibility ? (
           <TouchableOpacity
-            onPress={() => deleteTaskPressed(props.itemAt, props.text)}
+            onPress={() => deleteTaskPressed(props.itemAt, props.taskData)}
           >
             <Image
               style={styles.imageBackground}
@@ -36,7 +57,11 @@ const Task = (props: TaskProps) => {
           </TouchableOpacity>
         ) : null}
       </View>
-      <View style={styles.circular} />
+      <TouchableOpacity
+        onPress={() => completeTaskPressed(props.itemAt, props.taskData)}
+      >
+        <View style={styles.circular} />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -67,8 +92,12 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginRight: 15,
   },
-  itemText: {
+  itemTextNormal: {
     maxWidth: "80%",
+  },
+  itemTextStrike: {
+    maxWidth: "80%",
+    textDecorationLine: "line-through",
   },
   imageBackground: {
     width: 10,

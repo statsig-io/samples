@@ -7,11 +7,13 @@ import TODOModel from "../models/TODOModel";
 type TodoListProps = {
   dataList: TODOModel[];
   deleteTodoFromList(itemAt: number, itemValue: TODOModel): void;
+  completeTodoFromList(itemAt: number, itemValue: TODOModel): void;
 };
 
 const TodoList = (props: TodoListProps) => {
   const TODO_LIST_VIEWED: string = "CLIENT_TODO_LIST_VIEWED";
   const TODO_DELETED: string = "CLIENT_TODO_DELETED";
+  const TODO_COMPLETED: string = "CLIENT_TODO_COMPLETED";
   const [itemAt, setItemAt] = useState<number>(0);
   const [itemValue, setItemValue] = useState<TODOModel>();
 
@@ -28,6 +30,14 @@ const TodoList = (props: TodoListProps) => {
     props.deleteTodoFromList(taskAt, item);
   };
 
+  const completeSingleTodo = (taskAt: number, item: TODOModel) => {
+    console.log("completeSingleTodo item " + JSON.stringify(item));
+    setItemAt(taskAt);
+    setItemValue(item);
+    Statsig.logEvent(TODO_COMPLETED);
+    props.completeTodoFromList(taskAt, item);
+  };
+
   const listItemAddedComponent = () => {
     if (props.dataList != null && props.dataList.length == 1) {
       Statsig.logEvent(TODO_LIST_VIEWED);
@@ -42,10 +52,13 @@ const TodoList = (props: TodoListProps) => {
         <View style={styles.tasksWrapper}>
           <View style={styles.items}>
             <Task
-              text={item}
+              taskData={item}
               itemAt={index}
               deleteTodoItem={(taskAt: number, modelObj: TODOModel) =>
                 deleteSingleTodo(taskAt, modelObj)
+              }
+              completeTodoItem={(taskAt: number, modelObj: TODOModel) =>
+                completeSingleTodo(taskAt, modelObj)
               }
             />
           </View>

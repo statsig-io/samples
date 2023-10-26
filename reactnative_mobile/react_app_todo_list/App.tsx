@@ -32,7 +32,6 @@ export default function App() {
   const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("useEffect called " + todoList.length);
     fetchTodoList();
     const subscription = AppState.addEventListener(
       "change",
@@ -83,7 +82,7 @@ export default function App() {
     })
       .then((response) => {})
       .catch((err) => {
-        console.log(err);
+        console.error(err);
       });
   };
 
@@ -94,7 +93,6 @@ export default function App() {
     try {
       const response = await fetch(baseTodoUrl);
       const json = await response.json();
-      console.log("fetchTodoList " + JSON.stringify(json));
       setTodoList(json);
     } catch (error) {
       console.error(error);
@@ -103,11 +101,35 @@ export default function App() {
     }
   };
 
-  const completeTask = (item: TODOModel) => {
+  const deleteTask = (item: TODOModel) => {
     fetch(baseTodoUrl + "/{" + item.id + "}")
       .then((response) => {})
       .catch((err) => {
-        console.log(err);
+        console.error(err);
+      });
+    fetchTodoList();
+  };
+
+  const completeTask = (modelObj: TODOModel) => {
+    fetch(baseTodoUrl, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        serialNumber: modelObj.serialNumber,
+        task: modelObj.task,
+        completed: modelObj.completed,
+        description: modelObj.description,
+        edited: modelObj.edited,
+        createdDate: modelObj.createdDate,
+        modifiedDate: modelObj.modifiedDate,
+        lastViewed: modelObj.lastViewed,
+      }),
+    })
+      .then((response) => {})
+      .catch((err) => {
+        console.error(err);
       });
     fetchTodoList();
   };
@@ -149,6 +171,9 @@ export default function App() {
             <TodoList
               dataList={todoList}
               deleteTodoFromList={(index: any, item: TODOModel) =>
+                deleteTask(item)
+              }
+              completeTodoFromList={(index: any, item: TODOModel) =>
                 completeTask(item)
               }
             />
