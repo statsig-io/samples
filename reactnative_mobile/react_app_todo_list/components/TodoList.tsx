@@ -31,7 +31,6 @@ const TodoList = (props: TodoListProps) => {
   };
 
   const completeSingleTodo = (taskAt: number, item: TODOModel) => {
-    console.log("completeSingleTodo item " + JSON.stringify(item));
     setItemAt(taskAt);
     setItemValue(item);
     Statsig.logEvent(TODO_COMPLETED);

@@ -7,6 +7,7 @@ import {
   Platform,
   StyleSheet,
   TouchableOpacity,
+  Image,
 } from "react-native";
 import TODOModel from "../models/TODOModel";
 import moment from "moment";
@@ -16,6 +17,7 @@ type KeyboardAvoidingTextInputProps = {
   taskValue: string;
   changeText: (text: string) => void;
   addTask: (modelObj: TODOModel) => void;
+  sortTodoList: () => void;
 };
 
 const KeyboardAvoidingTextInput = (props: KeyboardAvoidingTextInputProps) => {
@@ -46,6 +48,10 @@ const KeyboardAvoidingTextInput = (props: KeyboardAvoidingTextInputProps) => {
 
   const getCurrentDateTime = () => new Date(moment().format(dateTimeFormat));
 
+  const sortList = () => {
+    props.sortTodoList();
+  };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -62,6 +68,12 @@ const KeyboardAvoidingTextInput = (props: KeyboardAvoidingTextInputProps) => {
         <View style={styles.addWrapper}>
           <Text style={styles.addText}>+</Text>
         </View>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => sortList()}>
+        <Image
+          style={styles.imageBackground}
+          source={require("../assets/refresh.png")}
+        />
       </TouchableOpacity>
     </KeyboardAvoidingView>
   );
@@ -95,6 +107,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderColor: "#C0C0C0",
     borderWidth: 1,
+  },
+  imageBackground: {
+    width: 10,
+    height: 20,
+    padding: 11,
+    marginEnd: 20,
   },
   addText: {},
 });

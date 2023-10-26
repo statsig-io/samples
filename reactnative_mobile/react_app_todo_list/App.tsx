@@ -20,11 +20,9 @@ export default function App() {
   const [user, setUser] = useState({ userID: "reactnative_dummy_user_id" });
   const API_KEY: string = REACT_APP_CLIENT_KEY || "";
   const [statsigInitialized, setStatsigInitialized] = useState(false);
-
   const TODO_CREATED: string = "CLIENT_TODO_CREATED";
   const APP_OPENED: string = "CLIENT_TODO_APP_OPENED";
   const APP_BACKGROUNDED: string = "CLIENT_TODO_APP_BACKGROUND";
-
   const appState = useRef(AppState.currentState);
 
   const baseTodoUrl = "http://localhost:8080/todos";
@@ -134,6 +132,39 @@ export default function App() {
     fetchTodoList();
   };
 
+  const arrangeTodoList = async () => {
+    await fetchTodoList();
+    const dynamicConfig: number = Statsig.getConfig("item_sorting").get(
+      "sort_order",
+      0
+    );
+    if (dynamicConfig === 1) {
+      const numAscending = [...todoList].sort(
+        (a, b) =>
+          getDateTimeInMillie(a.createdDate) -
+          getDateTimeInMillie(b.createdDate)
+      );
+      setTodoList(numAscending);
+    } else if (dynamicConfig === 2) {
+      const numDescending = [...todoList].sort(
+        (a, b) =>
+          getDateTimeInMillie(b.createdDate) -
+          getDateTimeInMillie(a.createdDate)
+      );
+      setTodoList(numDescending);
+    } else if (dynamicConfig === 3) {
+      const strAscending = [...todoList].sort((a, b) =>
+        a.task > b.task ? 1 : -1
+      );
+      setTodoList(strAscending);
+    }
+  };
+
+  const getDateTimeInMillie = (date: Date): number => {
+    const dateValue = new Date(date);
+    return dateValue.getMilliseconds();
+  };
+
   const initCallback = (
     initDurationMs: number,
     success: boolean,
@@ -163,6 +194,7 @@ export default function App() {
             changeText={(text: string) => setTask(text)}
             taskValue={task}
             addTask={(modelObj: TODOModel) => handleAddTask(modelObj)}
+            sortTodoList={() => arrangeTodoList()}
           />
 
           {isLoading ? (
