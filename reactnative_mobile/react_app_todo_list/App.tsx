@@ -20,6 +20,10 @@ export default function App() {
   const [user, setUser] = useState({ userID: "reactnative_dummy_user_id" });
   const API_KEY: string = REACT_APP_CLIENT_KEY || "";
   const [statsigInitialized, setStatsigInitialized] = useState(false);
+  const [bannerDynConf, setBannerDynConf] = useState(false);
+  const [bannerWarningMsg, setBannerWarningMsg] = useState("");
+  const [bannerWarningTextColor, setBannerWarningTextColor] = useState("");
+  const [bannerWarningBdgColor, setBannerWarningBdgColor] = useState("");
   const TODO_CREATED: string = "CLIENT_TODO_CREATED";
   const APP_OPENED: string = "CLIENT_TODO_APP_OPENED";
   const APP_BACKGROUNDED: string = "CLIENT_TODO_APP_BACKGROUND";
@@ -158,11 +162,22 @@ export default function App() {
       );
       setTodoList(strAscending);
     }
+    fetchBannerWarning();
   };
 
   const getDateTimeInMillie = (date: Date): number => {
     const dateValue = new Date(date);
     return dateValue.getMilliseconds();
+  };
+
+  const fetchBannerWarning = () => {
+    if (statsigInitialized) {
+      const bannerConf = Statsig.getConfig("warning_banner");
+      setBannerDynConf(bannerConf != null);
+      setBannerWarningMsg(bannerConf.get("message", "NA"));
+      setBannerWarningTextColor(bannerConf.get("textColor", "white"));
+      setBannerWarningBdgColor(bannerConf.get("backgroundColor", "white"));
+    }
   };
 
   const initCallback = (
@@ -175,6 +190,21 @@ export default function App() {
 
   return (
     <View style={styles.container}>
+      {bannerDynConf ? (
+        <View style={styles.bannerWarningContainer}>
+          <Text
+            style={{
+              fontSize: 20,
+              color:
+                bannerWarningTextColor != "" ? bannerWarningTextColor : "black",
+              backgroundColor:
+                bannerWarningBdgColor != "" ? bannerWarningBdgColor : "white",
+            }}
+          >
+            {bannerWarningMsg}
+          </Text>
+        </View>
+      ) : null}
       <StatsigProvider
         sdkKey={API_KEY}
         user={user}
@@ -183,41 +213,41 @@ export default function App() {
           initCompletionCallback: initCallback,
         }}
       >
+        {statsigInitialized ? (
+          <View style={styles.childContainer}>
+            <Text style={styles.sectionTitle}>Today's Tasks</Text>
+
+            <KeyboardAvoidingTextInput
+              placeHolderText={"Write a task here"}
+              changeText={(text: string) => setTask(text)}
+              taskValue={task}
+              addTask={(modelObj: TODOModel) => handleAddTask(modelObj)}
+              sortTodoList={() => arrangeTodoList()}
+            />
+
+            {isLoading ? (
+              <ActivityIndicator />
+            ) : (
+              <TodoList
+                dataList={todoList}
+                deleteTodoFromList={(index: any, item: TODOModel) =>
+                  deleteTask(item)
+                }
+                completeTodoFromList={(index: any, item: TODOModel) =>
+                  completeTask(item)
+                }
+              />
+            )}
+          </View>
+        ) : (
+          <View style={styles.childContainer}>
+            <Text style={styles.errorSectionTitle}>
+              Statsig SDK not initialized. Please try reopening the application.
+            </Text>
+          </View>
+        )}
         <View />
       </StatsigProvider>
-      {statsigInitialized ? (
-        <View style={styles.childContainer}>
-          <Text style={styles.sectionTitle}>Today's tasks</Text>
-
-          <KeyboardAvoidingTextInput
-            placeHolderText={"Write a task here"}
-            changeText={(text: string) => setTask(text)}
-            taskValue={task}
-            addTask={(modelObj: TODOModel) => handleAddTask(modelObj)}
-            sortTodoList={() => arrangeTodoList()}
-          />
-
-          {isLoading ? (
-            <ActivityIndicator />
-          ) : (
-            <TodoList
-              dataList={todoList}
-              deleteTodoFromList={(index: any, item: TODOModel) =>
-                deleteTask(item)
-              }
-              completeTodoFromList={(index: any, item: TODOModel) =>
-                completeTask(item)
-              }
-            />
-          )}
-        </View>
-      ) : (
-        <View style={styles.childContainer}>
-          <Text style={styles.errorSectionTitle}>
-            Statsig SDK not initialized. Please try reopening the application.
-          </Text>
-        </View>
-      )}
     </View>
   );
 }
@@ -229,22 +259,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  bannerWarningContainer: {
+    flexDirection: "row",
+    marginTop: 120,
+  },
   childContainer: {
     alignItems: "center",
     justifyContent: "space-between",
     flexDirection: "column",
   },
   sectionTitle: {
-    fontSize: 24,
-    marginTop: 60,
-    marginLeft: 20,
+    flexWrap: "wrap",
+    fontSize: 20,
+    marginTop: 50,
     marginBottom: 20,
-    fontWeight: "bold",
   },
   errorSectionTitle: {
     fontSize: 20,
     marginTop: 60,
     marginLeft: 20,
+    marginRight: 20,
     marginBottom: 20,
     fontWeight: "bold",
   },
