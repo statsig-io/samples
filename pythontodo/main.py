@@ -7,6 +7,7 @@ ssl._create_default_https_context = ssl._create_unverified_context
 
 
 # Make the request with SSL certificate verification enabled
+
 requests.get('https://statsigapi.net/v1/download_config_specs', verify=False)
 
 
