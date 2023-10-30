@@ -1,14 +1,15 @@
 import React, { memo } from "react";
 import { StyleSheet } from "react-native";
-import { Button as PaperButton, DefaultTheme } from "react-native-paper";
+import { Button as PaperButton } from "react-native-paper";
+import { theme } from "../core/themes";
 
 type Props = React.ComponentProps<typeof PaperButton>;
 
-const CustomButton = ({ mode, style, children, ...props }: Props) => (
+const TodoButton = ({ mode, style, children, ...props }: Props) => (
   <PaperButton
     style={[
       styles.button,
-      mode === "outlined" && { backgroundColor: DefaultTheme.colors.surface },
+      mode === "outlined" && { backgroundColor: theme.colors.surface },
       style,
     ]}
     labelStyle={styles.text}
@@ -31,4 +32,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default memo(CustomButton);
+export default memo(TodoButton);

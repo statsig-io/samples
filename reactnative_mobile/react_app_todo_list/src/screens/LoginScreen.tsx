@@ -1,7 +1,7 @@
 import React, { memo, useState } from "react";
-import { TouchableOpacity, StyleSheet, Text, View } from "react-native";
-import CustomButton from "../components/CustomButton";
-import CustomTextInput from "../components/CustomTextInput";
+import { StyleSheet, View } from "react-native";
+import TodoButton from "../components/TodoButton";
+import TodoTextInput from "../components/TodoTextInput";
 import { emailValidator, passwordValidator } from "../core/validations";
 import { Navigation } from "../Navigation";
 import { theme } from "../core/themes";
@@ -29,7 +29,7 @@ const LoginScreen = ({ navigation }: Props) => {
 
   return (
     <View style={styles.parentContainer}>
-      <CustomTextInput
+      <TodoTextInput
         label="Email"
         returnKeyType="next"
         value={email.value}
@@ -42,7 +42,7 @@ const LoginScreen = ({ navigation }: Props) => {
         keyboardType="email-address"
       />
 
-      <CustomTextInput
+      <TodoTextInput
         label="Password"
         returnKeyType="done"
         value={password.value}
@@ -52,16 +52,18 @@ const LoginScreen = ({ navigation }: Props) => {
         secureTextEntry
       />
 
-      <CustomButton mode="contained" onPress={_onLoginPressed}>
+      <TodoButton mode="contained" onPress={_onLoginPressed}>
         Login
-      </CustomButton>
+      </TodoButton>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   parentContainer: {
-    marginTop: 140,
+    marginTop: 220,
+    marginStart: 30,
+    marginEnd: 30,
   },
   label: {
     color: theme.colors.secondary,

@@ -15,6 +15,8 @@ import TODOModel from "../models/TODOModel";
 import KeyboardAvoidingTextInput from "../components/KeyboardAvoidingTextInput";
 
 const HomeScreen = () => {
+  const appState = useRef(AppState.currentState);
+
   const [task, setTask] = useState<string>("");
 
   const [user, setUser] = useState({ userID: "reactnative_dummy_user_id" });
@@ -27,9 +29,8 @@ const HomeScreen = () => {
   const TODO_CREATED: string = "CLIENT_TODO_CREATED";
   const APP_OPENED: string = "CLIENT_TODO_APP_OPENED";
   const APP_BACKGROUNDED: string = "CLIENT_TODO_APP_BACKGROUND";
-  const appState = useRef(AppState.currentState);
 
-  const baseTodoUrl = "http://192.168.43.79:8080/todos";
+  const baseTodoUrl = "http://localhost:8080/todos";
   const [todoList, setTodoList] = useState<TODOModel[]>([]);
   const [isLoading, setLoading] = useState(true);
 
@@ -254,7 +255,6 @@ const HomeScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",

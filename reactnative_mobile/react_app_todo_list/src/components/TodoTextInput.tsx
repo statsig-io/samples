@@ -1,14 +1,15 @@
 import React, { memo } from "react";
 import { View, StyleSheet, Text } from "react-native";
-import { TextInput as Input, DefaultTheme } from "react-native-paper";
+import { TextInput as Input } from "react-native-paper";
+import { theme } from "../core/themes";
 
 type Props = React.ComponentProps<typeof Input> & { errorText?: string };
 
-const CustomTextInput = ({ errorText, ...props }: Props) => (
+const TodoTextInput = ({ errorText, ...props }: Props) => (
   <View style={styles.container}>
     <Input
       style={styles.input}
-      selectionColor={"#600EE6"}
+      selectionColor={theme.colors.primary}
       underlineColor="transparent"
       mode="outlined"
       {...props}
@@ -23,14 +24,14 @@ const styles = StyleSheet.create({
     marginVertical: 12,
   },
   input: {
-    backgroundColor: DefaultTheme.colors.surface,
+    backgroundColor: theme.colors.surface,
   },
   error: {
     fontSize: 14,
-    color: "#f13a59",
+    color: theme.colors.error,
     paddingHorizontal: 4,
     paddingTop: 4,
   },
 });
 
-export default memo(CustomTextInput);
+export default memo(TodoTextInput);

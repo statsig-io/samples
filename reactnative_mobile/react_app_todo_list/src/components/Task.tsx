@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { Statsig } from "statsig-react-native-expo";
 import TODOModel from "../models/TODOModel";
+import { theme } from "../core/themes";
 
 type TaskProps = {
   taskData: TODOModel;
@@ -87,7 +88,7 @@ const styles = StyleSheet.create({
   square: {
     width: 24,
     height: 24,
-    backgroundColor: "#55BCF6",
+    backgroundColor: theme.colors.primary,
     opacity: 0.4,
     borderRadius: 5,
     marginRight: 15,
@@ -109,10 +110,11 @@ const styles = StyleSheet.create({
   circular: {
     width: 12,
     height: 12,
-    borderColor: "#55BCF6",
+    borderColor: theme.colors.primary,
     borderWidth: 2,
     borderRadius: 5,
     flex: 0.02,
+    marginEnd: 10,
   },
 });
 
