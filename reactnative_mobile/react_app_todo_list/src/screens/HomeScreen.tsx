@@ -84,64 +84,46 @@ const HomeScreen = () => {
       }),
     })
       .then((response) => {})
-      .catch((err) => {
-        console.error(err);
-      });
+      .catch((err) => console.error(err));
   };
 
   const fetchTodoList = async () => {
     if (todoList.length > 0) {
       setTodoList([]);
     }
-    try {
-      const response = await fetch(baseTodoUrl);
-      const json = await response.json();
-      setTodoList(json);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
+    fetch(baseTodoUrl)
+      .then((response) => response.json())
+      .then((data) => setTodoList(data))
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
   };
 
   const deleteTask = (item: TODOModel) => {
-    const url = baseTodoUrl + "/" + item.id;
-    fetch(url, {
+    fetch(baseTodoUrl + "/" + item.id, {
       method: "DELETE",
     })
       .then((response) => response.json())
-      .then((data) => {
-        fetchTodoList();
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+      .then((data) => fetchTodoList())
+      .catch((err) => console.error(err));
   };
 
   const completeTask = (modelObj: TODOModel) => {
     fetch(baseTodoUrl, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         serialNumber: modelObj.serialNumber,
         task: modelObj.task,
         completed: modelObj.completed,
         description: modelObj.description,
-        edited: modelObj.edited,
+        edited: true,
         createdDate: modelObj.createdDate,
         modifiedDate: modelObj.modifiedDate,
-        lastViewed: modelObj.lastViewed,
+        lastViewed: true,
       }),
     })
       .then((response) => response.json())
-      .then((data) => {
-        fetchTodoList();
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+      .then((data) => fetchTodoList())
+      .catch((err) => console.error(err));
   };
 
   const arrangeTodoList = async () => {
