@@ -104,12 +104,17 @@ export default function App() {
   };
 
   const deleteTask = (item: TODOModel) => {
-    fetch(baseTodoUrl + "/{" + item.id + "}")
-      .then((response) => {})
+    const url = baseTodoUrl + "/" + item.id;
+    fetch(url, {
+      method: "DELETE",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        fetchTodoList();
+      })
       .catch((err) => {
         console.error(err);
       });
-    fetchTodoList();
   };
 
   const completeTask = (modelObj: TODOModel) => {
