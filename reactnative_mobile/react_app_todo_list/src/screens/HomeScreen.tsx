@@ -19,8 +19,8 @@ const HomeScreen = () => {
 
   const [task, setTask] = useState<string>("");
 
-  const [user, setUser] = useState({ userID: "reactnative_dummy_user_id" });
   const API_KEY: string = REACT_APP_CLIENT_KEY || "";
+  const [user, setUser] = useState({ userID: "reactnative_dummy_user_id" });
   const [statsigInitialized, setStatsigInitialized] = useState(false);
   const [bannerDynConf, setBannerDynConf] = useState(false);
   const [bannerWarningMsg, setBannerWarningMsg] = useState("");
@@ -57,7 +57,7 @@ const HomeScreen = () => {
     appState.current = nextAppState;
   };
 
-  const handleAddTask = async (modelObj: TODOModel) => {
+  const addNewTask = async (modelObj: TODOModel) => {
     Keyboard.dismiss();
     setTask("");
     Statsig.logEvent(TODO_CREATED);
@@ -105,12 +105,17 @@ const HomeScreen = () => {
   };
 
   const deleteTask = (item: TODOModel) => {
-    fetch(baseTodoUrl + "/{" + item.id + "}")
-      .then((response) => {})
+    const url = baseTodoUrl + "/" + item.id;
+    fetch(url, {
+      method: "DELETE",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        fetchTodoList();
+      })
       .catch((err) => {
         console.error(err);
       });
-    fetchTodoList();
   };
 
   const completeTask = (modelObj: TODOModel) => {
@@ -130,11 +135,13 @@ const HomeScreen = () => {
         lastViewed: modelObj.lastViewed,
       }),
     })
-      .then((response) => {})
+      .then((response) => response.json())
+      .then((data) => {
+        fetchTodoList();
+      })
       .catch((err) => {
         console.error(err);
       });
-    fetchTodoList();
   };
 
   const arrangeTodoList = async () => {
@@ -222,7 +229,7 @@ const HomeScreen = () => {
               placeHolderText={"Write a task here"}
               changeText={(text: string) => setTask(text)}
               taskValue={task}
-              addTask={(modelObj: TODOModel) => handleAddTask(modelObj)}
+              addTask={(modelObj: TODOModel) => addNewTask(modelObj)}
               sortTodoList={() => arrangeTodoList()}
             />
 
