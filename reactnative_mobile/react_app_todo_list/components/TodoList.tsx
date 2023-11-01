@@ -2,24 +2,23 @@ import { View, FlatList, StyleSheet } from "react-native";
 import { useEffect, useState } from "react";
 import Task from "./Task";
 import { Statsig } from "statsig-react";
-import TODOModel from "../models/TODOModel";
 
 type TodoListProps = {
   dataList: TODOModel[];
-  deleteTodoFromList(itemAt: number, itemValue: TODOModel): void;
-  completeTodoFromList(itemAt: number, itemValue: TODOModel): void;
+  deleteTodoFromList(itemValue: TODOModel): void;
+  completeTodoFromList(itemValue: TODOModel): void;
 };
 
 const TodoList = (props: TodoListProps) => {
-  const TODO_LIST_VIEWED: string = "CLIENT_TODO_LIST_VIEWED";
-  const TODO_DELETED: string = "CLIENT_TODO_DELETED";
-  const TODO_COMPLETED: string = "CLIENT_TODO_COMPLETED";
+  const TODO_LIST_VIEWED = "CLIENT_TODO_LIST_VIEWED";
+  const TODO_DELETED = "CLIENT_TODO_DELETED";
+  const TODO_COMPLETED = "CLIENT_TODO_COMPLETED";
   const [itemAt, setItemAt] = useState<number>(0);
   const [itemValue, setItemValue] = useState<TODOModel>();
 
   useEffect(() => {
     if (itemValue != null) {
-      props.deleteTodoFromList(itemAt, itemValue);
+      props.deleteTodoFromList(itemValue);
     }
   }, []);
 
@@ -27,15 +26,14 @@ const TodoList = (props: TodoListProps) => {
     setItemAt(taskAt);
     setItemValue(item);
     Statsig.logEvent(TODO_DELETED);
-    props.deleteTodoFromList(taskAt, item);
+    props.deleteTodoFromList(item);
   };
 
   const completeSingleTodo = (taskAt: number, item: TODOModel) => {
-    console.log("completeSingleTodo item " + JSON.stringify(item));
     setItemAt(taskAt);
     setItemValue(item);
     Statsig.logEvent(TODO_COMPLETED);
-    props.completeTodoFromList(taskAt, item);
+    props.completeTodoFromList(item);
   };
 
   const listItemAddedComponent = () => {
@@ -54,11 +52,11 @@ const TodoList = (props: TodoListProps) => {
             <Task
               taskData={item}
               itemAt={index}
-              deleteTodoItem={(taskAt: number, modelObj: TODOModel) =>
-                deleteSingleTodo(taskAt, modelObj)
+              deleteTodoItem={(taskAt: number, todoObj: TODOModel) =>
+                deleteSingleTodo(taskAt, todoObj)
               }
-              completeTodoItem={(taskAt: number, modelObj: TODOModel) =>
-                completeSingleTodo(taskAt, modelObj)
+              completeTodoItem={(taskAt: number, todoObj: TODOModel) =>
+                completeSingleTodo(taskAt, todoObj)
               }
             />
           </View>
