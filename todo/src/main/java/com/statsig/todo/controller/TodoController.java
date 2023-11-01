@@ -5,6 +5,7 @@ import com.statsig.todo.services.TodoService;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -38,8 +39,8 @@ public class TodoController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteTodo(@PathVariable Long id) {
-        todoService.deleteTodo(id);
+    public HashMap deleteTodo(@PathVariable Long id) {
+        return todoService.deleteTodo(id);
     }
 
     @PutMapping
