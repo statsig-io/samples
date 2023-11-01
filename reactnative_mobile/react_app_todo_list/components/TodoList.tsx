@@ -13,7 +13,6 @@ const TodoList = (props: TodoListProps) => {
   const TODO_LIST_VIEWED = "CLIENT_TODO_LIST_VIEWED";
   const TODO_DELETED = "CLIENT_TODO_DELETED";
   const TODO_COMPLETED = "CLIENT_TODO_COMPLETED";
-  const [itemAt, setItemAt] = useState<number>(0);
   const [itemValue, setItemValue] = useState<TODOModel>();
 
   useEffect(() => {
@@ -23,14 +22,12 @@ const TodoList = (props: TodoListProps) => {
   }, []);
 
   const deleteSingleTodo = (taskAt: number, item: TODOModel) => {
-    setItemAt(taskAt);
     setItemValue(item);
     Statsig.logEvent(TODO_DELETED);
     props.deleteTodoFromList(item);
   };
 
   const completeSingleTodo = (taskAt: number, item: TODOModel) => {
-    setItemAt(taskAt);
     setItemValue(item);
     Statsig.logEvent(TODO_COMPLETED);
     props.completeTodoFromList(item);

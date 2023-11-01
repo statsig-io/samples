@@ -101,42 +101,46 @@ export default function App() {
     }
   };
 
-  const deleteTask = (item: TODOModel) => {
-    const url = baseTodoUrl + "/" + item.id;
-    fetch(url, {
-      method: "DELETE",
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        fetchTodoList();
-      })
-      .catch((err) => {
-        console.error(err);
+  const deleteTask = async (itemId: number) => {
+    try {
+      const url = baseTodoUrl + "/" + itemId;
+      const response = await fetch(url, {
+        method: "DELETE",
       });
+      const json = await response.json();
+      fetchTodoList;
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const completeTask = (todoObj: TODOModel) => {
-    fetch(baseTodoUrl, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        serialNumber: todoObj.serialNumber,
-        task: todoObj.task,
-        completed: todoObj.completed,
-        description: todoObj.description,
-        edited: todoObj.edited,
-        createdDate: todoObj.createdDate,
-        modifiedDate: todoObj.modifiedDate,
-        lastViewed: todoObj.lastViewed,
-      }),
-    })
-      .then((response) => {})
-      .catch((err) => {
-        console.error(err);
+  const completeTask = async (todoObj: TODOModel) => {
+    try {
+      const response = await fetch(baseTodoUrl, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          serialNumber: todoObj.serialNumber,
+          task: todoObj.task,
+          completed: todoObj.completed,
+          description: todoObj.description,
+          edited: todoObj.edited,
+          createdDate: todoObj.createdDate,
+          modifiedDate: todoObj.modifiedDate,
+          lastViewed: todoObj.lastViewed,
+        }),
       });
-    fetchTodoList();
+      const json = await response.json();
+      fetchTodoList();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const initCallback = (
@@ -175,7 +179,7 @@ export default function App() {
           ) : (
             <TodoList
               dataList={todoList}
-              deleteTodoFromList={(item: TODOModel) => deleteTask(item)}
+              deleteTodoFromList={(item: TODOModel) => deleteTask(item.id)}
               completeTodoFromList={(item: TODOModel) => completeTask(item)}
             />
           )}
