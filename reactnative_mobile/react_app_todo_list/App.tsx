@@ -1,7 +1,6 @@
-import React from "react";
-import App from "./src";
-import { theme } from "./src/core/themes";
 import { Provider } from "react-native-paper";
+import { theme } from "./src/core/themes";
+import App from "./src";
 
 export default function Main() {
   return (

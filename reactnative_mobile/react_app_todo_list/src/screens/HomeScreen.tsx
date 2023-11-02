@@ -5,14 +5,15 @@ import {
   Text,
   AppState,
   ActivityIndicator,
+  AppStateStatus,
 } from "react-native";
 import { StatsigProvider, Statsig } from "statsig-react";
 import { REACT_APP_CLIENT_KEY } from "@env";
 import { useEffect, useState, useRef, memo } from "react";
 import "react-native-get-random-values";
 import TodoList from "../components/TodoList";
-import TODOModel from "../models/TODOModel";
 import KeyboardAvoidingTextInput from "../components/KeyboardAvoidingTextInput";
+import useTodoService from "../components/TodoService";
 
 const HomeScreen = () => {
   const appState = useRef(AppState.currentState);
@@ -31,7 +32,7 @@ const HomeScreen = () => {
   const APP_BACKGROUNDED: string = "CLIENT_TODO_APP_BACKGROUND";
 
   const baseTodoUrl = "http://localhost:8080/todos";
-  const [todoList, setTodoList] = useState<TODOModel[]>([]);
+  const [todoList, setTodoList] = useState<TodoModel[]>([]);
   const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -45,7 +46,7 @@ const HomeScreen = () => {
     };
   }, []);
 
-  const handleAppStateChange = (nextAppState: any) => {
+  const handleAppStateChange = (nextAppState: AppStateStatus) => {
     if (
       appState.current.match(/inactive|background/) &&
       nextAppState === "active"
@@ -57,73 +58,101 @@ const HomeScreen = () => {
     appState.current = nextAppState;
   };
 
-  const addNewTask = async (modelObj: TODOModel) => {
+  const handleAddTask = async (todoObj: TodoModel) => {
     Keyboard.dismiss();
     setTask("");
     Statsig.logEvent(TODO_CREATED);
-    addTodoInList(modelObj);
+    addTodoItem(todoObj);
     fetchTodoList();
   };
 
-  const addTodoInList = async (modelObj: TODOModel) => {
-    fetch(baseTodoUrl, {
-      method: "POST",
-      headers: {
+  const addTodoItem = async (todoObj: TodoModel) => {
+    var addItem = await useTodoService(
+      baseTodoUrl,
+      "POST",
+      {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        serialNumber: modelObj.serialNumber,
-        task: modelObj.task,
-        completed: modelObj.completed,
-        description: modelObj.description,
-        edited: modelObj.edited,
-        createdDate: modelObj.createdDate,
-        modifiedDate: modelObj.modifiedDate,
-        lastViewed: modelObj.lastViewed,
-      }),
-    })
-      .then((response) => {})
-      .catch((err) => console.error(err));
+      JSON.stringify({
+        serialNumber: todoObj.serialNumber,
+        task: todoObj.task,
+        completed: todoObj.completed,
+        description: todoObj.description,
+        edited: todoObj.edited,
+        createdDate: todoObj.createdDate,
+        modifiedDate: todoObj.modifiedDate,
+        lastViewed: todoObj.lastViewed,
+      })
+    );
+    setLoading(addItem.loading);
+    if (!addItem.loading) {
+      if (addItem.error != "") {
+        console.error(addItem.error);
+      } else {
+        fetchTodoList();
+      }
+    }
   };
 
   const fetchTodoList = async () => {
     if (todoList.length > 0) {
       setTodoList([]);
     }
-    fetch(baseTodoUrl)
-      .then((response) => response.json())
-      .then((data) => setTodoList(data))
-      .catch((err) => console.error(err))
-      .finally(() => setLoading(false));
+    var fetchList = await useTodoService(baseTodoUrl, "GET", undefined, null);
+    setLoading(fetchList.loading);
+    if (!fetchList.loading) {
+      if (fetchList.error != "") {
+        console.error(fetchList.error);
+      } else {
+        setTodoList(fetchList.data);
+      }
+    }
   };
 
-  const deleteTask = (item: TODOModel) => {
-    fetch(baseTodoUrl + "/" + item.id, {
-      method: "DELETE",
-    })
-      .then((response) => response.json())
-      .then((data) => fetchTodoList())
-      .catch((err) => console.error(err));
+  const deleteTodoItem = async (itemId: number) => {
+    var deleteItem = await useTodoService(
+      baseTodoUrl + "/" + itemId,
+      "DELETE",
+      undefined,
+      null
+    );
+    setLoading(deleteItem.loading);
+    if (!deleteItem.loading) {
+      if (deleteItem.error != "") {
+        console.error(deleteItem.error);
+      } else {
+        fetchTodoList();
+      }
+    }
   };
 
-  const completeTask = (modelObj: TODOModel) => {
-    fetch(baseTodoUrl, {
-      method: "PUT",
-      body: JSON.stringify({
-        serialNumber: modelObj.serialNumber,
-        task: modelObj.task,
-        completed: modelObj.completed,
-        description: modelObj.description,
-        edited: true,
-        createdDate: modelObj.createdDate,
-        modifiedDate: modelObj.modifiedDate,
-        lastViewed: true,
-      }),
-    })
-      .then((response) => response.json())
-      .then((data) => fetchTodoList())
-      .catch((err) => console.error(err));
+  const completeTask = async (todoObj: TodoModel) => {
+    var completeItem = await useTodoService(
+      baseTodoUrl,
+      "PUT",
+      {
+        "Content-Type": "application/json",
+      },
+      JSON.stringify({
+        serialNumber: todoObj.serialNumber,
+        task: todoObj.task,
+        completed: todoObj.completed,
+        description: todoObj.description,
+        edited: todoObj.edited,
+        createdDate: todoObj.createdDate,
+        modifiedDate: todoObj.modifiedDate,
+        lastViewed: todoObj.lastViewed,
+      })
+    );
+    setLoading(completeItem.loading);
+    if (!completeItem.loading) {
+      if (completeItem.error != "") {
+        console.error(completeItem.error);
+      } else {
+        fetchTodoList();
+      }
+    }
   };
 
   const arrangeTodoList = async () => {
@@ -152,22 +181,11 @@ const HomeScreen = () => {
       );
       setTodoList(strAscending);
     }
-    fetchBannerWarning();
   };
 
   const getDateTimeInMillie = (date: Date): number => {
     const dateValue = new Date(date);
     return dateValue.getMilliseconds();
-  };
-
-  const fetchBannerWarning = () => {
-    if (statsigInitialized) {
-      const bannerConf = Statsig.getConfig("warning_banner");
-      setBannerDynConf(bannerConf != null);
-      setBannerWarningMsg(bannerConf.get("message", "NA"));
-      setBannerWarningTextColor(bannerConf.get("textColor", "white"));
-      setBannerWarningBdgColor(bannerConf.get("backgroundColor", "white"));
-    }
   };
 
   const initCallback = (
@@ -211,7 +229,7 @@ const HomeScreen = () => {
               placeHolderText={"Write a task here"}
               changeText={(text: string) => setTask(text)}
               taskValue={task}
-              addTask={(modelObj: TODOModel) => addNewTask(modelObj)}
+              addTask={(modelObj: TodoModel) => addTodoItem(modelObj)}
               sortTodoList={() => arrangeTodoList()}
             />
 
@@ -220,12 +238,10 @@ const HomeScreen = () => {
             ) : (
               <TodoList
                 dataList={todoList}
-                deleteTodoFromList={(index: any, item: TODOModel) =>
-                  deleteTask(item)
+                deleteTodoFromList={(item: TodoModel) =>
+                  deleteTodoItem(item.id)
                 }
-                completeTodoFromList={(index: any, item: TODOModel) =>
-                  completeTask(item)
-                }
+                completeTodoFromList={(item: TodoModel) => completeTask(item)}
               />
             )}
           </View>
