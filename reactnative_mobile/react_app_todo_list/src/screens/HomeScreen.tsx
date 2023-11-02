@@ -229,7 +229,7 @@ const HomeScreen = () => {
               placeHolderText={"Write a task here"}
               changeText={(text: string) => setTask(text)}
               taskValue={task}
-              addTask={(modelObj: TodoModel) => addTodoItem(modelObj)}
+              addTask={(modelObj: TodoModel) => handleAddTask(modelObj)}
               sortTodoList={() => arrangeTodoList()}
             />
 
