@@ -43,7 +43,9 @@ def update_todo_by_id():
 def delete_todo_by_id(todo_id):
     isDeleteEnable = util.isDeleteFeatureEnable()
     deleted_todo = repository.delete_todo_by_id(todo_id)
-    if deleted_todo and isDeleteEnable:
+    if not isDeleteEnable:
+        return jsonify({'error': 'Delete is disabled.'}), 404
+    elif deleted_todo:    
         util.logEvent(constants.TODO_DELETED)
         return jsonify({"id":deleted_todo.id})
     else:
