@@ -5,6 +5,7 @@ import TodoTextInput from "../components/TodoTextInput";
 import { emailValidator, passwordValidator } from "../core/validations";
 import { Navigation } from "../Navigation";
 import { theme } from "../core/themes";
+import { REACT_APP_CLIENT_KEY } from "@env";
 
 type Props = {
   navigation: Navigation;
@@ -13,6 +14,8 @@ type Props = {
 const LoginScreen = ({ navigation }: Props) => {
   const [email, setEmail] = useState({ value: "", error: "" });
   const [password, setPassword] = useState({ value: "", error: "" });
+
+  const API_KEY = REACT_APP_CLIENT_KEY || "";
 
   const _onLoginPressed = () => {
     const emailError = emailValidator(email.value);

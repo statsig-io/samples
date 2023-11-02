@@ -20,7 +20,7 @@ const HomeScreen = () => {
 
   const [task, setTask] = useState<string>("");
 
-  const API_KEY: string = REACT_APP_CLIENT_KEY || "";
+  const API_KEY = REACT_APP_CLIENT_KEY || "";
   const [user, setUser] = useState({ userID: "reactnative_dummy_user_id" });
   const [statsigInitialized, setStatsigInitialized] = useState(false);
   const [bannerDynConf, setBannerDynConf] = useState(false);
@@ -87,7 +87,7 @@ const HomeScreen = () => {
     );
     setLoading(addItem.loading);
     if (!addItem.loading) {
-      if (addItem.error != "") {
+      if (addItem.error != null) {
         console.error(addItem.error);
       } else {
         fetchTodoList();
@@ -102,7 +102,7 @@ const HomeScreen = () => {
     var fetchList = await useTodoService(baseTodoUrl, "GET", undefined, null);
     setLoading(fetchList.loading);
     if (!fetchList.loading) {
-      if (fetchList.error != "") {
+      if (fetchList.error != null) {
         console.error(fetchList.error);
       } else {
         setTodoList(fetchList.data);
@@ -119,7 +119,7 @@ const HomeScreen = () => {
     );
     setLoading(deleteItem.loading);
     if (!deleteItem.loading) {
-      if (deleteItem.error != "") {
+      if (deleteItem.error != null) {
         console.error(deleteItem.error);
       } else {
         fetchTodoList();
@@ -147,7 +147,7 @@ const HomeScreen = () => {
     );
     setLoading(completeItem.loading);
     if (!completeItem.loading) {
-      if (completeItem.error != "") {
+      if (completeItem.error != null) {
         console.error(completeItem.error);
       } else {
         fetchTodoList();
@@ -162,12 +162,10 @@ const HomeScreen = () => {
       0
     );
     if (dynamicConfig === 1) {
-      const numAscending = [...todoList].sort(
-        (a, b) =>
-          getDateTimeInMillie(a.createdDate) -
-          getDateTimeInMillie(b.createdDate)
+      const strAscending = [...todoList].sort((a, b) =>
+        a.task > b.task ? 1 : -1
       );
-      setTodoList(numAscending);
+      setTodoList(strAscending);
     } else if (dynamicConfig === 2) {
       const numDescending = [...todoList].sort(
         (a, b) =>
@@ -176,10 +174,12 @@ const HomeScreen = () => {
       );
       setTodoList(numDescending);
     } else if (dynamicConfig === 3) {
-      const strAscending = [...todoList].sort((a, b) =>
-        a.task > b.task ? 1 : -1
+      const numAscending = [...todoList].sort(
+        (a, b) =>
+          getDateTimeInMillie(a.createdDate) -
+          getDateTimeInMillie(b.createdDate)
       );
-      setTodoList(strAscending);
+      setTodoList(numAscending);
     }
   };
 
