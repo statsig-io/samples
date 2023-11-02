@@ -14,7 +14,7 @@ type KeyboardAvoidingTextInputProps = {
   placeHolderText: string;
   taskValue: string;
   changeText: (text: string) => void;
-  addTask: (todoObj: TODOModel) => void;
+  addTask: (todoObj: TodoModel) => void;
 };
 
 const KeyboardAvoidingTextInput = (props: KeyboardAvoidingTextInputProps) => {
@@ -28,7 +28,7 @@ const KeyboardAvoidingTextInput = (props: KeyboardAvoidingTextInputProps) => {
   };
 
   const addTaskListener = (text: string) => {
-    const todoObj: TODOModel = {
+    const todoObj: TodoModel = {
       id: 0,
       serialNumber: srNum,
       task: text,

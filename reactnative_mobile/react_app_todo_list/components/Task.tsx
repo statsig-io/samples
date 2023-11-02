@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { Statsig } from "statsig-react-native-expo";
-import TODOModel from "../models/TODOModel";
 
 type TaskProps = {
-  taskData: TODOModel;
+  taskData: TodoModel;
   itemAt: number;
-  deleteTodoItem(itemAt: number, itemValue: TODOModel): void;
-  completeTodoItem(itemAt: number, itemValue: TODOModel): void;
+  deleteTodoItem(itemValue: TodoModel): void;
+  completeTodoItem(itemValue: TodoModel): void;
 };
 
 const Task = (props: TaskProps) => {
@@ -22,14 +21,14 @@ const Task = (props: TaskProps) => {
     setIsTaskCompleted(props.taskData.completed);
   }, []);
 
-  const deleteTaskPressed = (taskAt: number, taskData: TODOModel) => {
-    props.deleteTodoItem(taskAt, taskData);
+  const deleteTaskPressed = (taskData: TodoModel) => {
+    props.deleteTodoItem(taskData);
   };
 
-  const completeTaskPressed = (taskAt: number, taskData: TODOModel) => {
+  const completeTaskPressed = (taskData: TodoModel) => {
     if (!isTaskCompleted) {
       taskData.completed = !isTaskCompleted;
-      props.completeTodoItem(taskAt, taskData);
+      props.completeTodoItem(taskData);
     }
   };
 
@@ -47,9 +46,7 @@ const Task = (props: TaskProps) => {
       </View>
       <View>
         {visibility ? (
-          <TouchableOpacity
-            onPress={() => deleteTaskPressed(props.itemAt, props.taskData)}
-          >
+          <TouchableOpacity onPress={() => deleteTaskPressed(props.taskData)}>
             <Image
               style={styles.imageBackground}
               source={require("../assets/delete_icon.png")}
@@ -57,9 +54,7 @@ const Task = (props: TaskProps) => {
           </TouchableOpacity>
         ) : null}
       </View>
-      <TouchableOpacity
-        onPress={() => completeTaskPressed(props.itemAt, props.taskData)}
-      >
+      <TouchableOpacity onPress={() => completeTaskPressed(props.taskData)}>
         <View style={styles.circular} />
       </TouchableOpacity>
     </View>

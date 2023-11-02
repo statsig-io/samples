@@ -4,16 +4,16 @@ import Task from "./Task";
 import { Statsig } from "statsig-react";
 
 type TodoListProps = {
-  dataList: TODOModel[];
-  deleteTodoFromList(itemValue: TODOModel): void;
-  completeTodoFromList(itemValue: TODOModel): void;
+  dataList: TodoModel[];
+  deleteTodoFromList(itemValue: TodoModel): void;
+  completeTodoFromList(itemValue: TodoModel): void;
 };
 
 const TodoList = (props: TodoListProps) => {
   const TODO_LIST_VIEWED = "CLIENT_TODO_LIST_VIEWED";
   const TODO_DELETED = "CLIENT_TODO_DELETED";
   const TODO_COMPLETED = "CLIENT_TODO_COMPLETED";
-  const [itemValue, setItemValue] = useState<TODOModel>();
+  const [itemValue, setItemValue] = useState<TodoModel>();
 
   useEffect(() => {
     if (itemValue != null) {
@@ -21,13 +21,13 @@ const TodoList = (props: TodoListProps) => {
     }
   }, []);
 
-  const deleteSingleTodo = (taskAt: number, item: TODOModel) => {
+  const deleteSingleTodo = (item: TodoModel) => {
     setItemValue(item);
     Statsig.logEvent(TODO_DELETED);
     props.deleteTodoFromList(item);
   };
 
-  const completeSingleTodo = (taskAt: number, item: TODOModel) => {
+  const completeSingleTodo = (item: TodoModel) => {
     setItemValue(item);
     Statsig.logEvent(TODO_COMPLETED);
     props.completeTodoFromList(item);
@@ -49,11 +49,9 @@ const TodoList = (props: TodoListProps) => {
             <Task
               taskData={item}
               itemAt={index}
-              deleteTodoItem={(taskAt: number, todoObj: TODOModel) =>
-                deleteSingleTodo(taskAt, todoObj)
-              }
-              completeTodoItem={(taskAt: number, todoObj: TODOModel) =>
-                completeSingleTodo(taskAt, todoObj)
+              deleteTodoItem={(todoObj: TodoModel) => deleteSingleTodo(todoObj)}
+              completeTodoItem={(todoObj: TodoModel) =>
+                completeSingleTodo(todoObj)
               }
             />
           </View>

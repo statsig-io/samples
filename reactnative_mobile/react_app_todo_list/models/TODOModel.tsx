@@ -1,4 +1,4 @@
-type TODOModel = {
+type TodoModel = {
   id: number;
   serialNumber: number;
   task: string;

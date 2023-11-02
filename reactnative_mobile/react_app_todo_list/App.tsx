@@ -13,6 +13,7 @@ import { useEffect, useState, useRef } from "react";
 import "react-native-get-random-values";
 import KeyboardAvoidingTextInput from "./components/KeyboardAvoidingTextInput";
 import TodoList from "./components/TodoList";
+import useTodoService from "./components/TodoService";
 
 export default function App() {
   const [task, setTask] = useState<string>("");
@@ -28,7 +29,7 @@ export default function App() {
   const appState = useRef(AppState.currentState);
 
   const baseTodoUrl = "http://localhost:8080/todos";
-  const [todoList, setTodoList] = useState<TODOModel[]>([]);
+  const [todoList, setTodoList] = useState<TodoModel[]>([]);
   const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -54,22 +55,23 @@ export default function App() {
     appState.current = nextAppState;
   };
 
-  const handleAddTask = async (todoObj: TODOModel) => {
+  const handleAddTask = async (todoObj: TodoModel) => {
     Keyboard.dismiss();
     setTask("");
     Statsig.logEvent(TODO_CREATED);
-    addTodoInList(todoObj);
+    addTodoItem(todoObj);
     fetchTodoList();
   };
 
-  const addTodoInList = async (todoObj: TODOModel) => {
-    fetch(baseTodoUrl, {
-      method: "POST",
-      headers: {
+  const addTodoItem = async (todoObj: TodoModel) => {
+    var addItem = await useTodoService(
+      baseTodoUrl,
+      "POST",
+      {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
+      JSON.stringify({
         serialNumber: todoObj.serialNumber,
         task: todoObj.task,
         completed: todoObj.completed,
@@ -78,68 +80,75 @@ export default function App() {
         createdDate: todoObj.createdDate,
         modifiedDate: todoObj.modifiedDate,
         lastViewed: todoObj.lastViewed,
-      }),
-    })
-      .then((response) => {})
-      .catch((err) => {
-        console.error(err);
-      });
+      })
+    );
+    setLoading(addItem.loading);
+    if (!addItem.loading) {
+      if (addItem.error != "") {
+        console.error(addItem.error);
+      } else {
+        fetchTodoList();
+      }
+    }
   };
 
   const fetchTodoList = async () => {
     if (todoList.length > 0) {
       setTodoList([]);
     }
-    try {
-      const response = await fetch(baseTodoUrl);
-      const json = await response.json();
-      setTodoList(json);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
+    var fetchList = await useTodoService(baseTodoUrl, "GET", undefined, null);
+    setLoading(fetchList.loading);
+    if (!fetchList.loading) {
+      if (fetchList.error != "") {
+        console.error(fetchList.error);
+      } else {
+        setTodoList(fetchList.data);
+      }
     }
   };
 
-  const deleteTask = async (itemId: number) => {
-    try {
-      const url = baseTodoUrl + "/" + itemId;
-      const response = await fetch(url, {
-        method: "DELETE",
-      });
-      const json = await response.json();
-      fetchTodoList;
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
+  const deleteTodoItem = async (itemId: number) => {
+    var deleteItem = await useTodoService(
+      baseTodoUrl + "/" + itemId,
+      "DELETE",
+      undefined,
+      null
+    );
+    setLoading(deleteItem.loading);
+    if (!deleteItem.loading) {
+      if (deleteItem.error != "") {
+        console.error(deleteItem.error);
+      } else {
+        fetchTodoList();
+      }
     }
   };
 
-  const completeTask = async (todoObj: TODOModel) => {
-    try {
-      const response = await fetch(baseTodoUrl, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          serialNumber: todoObj.serialNumber,
-          task: todoObj.task,
-          completed: todoObj.completed,
-          description: todoObj.description,
-          edited: todoObj.edited,
-          createdDate: todoObj.createdDate,
-          modifiedDate: todoObj.modifiedDate,
-          lastViewed: todoObj.lastViewed,
-        }),
-      });
-      const json = await response.json();
-      fetchTodoList();
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
+  const completeTask = async (todoObj: TodoModel) => {
+    var completeItem = await useTodoService(
+      baseTodoUrl,
+      "PUT",
+      {
+        "Content-Type": "application/json",
+      },
+      JSON.stringify({
+        serialNumber: todoObj.serialNumber,
+        task: todoObj.task,
+        completed: todoObj.completed,
+        description: todoObj.description,
+        edited: todoObj.edited,
+        createdDate: todoObj.createdDate,
+        modifiedDate: todoObj.modifiedDate,
+        lastViewed: todoObj.lastViewed,
+      })
+    );
+    setLoading(completeItem.loading);
+    if (!completeItem.loading) {
+      if (completeItem.error != "") {
+        console.error(completeItem.error);
+      } else {
+        fetchTodoList();
+      }
     }
   };
 
@@ -171,7 +180,7 @@ export default function App() {
             placeHolderText={"Write a task here"}
             changeText={(text: string) => setTask(text)}
             taskValue={task}
-            addTask={(todoObj: TODOModel) => handleAddTask(todoObj)}
+            addTask={(todoObj: TodoModel) => handleAddTask(todoObj)}
           />
 
           {isLoading ? (
@@ -179,8 +188,8 @@ export default function App() {
           ) : (
             <TodoList
               dataList={todoList}
-              deleteTodoFromList={(item: TODOModel) => deleteTask(item.id)}
-              completeTodoFromList={(item: TODOModel) => completeTask(item)}
+              deleteTodoFromList={(item: TodoModel) => deleteTodoItem(item.id)}
+              completeTodoFromList={(item: TodoModel) => completeTask(item)}
             />
           )}
         </View>
