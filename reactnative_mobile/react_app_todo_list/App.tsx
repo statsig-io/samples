@@ -25,6 +25,7 @@ export default function App() {
   const [bannerWarningMsg, setBannerWarningMsg] = useState("");
   const [bannerWarningTextColor, setBannerWarningTextColor] = useState("");
   const [bannerWarningBdgColor, setBannerWarningBdgColor] = useState("");
+  const [dynamicConfig, setDynamicConfig] = useState(0);
 
   const TODO_CREATED = "CLIENT_TODO_CREATED";
   const APP_OPENED = "CLIENT_TODO_APP_OPENED";
@@ -88,7 +89,7 @@ export default function App() {
     );
     setLoading(addItem.loading);
     if (!addItem.loading) {
-      if (addItem.error != "") {
+      if (addItem.error != null) {
         console.error(addItem.error);
       } else {
         fetchTodoList();
@@ -103,7 +104,7 @@ export default function App() {
     var fetchList = await useTodoService(baseTodoUrl, "GET", undefined, null);
     setLoading(fetchList.loading);
     if (!fetchList.loading) {
-      if (fetchList.error != "") {
+      if (fetchList.error != null) {
         console.error(fetchList.error);
       } else {
         setTodoList(fetchList.data);
@@ -120,7 +121,7 @@ export default function App() {
     );
     setLoading(deleteItem.loading);
     if (!deleteItem.loading) {
-      if (deleteItem.error != "") {
+      if (deleteItem.error != null) {
         console.error(deleteItem.error);
       } else {
         fetchTodoList();
@@ -148,7 +149,7 @@ export default function App() {
     );
     setLoading(completeItem.loading);
     if (!completeItem.loading) {
-      if (completeItem.error != "") {
+      if (completeItem.error != null) {
         console.error(completeItem.error);
       } else {
         fetchTodoList();
@@ -158,17 +159,16 @@ export default function App() {
 
   const arrangeTodoList = async () => {
     await fetchTodoList();
-    const dynamicConfig: number = Statsig.getConfig("item_sorting").get(
+    const dynamicConfigLocal: number = Statsig.getConfig("item_sorting").get(
       "sort_order",
       0
     );
+    setDynamicConfig(dynamicConfigLocal);
     if (dynamicConfig === 1) {
-      const numAscending = [...todoList].sort(
-        (a, b) =>
-          getDateTimeInMillie(a.createdDate) -
-          getDateTimeInMillie(b.createdDate)
+      const strAscending = [...todoList].sort((a, b) =>
+        a.task > b.task ? 1 : -1
       );
-      setTodoList(numAscending);
+      setTodoList(strAscending);
     } else if (dynamicConfig === 2) {
       const numDescending = [...todoList].sort(
         (a, b) =>
@@ -177,10 +177,12 @@ export default function App() {
       );
       setTodoList(numDescending);
     } else if (dynamicConfig === 3) {
-      const strAscending = [...todoList].sort((a, b) =>
-        a.task > b.task ? 1 : -1
+      const numAscending = [...todoList].sort(
+        (a, b) =>
+          getDateTimeInMillie(a.createdDate) -
+          getDateTimeInMillie(b.createdDate)
       );
-      setTodoList(strAscending);
+      setTodoList(numAscending);
     }
     fetchBannerWarning();
   };
