@@ -21,6 +21,11 @@ export default function App() {
   const [user, setUser] = useState({ userID: "reactnative_dummy_user_id" });
   const API_KEY = REACT_APP_CLIENT_KEY || "";
   const [statsigInitialized, setStatsigInitialized] = useState(false);
+  const [bannerDynConf, setBannerDynConf] = useState(false);
+  const [bannerWarningMsg, setBannerWarningMsg] = useState("");
+  const [bannerWarningTextColor, setBannerWarningTextColor] = useState("");
+  const [bannerWarningBdgColor, setBannerWarningBdgColor] = useState("");
+  const [dynamicConfig, setDynamicConfig] = useState(0);
 
   const TODO_CREATED = "CLIENT_TODO_CREATED";
   const APP_OPENED = "CLIENT_TODO_APP_OPENED";
@@ -84,7 +89,7 @@ export default function App() {
     );
     setLoading(addItem.loading);
     if (!addItem.loading) {
-      if (addItem.error != "") {
+      if (addItem.error != null) {
         console.error(addItem.error);
       } else {
         fetchTodoList();
@@ -99,7 +104,7 @@ export default function App() {
     var fetchList = await useTodoService(baseTodoUrl, "GET", undefined, null);
     setLoading(fetchList.loading);
     if (!fetchList.loading) {
-      if (fetchList.error != "") {
+      if (fetchList.error != null) {
         console.error(fetchList.error);
       } else {
         setTodoList(fetchList.data);
@@ -116,7 +121,7 @@ export default function App() {
     );
     setLoading(deleteItem.loading);
     if (!deleteItem.loading) {
-      if (deleteItem.error != "") {
+      if (deleteItem.error != null) {
         console.error(deleteItem.error);
       } else {
         fetchTodoList();
@@ -144,7 +149,7 @@ export default function App() {
     );
     setLoading(completeItem.loading);
     if (!completeItem.loading) {
-      if (completeItem.error != "") {
+      if (completeItem.error != null) {
         console.error(completeItem.error);
       } else {
         fetchTodoList();
@@ -154,17 +159,16 @@ export default function App() {
 
   const arrangeTodoList = async () => {
     await fetchTodoList();
-    const dynamicConfig: number = Statsig.getConfig("item_sorting").get(
+    const dynamicConfigLocal: number = Statsig.getConfig("item_sorting").get(
       "sort_order",
       0
     );
+    setDynamicConfig(dynamicConfigLocal);
     if (dynamicConfig === 1) {
-      const numAscending = [...todoList].sort(
-        (a, b) =>
-          getDateTimeInMillie(a.createdDate) -
-          getDateTimeInMillie(b.createdDate)
+      const strAscending = [...todoList].sort((a, b) =>
+        a.task > b.task ? 1 : -1
       );
-      setTodoList(numAscending);
+      setTodoList(strAscending);
     } else if (dynamicConfig === 2) {
       const numDescending = [...todoList].sort(
         (a, b) =>
@@ -173,16 +177,29 @@ export default function App() {
       );
       setTodoList(numDescending);
     } else if (dynamicConfig === 3) {
-      const strAscending = [...todoList].sort((a, b) =>
-        a.task > b.task ? 1 : -1
+      const numAscending = [...todoList].sort(
+        (a, b) =>
+          getDateTimeInMillie(a.createdDate) -
+          getDateTimeInMillie(b.createdDate)
       );
-      setTodoList(strAscending);
+      setTodoList(numAscending);
     }
+    fetchBannerWarning();
   };
 
   const getDateTimeInMillie = (date: Date): number => {
     const dateValue = new Date(date);
     return dateValue.getMilliseconds();
+  };
+
+  const fetchBannerWarning = () => {
+    if (statsigInitialized) {
+      const bannerConf = Statsig.getConfig("warning_banner");
+      setBannerDynConf(bannerConf != null);
+      setBannerWarningMsg(bannerConf.get("message", "NA"));
+      setBannerWarningTextColor(bannerConf.get("textColor", "white"));
+      setBannerWarningBdgColor(bannerConf.get("backgroundColor", "white"));
+    }
   };
 
   const initCallback = (
@@ -195,6 +212,21 @@ export default function App() {
 
   return (
     <View style={styles.container}>
+      {bannerDynConf ? (
+        <View style={styles.bannerWarningContainer}>
+          <Text
+            style={{
+              fontSize: 20,
+              color:
+                bannerWarningTextColor != "" ? bannerWarningTextColor : "black",
+              backgroundColor:
+                bannerWarningBdgColor != "" ? bannerWarningBdgColor : "white",
+            }}
+          >
+            {bannerWarningMsg}
+          </Text>
+        </View>
+      ) : null}
       <StatsigProvider
         sdkKey={API_KEY}
         user={user}
@@ -203,37 +235,38 @@ export default function App() {
           initCompletionCallback: initCallback,
         }}
       >
-        <View />
-      </StatsigProvider>
-      {statsigInitialized ? (
-        <View style={styles.childContainer}>
-          <Text style={styles.sectionTitle}>Today's tasks</Text>
+        {statsigInitialized ? (
+          <View style={styles.childContainer}>
+            <Text style={styles.sectionTitle}>Today's tasks</Text>
 
-          <KeyboardAvoidingTextInput
-            placeHolderText={"Write a task here"}
-            changeText={(text: string) => setTask(text)}
-            taskValue={task}
-            sortTodoList={() => arrangeTodoList()}
-            addTask={(todoObj: TodoModel) => handleAddTask(todoObj)}
-          />
-
-          {isLoading ? (
-            <ActivityIndicator />
-          ) : (
-            <TodoList
-              dataList={todoList}
-              deleteTodoFromList={(item: TodoModel) => deleteTodoItem(item.id)}
-              completeTodoFromList={(item: TodoModel) => completeTask(item)}
+            <KeyboardAvoidingTextInput
+              placeHolderText={"Write a task here"}
+              changeText={(text: string) => setTask(text)}
+              taskValue={task}
+              sortTodoList={() => arrangeTodoList()}
+              addTask={(todoObj: TodoModel) => handleAddTask(todoObj)}
             />
-          )}
-        </View>
-      ) : (
-        <View style={styles.childContainer}>
-          <Text style={styles.errorSectionTitle}>
-            Statsig SDK not initialized. Please try reopening the application.
-          </Text>
-        </View>
-      )}
+
+            {isLoading ? (
+              <ActivityIndicator />
+            ) : (
+              <TodoList
+                dataList={todoList}
+                deleteTodoFromList={(item: TodoModel) =>
+                  deleteTodoItem(item.id)
+                }
+                completeTodoFromList={(item: TodoModel) => completeTask(item)}
+              />
+            )}
+          </View>
+        ) : (
+          <View style={styles.childContainer}>
+            <Text style={styles.errorSectionTitle}>
+              Statsig SDK not initialized. Please try reopening the application.
+            </Text>
+          </View>
+        )}
+      </StatsigProvider>
     </View>
   );
 }
@@ -245,22 +278,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  bannerWarningContainer: {
+    flexDirection: "row",
+    marginTop: 120,
+  },
   childContainer: {
     alignItems: "center",
     justifyContent: "space-between",
     flexDirection: "column",
   },
   sectionTitle: {
-    fontSize: 24,
-    marginTop: 60,
-    marginLeft: 20,
+    flexWrap: "wrap",
+    fontSize: 20,
+    marginTop: 50,
     marginBottom: 20,
-    fontWeight: "bold",
   },
   errorSectionTitle: {
     fontSize: 20,
     marginTop: 60,
     marginLeft: 20,
+    marginRight: 20,
     marginBottom: 20,
     fontWeight: "bold",
   },
