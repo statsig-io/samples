@@ -4,29 +4,37 @@ import Task from "./Task";
 import { Statsig } from "statsig-react";
 
 type TodoListProps = {
-  dataList: string[];
-  deleteTodoFromList(itemAt: number, itemValue: string): void;
+  dataList: TodoModel[];
+  deleteTodoFromList(itemValue: TodoModel): void;
+  completeTodoFromList(itemValue: TodoModel): void;
 };
 
 const TodoList = (props: TodoListProps) => {
-  const TODO_LIST_VIEWED: string = "list_viewed";
-  const TODO_DELETED: string = "todo_deleted";
-  const [itemAt, setItemAt] = useState<number>(0);
-  const [itemValue, setItemValue] = useState<any>();
+  const TODO_LIST_VIEWED = "CLIENT_TODO_LIST_VIEWED";
+  const TODO_DELETED = "CLIENT_TODO_DELETED";
+  const TODO_COMPLETED = "CLIENT_TODO_COMPLETED";
+  const [itemValue, setItemValue] = useState<TodoModel>();
 
   useEffect(() => {
-    props.deleteTodoFromList(itemAt, itemValue);
+    if (itemValue != null) {
+      props.deleteTodoFromList(itemValue);
+    }
   }, []);
 
-  const deleteSingleTodo = (taskAt: number, item: any) => {
-    setItemAt(taskAt);
+  const deleteSingleTodo = (item: TodoModel) => {
     setItemValue(item);
     Statsig.logEvent(TODO_DELETED);
-    props.deleteTodoFromList(taskAt, item);
+    props.deleteTodoFromList(item);
+  };
+
+  const completeSingleTodo = (item: TodoModel) => {
+    setItemValue(item);
+    Statsig.logEvent(TODO_COMPLETED);
+    props.completeTodoFromList(item);
   };
 
   const listItemAddedComponent = () => {
-    if (props.dataList.length == 1) {
+    if (props.dataList != null && props.dataList.length == 1) {
       Statsig.logEvent(TODO_LIST_VIEWED);
     }
     return <View />;
@@ -39,10 +47,11 @@ const TodoList = (props: TodoListProps) => {
         <View style={styles.tasksWrapper}>
           <View style={styles.items}>
             <Task
-              text={item}
+              taskData={item}
               itemAt={index}
-              deleteTodoItem={(taskAt: number, text: string) =>
-                deleteSingleTodo(taskAt, text)
+              deleteTodoItem={(todoObj: TodoModel) => deleteSingleTodo(todoObj)}
+              completeTodoItem={(todoObj: TodoModel) =>
+                completeSingleTodo(todoObj)
               }
             />
           </View>

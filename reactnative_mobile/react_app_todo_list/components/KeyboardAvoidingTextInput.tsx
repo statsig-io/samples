@@ -7,17 +7,22 @@ import {
   Platform,
   StyleSheet,
   TouchableOpacity,
+  Image,
 } from "react-native";
+import moment from "moment";
 
 type KeyboardAvoidingTextInputProps = {
   placeHolderText: string;
   taskValue: string;
   changeText: (text: string) => void;
-  addTask: (text: string) => void;
+  sortTodoList: () => void;
+  addTask: (todoObj: TodoModel) => void;
 };
 
 const KeyboardAvoidingTextInput = (props: KeyboardAvoidingTextInputProps) => {
   const [taskDetail, setTaskDetail] = useState<any>();
+  const [srNum, setSrNum] = useState<number>(1);
+  const dateTimeFormat = "YYYY-MM-DD HH:mm:ss";
 
   const textChangeListener = (text: string) => {
     setTaskDetail(text);
@@ -25,7 +30,25 @@ const KeyboardAvoidingTextInput = (props: KeyboardAvoidingTextInputProps) => {
   };
 
   const addTaskListener = (text: string) => {
-    props.addTask(text);
+    const todoObj: TodoModel = {
+      id: 0,
+      serialNumber: srNum,
+      task: text,
+      description: text,
+      completed: false,
+      edited: false,
+      lastViewed: false,
+      createdDate: getCurrentDateTime(),
+      modifiedDate: getCurrentDateTime(),
+    };
+    setSrNum(srNum + 1);
+    props.addTask(todoObj);
+  };
+
+  const getCurrentDateTime = () => new Date(moment().format(dateTimeFormat));
+
+  const sortList = () => {
+    props.sortTodoList();
   };
 
   return (
@@ -44,6 +67,12 @@ const KeyboardAvoidingTextInput = (props: KeyboardAvoidingTextInputProps) => {
         <View style={styles.addWrapper}>
           <Text style={styles.addText}>+</Text>
         </View>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => sortList()}>
+        <Image
+          style={styles.imageBackground}
+          source={require("../assets/refresh.png")}
+        />
       </TouchableOpacity>
     </KeyboardAvoidingView>
   );
@@ -77,6 +106,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderColor: "#C0C0C0",
     borderWidth: 1,
+  },
+  imageBackground: {
+    width: 10,
+    height: 20,
+    padding: 11,
+    marginEnd: 20,
   },
   addText: {},
 });
