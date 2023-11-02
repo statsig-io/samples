@@ -9,15 +9,14 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
-import TODOModel from "../models/TODOModel";
 import moment from "moment";
 
 type KeyboardAvoidingTextInputProps = {
   placeHolderText: string;
   taskValue: string;
   changeText: (text: string) => void;
-  addTask: (modelObj: TODOModel) => void;
   sortTodoList: () => void;
+  addTask: (todoObj: TodoModel) => void;
 };
 
 const KeyboardAvoidingTextInput = (props: KeyboardAvoidingTextInputProps) => {
@@ -31,19 +30,19 @@ const KeyboardAvoidingTextInput = (props: KeyboardAvoidingTextInputProps) => {
   };
 
   const addTaskListener = (text: string) => {
-    const modelObj = new TODOModel(
-      0,
-      srNum,
-      text,
-      text,
-      false,
-      false,
-      false,
-      getCurrentDateTime(),
-      getCurrentDateTime()
-    );
+    const todoObj: TodoModel = {
+      id: 0,
+      serialNumber: srNum,
+      task: text,
+      description: text,
+      completed: false,
+      edited: false,
+      lastViewed: false,
+      createdDate: getCurrentDateTime(),
+      modifiedDate: getCurrentDateTime(),
+    };
     setSrNum(srNum + 1);
-    props.addTask(modelObj);
+    props.addTask(todoObj);
   };
 
   const getCurrentDateTime = () => new Date(moment().format(dateTimeFormat));

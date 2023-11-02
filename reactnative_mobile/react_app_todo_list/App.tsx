@@ -5,6 +5,7 @@ import {
   Text,
   AppState,
   ActivityIndicator,
+  AppStateStatus,
 } from "react-native";
 import { StatsigProvider, Statsig } from "statsig-react";
 import { REACT_APP_CLIENT_KEY } from "@env";
@@ -12,21 +13,23 @@ import { useEffect, useState, useRef } from "react";
 import "react-native-get-random-values";
 import KeyboardAvoidingTextInput from "./components/KeyboardAvoidingTextInput";
 import TodoList from "./components/TodoList";
-import TODOModel from "./models/TODOModel";
+import useTodoService from "./components/TodoService";
 
 export default function App() {
   const [task, setTask] = useState<string>("");
 
   const [user, setUser] = useState({ userID: "reactnative_dummy_user_id" });
-  const API_KEY: string = REACT_APP_CLIENT_KEY || "";
+  const API_KEY = REACT_APP_CLIENT_KEY || "";
   const [statsigInitialized, setStatsigInitialized] = useState(false);
-  const TODO_CREATED: string = "CLIENT_TODO_CREATED";
-  const APP_OPENED: string = "CLIENT_TODO_APP_OPENED";
-  const APP_BACKGROUNDED: string = "CLIENT_TODO_APP_BACKGROUND";
+
+  const TODO_CREATED = "CLIENT_TODO_CREATED";
+  const APP_OPENED = "CLIENT_TODO_APP_OPENED";
+  const APP_BACKGROUNDED = "CLIENT_TODO_APP_BACKGROUND";
+
   const appState = useRef(AppState.currentState);
 
   const baseTodoUrl = "http://localhost:8080/todos";
-  const [todoList, setTodoList] = useState<TODOModel[]>([]);
+  const [todoList, setTodoList] = useState<TodoModel[]>([]);
   const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -40,7 +43,7 @@ export default function App() {
     };
   }, []);
 
-  const handleAppStateChange = (nextAppState: any) => {
+  const handleAppStateChange = (nextAppState: AppStateStatus) => {
     if (
       appState.current.match(/inactive|background/) &&
       nextAppState === "active"
@@ -52,89 +55,101 @@ export default function App() {
     appState.current = nextAppState;
   };
 
-  const handleAddTask = async (modelObj: TODOModel) => {
+  const handleAddTask = async (todoObj: TodoModel) => {
     Keyboard.dismiss();
     setTask("");
     Statsig.logEvent(TODO_CREATED);
-    addTodoInList(modelObj);
+    addTodoItem(todoObj);
     fetchTodoList();
   };
 
-  const addTodoInList = async (modelObj: TODOModel) => {
-    fetch(baseTodoUrl, {
-      method: "POST",
-      headers: {
+  const addTodoItem = async (todoObj: TodoModel) => {
+    var addItem = await useTodoService(
+      baseTodoUrl,
+      "POST",
+      {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        serialNumber: modelObj.serialNumber,
-        task: modelObj.task,
-        completed: modelObj.completed,
-        description: modelObj.description,
-        edited: modelObj.edited,
-        createdDate: modelObj.createdDate,
-        modifiedDate: modelObj.modifiedDate,
-        lastViewed: modelObj.lastViewed,
-      }),
-    })
-      .then((response) => {})
-      .catch((err) => {
-        console.error(err);
-      });
+      JSON.stringify({
+        serialNumber: todoObj.serialNumber,
+        task: todoObj.task,
+        completed: todoObj.completed,
+        description: todoObj.description,
+        edited: todoObj.edited,
+        createdDate: todoObj.createdDate,
+        modifiedDate: todoObj.modifiedDate,
+        lastViewed: todoObj.lastViewed,
+      })
+    );
+    setLoading(addItem.loading);
+    if (!addItem.loading) {
+      if (addItem.error != "") {
+        console.error(addItem.error);
+      } else {
+        fetchTodoList();
+      }
+    }
   };
 
   const fetchTodoList = async () => {
     if (todoList.length > 0) {
       setTodoList([]);
     }
-    try {
-      const response = await fetch(baseTodoUrl);
-      const json = await response.json();
-      setTodoList(json);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
+    var fetchList = await useTodoService(baseTodoUrl, "GET", undefined, null);
+    setLoading(fetchList.loading);
+    if (!fetchList.loading) {
+      if (fetchList.error != "") {
+        console.error(fetchList.error);
+      } else {
+        setTodoList(fetchList.data);
+      }
     }
   };
 
-  const deleteTask = (item: TODOModel) => {
-    const url = baseTodoUrl + "/" + item.id;
-    fetch(url, {
-      method: "DELETE",
-    })
-      .then((response) => response.json())
-      .then((data) => {
+  const deleteTodoItem = async (itemId: number) => {
+    var deleteItem = await useTodoService(
+      baseTodoUrl + "/" + itemId,
+      "DELETE",
+      undefined,
+      null
+    );
+    setLoading(deleteItem.loading);
+    if (!deleteItem.loading) {
+      if (deleteItem.error != "") {
+        console.error(deleteItem.error);
+      } else {
         fetchTodoList();
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+      }
+    }
   };
 
-  const completeTask = (modelObj: TODOModel) => {
-    fetch(baseTodoUrl, {
-      method: "PUT",
-      headers: {
+  const completeTask = async (todoObj: TodoModel) => {
+    var completeItem = await useTodoService(
+      baseTodoUrl,
+      "PUT",
+      {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        serialNumber: modelObj.serialNumber,
-        task: modelObj.task,
-        completed: modelObj.completed,
-        description: modelObj.description,
-        edited: modelObj.edited,
-        createdDate: modelObj.createdDate,
-        modifiedDate: modelObj.modifiedDate,
-        lastViewed: modelObj.lastViewed,
-      }),
-    })
-      .then((response) => {})
-      .catch((err) => {
-        console.error(err);
-      });
-    fetchTodoList();
+      JSON.stringify({
+        serialNumber: todoObj.serialNumber,
+        task: todoObj.task,
+        completed: todoObj.completed,
+        description: todoObj.description,
+        edited: todoObj.edited,
+        createdDate: todoObj.createdDate,
+        modifiedDate: todoObj.modifiedDate,
+        lastViewed: todoObj.lastViewed,
+      })
+    );
+    setLoading(completeItem.loading);
+    if (!completeItem.loading) {
+      if (completeItem.error != "") {
+        console.error(completeItem.error);
+      } else {
+        fetchTodoList();
+      }
+    }
   };
 
   const arrangeTodoList = async () => {
@@ -198,8 +213,8 @@ export default function App() {
             placeHolderText={"Write a task here"}
             changeText={(text: string) => setTask(text)}
             taskValue={task}
-            addTask={(modelObj: TODOModel) => handleAddTask(modelObj)}
             sortTodoList={() => arrangeTodoList()}
+            addTask={(todoObj: TodoModel) => handleAddTask(todoObj)}
           />
 
           {isLoading ? (
@@ -207,12 +222,8 @@ export default function App() {
           ) : (
             <TodoList
               dataList={todoList}
-              deleteTodoFromList={(index: any, item: TODOModel) =>
-                deleteTask(item)
-              }
-              completeTodoFromList={(index: any, item: TODOModel) =>
-                completeTask(item)
-              }
+              deleteTodoFromList={(item: TodoModel) => deleteTodoItem(item.id)}
+              completeTodoFromList={(item: TodoModel) => completeTask(item)}
             />
           )}
         </View>
