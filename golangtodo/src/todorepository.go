@@ -1,64 +1,110 @@
 package src
 
 import (
-	"database/sql"
-
-	_ "github.com/mattn/go-sqlite3"
+	"encoding/json"
+	"fmt"
+	"os"
+	"time"
 )
 
+// TodoRepository handles data storage and retrieval using JSON flat files
 type TodoRepository struct {
-	db *sql.DB
+	filePath string
 }
 
-func NewTodoRepository(db *sql.DB) *TodoRepository {
-	return &TodoRepository{db: db}
-}
-
-func (r *TodoRepository) Create(todo *Todo) error {
-	_, err := r.db.Exec("INSERT INTO todos (task, description, completed, edited, serialNumber, lastViewed, createdDate, modifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-		todo.Task, todo.Description, todo.Completed, todo.Edited, todo.SerialNumber, todo.LastViewed, todo.CreatedDate, todo.ModifiedDate)
-	return err
-}
-
-func (r *TodoRepository) GetByID(id uint) (*Todo, error) {
-	row := r.db.QueryRow("SELECT id, task, description, completed, edited, serialNumber, lastViewed, createdDate, modifiedDate FROM todos WHERE id = ?", id)
-
-	var todo Todo
-	err := row.Scan(&todo.ID, &todo.Task, &todo.Description, &todo.Completed, &todo.Edited, &todo.SerialNumber, &todo.LastViewed, &todo.CreatedDate, &todo.ModifiedDate)
-	if err != nil {
-		return nil, err
-	}
-
-	return &todo, nil
+func NewTodoRepository(filePath string) *TodoRepository {
+	return &TodoRepository{filePath: filePath}
 }
 
 func (r *TodoRepository) GetAll() ([]Todo, error) {
-	rows, err := r.db.Query("SELECT id, task, description, completed, edited, serialNumber, lastViewed, createdDate, modifiedDate FROM todos")
+	data, err := os.ReadFile(r.filePath)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
 	var todos []Todo
-	for rows.Next() {
-		var todo Todo
-		err = rows.Scan(&todo.ID, &todo.Task, &todo.Description, &todo.Completed, &todo.Edited, &todo.SerialNumber, &todo.LastViewed, &todo.CreatedDate, &todo.ModifiedDate)
-		if err != nil {
-			return nil, err
-		}
-		todos = append(todos, todo)
+	err = json.Unmarshal(data, &todos)
+	if err != nil {
+		return nil, err
 	}
 
 	return todos, nil
 }
 
+func (r *TodoRepository) GetByID(id uint) (*Todo, error) {
+	todos, err := r.GetAll()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, todo := range todos {
+		if todo.ID == id {
+			return &todo, nil
+		}
+	}
+
+	return nil, fmt.Errorf("TODO with ID %d not found", id)
+}
+
+func (r *TodoRepository) Create(todo *Todo) (*Todo, error) {
+	todos, err := r.GetAll()
+	if err != nil {
+		return nil, err
+	}
+
+	todo.ID = uint(len(todos) + 1)
+	todo.CreatedDate = time.Now()
+	todo.ModifiedDate = time.Now()
+
+	todos = append(todos, *todo)
+	r.saveToFile(todos)
+
+	return todo, nil
+}
+
 func (r *TodoRepository) Update(todo *Todo) error {
-	_, err := r.db.Exec("UPDATE todos SET task = ?, description = ?, completed = ?, edited = ?, serialNumber = ?, lastViewed = ?, modifiedDate = ? WHERE id = ?",
-		todo.Task, todo.Description, todo.Completed, todo.Edited, todo.SerialNumber, todo.LastViewed, todo.ModifiedDate, todo.ID)
-	return err
+	todos, err := r.GetAll()
+	if err != nil {
+		return err
+	}
+
+	for i, t := range todos {
+		if t.ID == todo.ID {
+			todos[i] = *todo
+			todos[i].ModifiedDate = time.Now()
+			return r.saveToFile(todos)
+		}
+	}
+
+	return fmt.Errorf("TODO with ID %d not found", todo.ID)
 }
 
 func (r *TodoRepository) Delete(id uint) error {
-	_, err := r.db.Exec("DELETE FROM todos WHERE id = ?", id)
-	return err
+	todos, err := r.GetAll()
+	if err != nil {
+		return err
+	}
+
+	var newTodos []Todo
+	for _, todo := range todos {
+		if todo.ID != id {
+			newTodos = append(newTodos, todo)
+		}
+	}
+
+	return r.saveToFile(newTodos)
+}
+
+func (r *TodoRepository) saveToFile(todos []Todo) error {
+	data, err := json.Marshal(todos)
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(r.filePath, data, 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

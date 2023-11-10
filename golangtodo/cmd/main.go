@@ -1,98 +1,40 @@
 package main
 
 import (
-	"fmt"
 	"log"
+	"net/http"
+	"os"
 
-	"database/sql"
-
-	"github.com/gin-gonic/gin"
-	_ "github.com/mattn/go-sqlite3"
-	statsig "github.com/statsig-io/go-sdk"
+	"github.com/gorilla/mux"
 	"statsig.com/main/src"
 )
 
-/*
-*
-
-	Sample code for SDK integration
-
-*
-*/
 func main() {
+	src.InitializeSDK()
+	src.GetDynamicConfig()
 
-	fmt.Println("Sample todo application with Statsig SDK")
-	statsig.Initialize("secret-9lbe9aax4FWPyJiLrKfo8GAj1cXX2UUqoDBcG4B7rKW")
-
-	user := statsig.User{
-		UserID:  "go_lang_user",
-		Email:   "golanguser@statsig.com",
-		Country: "IN",
-	}
-	feature := statsig.CheckGate(user, "sample_feature_gate")
-	if feature {
-		fmt.Println("Gate enabled")
-	} else {
-		fmt.Println("Gate disabled")
+	filePath := "todos.json"
+	// Create an empty file for storing todos if it doesn't exist
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		file, err := os.Create(filePath)
+		if err != nil {
+			log.Fatal(err)
+		}
+		file.Close()
 	}
 
-	config := statsig.GetConfig(user, "warning_banner")
-	json := config.Value
-	fmt.Print(json)
+	repo := src.NewTodoRepository(filePath)
+	todoController := src.NewTodoController(repo)
 
-	statsig.LogEvent(statsig.Event{
-		User:      user,
-		EventName: "SERVER_TODO_CREATED",
-		Value:     "TODO_1234",
-		Metadata:  map[string]string{"id": "9", "task": "TODO_1"},
-	})
+	// Initialize router
+	r := mux.NewRouter()
 
-	db, err := sql.Open("sqlite3", "todo.db")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
+	// Define routes
+	r.HandleFunc("/todos", todoController.GetAllTodos).Methods("GET")
+	r.HandleFunc("/todos", todoController.CreateTodo).Methods("POST")
+	r.HandleFunc("/todos/{id}", todoController.GetTodoByID).Methods("GET")
+	r.HandleFunc("/todos", todoController.UpdateTodo).Methods("PUT")
+	r.HandleFunc("/todos/{id}", todoController.DeleteTodo).Methods("DELETE")
 
-	// Create the todos table if it does not exist
-	_, err = db.Exec(`
-		CREATE TABLE IF NOT EXISTS todos (
-			id INTEGER PRIMARY KEY,
-			task TEXT,
-			description TEXT,
-			completed BOOLEAN,
-			edited BOOLEAN,
-			serialNumber INTEGER,
-			lastViewed BOOLEAN,
-			createdDate TIMESTAMP,
-			modifiedDate TIMESTAMP
-		)
-	`)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	todoRepository := src.NewTodoRepository(db)
-
-	r := gin.Default()
-	todoController := src.NewTodoController(todoRepository)
-
-	// newTodo := &src.Todo{
-	// 	Task:         "Complete project",
-	// 	Description:  "Finish the project by the deadline",
-	// 	Completed:    false,
-	// 	Edited:       false,
-	// 	SerialNumber: 1,
-	// 	LastViewed:   true,
-	// 	CreatedDate:  time.Now(),
-	// 	ModifiedDate: time.Now(),
-	// }
-
-	r.POST("/todos", todoController.Create)
-	r.PUT("/todos/:id", todoController.Update)
-	r.DELETE("/todos/:id", todoController.Delete)
-	r.GET("/todos", todoController.GetAll)
-	//r.GET("/todos/:id", todoController.GetById)
-
-	r.Run(":8080")
-
+	log.Fatal(http.ListenAndServe(":8080", r))
 }

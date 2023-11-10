@@ -1,10 +1,12 @@
 package src
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gorilla/mux"
 )
 
 type TodoController struct {
@@ -12,68 +14,117 @@ type TodoController struct {
 }
 
 func NewTodoController(repo *TodoRepository) *TodoController {
-	return &TodoController{
-		repo: repo,
-	}
+	return &TodoController{repo: repo}
 }
 
-func (t *TodoController) Create(c *gin.Context) {
-	var todo Todo
-	if err := c.ShouldBindJSON(&todo); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+func (c *TodoController) GetAllTodos(w http.ResponseWriter, r *http.Request) {
 
-	t.repo.Create(&todo)
-	c.JSON(http.StatusOK, todo)
-}
+	w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
-func (t *TodoController) Update(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	todo, err := t.repo.GetByID(uint(id))
+	fmt.Print("Get all todos called")
+	todos, err := c.repo.GetAll()
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Todo not found"})
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	if err := c.ShouldBindJSON(&todo); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	t.repo.Update(todo)
-	c.JSON(http.StatusOK, todo)
+	json.NewEncoder(w).Encode(todos)
 }
 
-func (t *TodoController) Delete(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	todo, err := t.repo.GetByID(uint(id))
+func (c *TodoController) GetTodoByID(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	params := mux.Vars(r)
+	id, err := strconv.ParseUint(params["id"], 10, 64)
+	fmt.Println(params)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Todo not found"})
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	t.repo.Delete(todo.ID)
-	c.JSON(http.StatusOK, gin.H{"message": "Todo deleted successfully"})
+	todo, err := c.repo.GetByID(uint(id))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	json.NewEncoder(w).Encode(todo)
 }
 
-func (t *TodoController) GetAll(c *gin.Context) {
-	todos, err := t.repo.GetAll()
+func (c *TodoController) CreateTodo(w http.ResponseWriter, r *http.Request) {
+	var newTodo Todo
+	err := json.NewDecoder(r.Body).Decode(&newTodo)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch todos"})
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	c.JSON(http.StatusOK, todos)
+	todo, err := c.repo.Create(&newTodo)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(todo)
+
 }
 
-func (t *TodoController) GetById(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	todo, err := t.repo.GetByID(uint(id))
+func (c *TodoController) UpdateTodo(w http.ResponseWriter, r *http.Request) {
+	var qtodo Todo
+	err := json.NewDecoder(r.Body).Decode(&qtodo)
+
+	todo, err := c.repo.GetByID(qtodo.ID)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Todo not found"})
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
-	c.JSON(http.StatusOK, todo)
+	err = json.NewDecoder(r.Body).Decode(&todo)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = c.repo.Update(todo)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(qtodo)
+
+}
+
+func (c *TodoController) DeleteTodo(w http.ResponseWriter, r *http.Request) {
+
+	isDeleteEnable := IsDeleteFeatureEnabled()
+
+	if isDeleteEnable {
+		params := mux.Vars(r)
+		id, err := strconv.ParseUint(params["id"], 10, 64)
+		fmt.Println(params)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		err = c.repo.Delete(uint(id))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]int{"id": int(id)})
+
+	} else {
+		w.WriteHeader(http.StatusNonAuthoritativeInfo)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Not authorized to delete todo"})
+	}
+
 }
