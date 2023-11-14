@@ -2,6 +2,7 @@ package src
 
 import (
 	"fmt"
+	"reflect"
 
 	statsig "github.com/statsig-io/go-sdk"
 )
@@ -28,11 +29,26 @@ func GetDynamicConfig() {
 	fmt.Print(json)
 }
 
-func LogEvent(tag string) {
+func LogEvent(tag string, data map[string]string) {
 	statsig.LogEvent(statsig.Event{
 		User:      user,
 		EventName: tag,
-		Value:     "TODO_1234",
-		Metadata:  map[string]string{"id": "9", "task": "TODO_1"},
+		Value:     "TODO",
+		Metadata:  data,
 	})
+}
+
+func structToMap(todo Todo) map[string]string {
+	todoMap := make(map[string]string)
+	todoType := reflect.TypeOf(todo)
+	todoValue := reflect.ValueOf(todo)
+
+	for i := 0; i < todoType.NumField(); i++ {
+		field := todoType.Field(i)
+		fieldValue := todoValue.Field(i).Interface()
+		todoMap[field.Name] = fmt.Sprintf("%v", fieldValue)
+	}
+
+	return todoMap
+
 }

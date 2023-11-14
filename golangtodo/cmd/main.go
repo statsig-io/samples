@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 	"statsig.com/main/src"
 )
 
@@ -27,14 +28,21 @@ func main() {
 	todoController := src.NewTodoController(repo)
 
 	// Initialize router
-	r := mux.NewRouter()
+	router := mux.NewRouter()
 
 	// Define routes
-	r.HandleFunc("/todos", todoController.GetAllTodos).Methods("GET")
-	r.HandleFunc("/todos", todoController.CreateTodo).Methods("POST")
-	r.HandleFunc("/todos/{id}", todoController.GetTodoByID).Methods("GET")
-	r.HandleFunc("/todos", todoController.UpdateTodo).Methods("PUT")
-	r.HandleFunc("/todos/{id}", todoController.DeleteTodo).Methods("DELETE")
+	router.HandleFunc("/todos", todoController.GetAllTodos).Methods("GET")
+	router.HandleFunc("/todos", todoController.CreateTodo).Methods("POST")
+	router.HandleFunc("/todos/{id}", todoController.GetTodoByID).Methods("GET")
+	router.HandleFunc("/todos", todoController.UpdateTodo).Methods("PUT")
+	router.HandleFunc("/todos/{id}", todoController.DeleteTodo).Methods("DELETE")
 
-	log.Fatal(http.ListenAndServe(":8080", r))
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE"},
+	})
+
+	handler := c.Handler(router)
+
+	log.Fatal(http.ListenAndServe(":8080", handler))
 }
