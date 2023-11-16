@@ -63,12 +63,7 @@ final todoRepositoryProvider =
   return TodoRepository();
 });
 
-final finishedTodoProvider = Provider<List<Todo>>((ref) {
+final allTodoProvider = Provider<List<Todo>>((ref) {
   final todos = ref.watch(todoRepositoryProvider);
-  return todos.where((todo) => todo.completed).toList();
-});
-
-final unfinishedTodoProvider = Provider<List<Todo>>((ref) {
-  final todos = ref.watch(todoRepositoryProvider);
-  return todos.where((todo) => !todo.completed).toList();
+  return todos.toList();
 });
