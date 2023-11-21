@@ -1,0 +1,10 @@
+{
+    "name": "statsig/phptodo",
+    "description": "A PHP todo project",
+    "type": "project",
+    "require": {
+        "doctrine/dbal": "^3.7",
+        "statsig/statsigsdk": "*",
+        "slim/slim": "^2.6"
+    }
+}
