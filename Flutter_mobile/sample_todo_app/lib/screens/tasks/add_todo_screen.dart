@@ -17,46 +17,16 @@ class AddTodoScreen extends ConsumerStatefulWidget {
   ConsumerState<ConsumerStatefulWidget> createState() => _AddTodoScreenState();
 }
 
-class _AddTodoScreenState extends ConsumerState<AddTodoScreen>
-    with WidgetsBindingObserver {
+class _AddTodoScreenState extends ConsumerState<AddTodoScreen> {
   final todoCreated = "CLIENT_TODO_CREATED";
   final todoEdited = "CLIENT_TODO_EDITED";
-  final appOpened = "CLIENT_TODO_APP_OPENED";
-  final appBackgrounded = "CLIENT_TODO_APP_BACKGROUND";
   late TextEditingController controller;
   bool isSubmitVisible = true;
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    switch (state) {
-      case AppLifecycleState.resumed:
-        print("app in resumed");
-        Statsig.logEvent(appOpened);
-        break;
-      case AppLifecycleState.inactive:
-        print("app in inactive");
-        Statsig.logEvent(appBackgrounded);
-        break;
-      case AppLifecycleState.paused:
-        print("app in paused");
-        break;
-      case AppLifecycleState.detached:
-      case AppLifecycleState.hidden:
-        break;
-    }
-  }
 
   @override
   void initState() {
     super.initState();
     controller = TextEditingController(text: widget.todo?.title ?? '');
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
   }
 
   void canSubmit() {
