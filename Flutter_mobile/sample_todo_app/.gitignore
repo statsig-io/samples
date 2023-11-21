@@ -203,6 +203,9 @@ doc/api/
 #.flutter-plugins
 #.flutter-plugins-dependencies
 
+### -------------------------- api_key.dart ------------------------ ###
+# Hide key from version control
+lib/api_key.dart
 
 ### -------------------------- Swift.gitignore  ------------------------ ###
 
