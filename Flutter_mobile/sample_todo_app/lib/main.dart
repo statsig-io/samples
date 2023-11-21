@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sample_todo_app/routing/go_router.dart';
+import 'package:statsig/statsig.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Statsig.initialize('client-c16lWDpZfc4ce9lOwfdqHdgKdjw2927rgxFOJElWqrq', StatsigUser(userId: "flutter_dummy_user_id"));
   runApp(const ProviderScope(child: MainApp()));
 }
 
