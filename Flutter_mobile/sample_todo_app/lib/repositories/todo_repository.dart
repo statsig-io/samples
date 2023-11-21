@@ -64,6 +64,5 @@ final todoRepositoryProvider =
 });
 
 final allTodoProvider = Provider<List<Todo>>((ref) {
-  final todos = ref.watch(todoRepositoryProvider);
-  return todos.toList();
+  return ref.watch(todoRepositoryProvider);
 });

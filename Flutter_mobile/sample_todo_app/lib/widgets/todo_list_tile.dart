@@ -57,6 +57,12 @@ class TodoListTile extends ConsumerWidget {
                 ? const TextStyle(decoration: TextDecoration.lineThrough)
                 : null,
           ),
+          trailing: IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: () {
+              ref.read(todoControllerProvider).removeTodo(todos[index].id);
+            },
+          ),
         ),
       ),
     );
