@@ -23,6 +23,8 @@ class TodoListTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    const todoDeleted = "CLIENT_TODO_DELETED";
+    const todoCompleted = "CLIENT_TODO_COMPLETED";
     return Visibility(
       visible: isVisible,
       child: Dismissible(
@@ -50,6 +52,9 @@ class TodoListTile extends ConsumerWidget {
             value: todos[index].completed,
             onChanged: (_) {
               ref.read(todoControllerProvider).toggleTodo(todos[index].id);
+              if (todos[index].completed) {
+                Statsig.logEvent(todoCompleted);
+              }
             },
           ),
           title: Text(
@@ -65,6 +70,7 @@ class TodoListTile extends ConsumerWidget {
                     ref
                         .read(todoControllerProvider)
                         .removeTodo(todos[index].id);
+                    Statsig.logEvent(todoDeleted);
                   },
                 )
               : null,

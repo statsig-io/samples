@@ -7,7 +7,8 @@ import 'package:statsig/statsig.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Statsig.initialize('client-c16lWDpZfc4ce9lOwfdqHdgKdjw2927rgxFOJElWqrq', StatsigUser(userId: "flutter_dummy_user_id"));
+  await Statsig.initialize('client-c16lWDpZfc4ce9lOwfdqHdgKdjw2927rgxFOJElWqrq',
+      StatsigUser(userId: "flutter_dummy_user_id"));
   runApp(const ProviderScope(child: MainApp()));
 }
 
