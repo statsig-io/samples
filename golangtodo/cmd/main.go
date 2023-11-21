@@ -1,44 +1,48 @@
 package main
 
 import (
-	"fmt"
+	"log"
+	"net/http"
+	"os"
 
-	statsig "github.com/statsig-io/go-sdk"
+	"github.com/gorilla/mux"
+	"github.com/rs/cors"
+	"statsig.com/main/src"
 )
 
-/*
-*
-
-	Sample code for SDK integration
-
-*
-*/
 func main() {
+	src.InitializeSDK()
+	src.GetDynamicConfig()
 
-	fmt.Println("Sample todo application with Statsig SDK")
-	statsig.Initialize("secret-9lbe9aax4FWPyJiLrKfo8GAj1cXX2UUqoDBcG4B7rKW")
-
-	user := statsig.User{
-		UserID:  "go_lang_user",
-		Email:   "golanguser@statsig.com",
-		Country: "IN",
-	}
-	feature := statsig.CheckGate(user, "sample_feature_gate")
-	if feature {
-		fmt.Println("Gate enabled")
-	} else {
-		fmt.Println("Gate disabled")
+	filePath := "todos.json"
+	// Create an empty file for storing todos if it doesn't exist
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		file, err := os.Create(filePath)
+		if err != nil {
+			log.Fatal(err)
+		}
+		file.Close()
 	}
 
-	config := statsig.GetConfig(user, "warning_banner")
-	json := config.Value
-	fmt.Print(json)
+	repo := src.NewTodoRepository(filePath)
+	todoController := src.NewTodoController(repo)
 
-	statsig.LogEvent(statsig.Event{
-		User:      user,
-		EventName: "SERVER_TODO_CREATED",
-		Value:     "TODO_1234",
-		Metadata:  map[string]string{"id": "9", "task": "TODO_1"},
+	// Initialize router
+	router := mux.NewRouter()
+
+	// Define routes
+	router.HandleFunc("/todos", todoController.GetAllTodos).Methods("GET")
+	router.HandleFunc("/todos", todoController.CreateTodo).Methods("POST")
+	router.HandleFunc("/todos/{id}", todoController.GetTodoByID).Methods("GET")
+	router.HandleFunc("/todos", todoController.UpdateTodo).Methods("PUT")
+	router.HandleFunc("/todos/{id}", todoController.DeleteTodo).Methods("DELETE")
+
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE"},
 	})
 
+	handler := c.Handler(router)
+
+	log.Fatal(http.ListenAndServe(":8080", handler))
 }
