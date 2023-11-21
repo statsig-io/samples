@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sample_todo_app/routing/go_router.dart';
+import 'package:statsig/statsig.dart';
 
 import '../controllers/todo_controller.dart';
 import '../models/todo.dart';
@@ -22,6 +23,8 @@ class TodoListTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    const todoDeleted = "CLIENT_TODO_DELETED";
+    const todoCompleted = "CLIENT_TODO_COMPLETED";
     return Visibility(
       visible: isVisible,
       child: Dismissible(
@@ -49,6 +52,9 @@ class TodoListTile extends ConsumerWidget {
             value: todos[index].completed,
             onChanged: (_) {
               ref.read(todoControllerProvider).toggleTodo(todos[index].id);
+              if (todos[index].completed) {
+                Statsig.logEvent(todoCompleted);
+              }
             },
           ),
           title: Text(
@@ -57,12 +63,17 @@ class TodoListTile extends ConsumerWidget {
                 ? const TextStyle(decoration: TextDecoration.lineThrough)
                 : null,
           ),
-          trailing: IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () {
-              ref.read(todoControllerProvider).removeTodo(todos[index].id);
-            },
-          ),
+          trailing: Statsig.checkGate("enable_delete_todo")
+              ? IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () {
+                    ref
+                        .read(todoControllerProvider)
+                        .removeTodo(todos[index].id);
+                    Statsig.logEvent(todoDeleted);
+                  },
+                )
+              : null,
         ),
       ),
     );

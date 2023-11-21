@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sample_todo_app/controllers/todo_controller.dart';
+import 'package:statsig/statsig.dart';
 
 import '../../models/todo.dart';
 
@@ -17,6 +18,8 @@ class AddTodoScreen extends ConsumerStatefulWidget {
 }
 
 class _AddTodoScreenState extends ConsumerState<AddTodoScreen> {
+  final todoCreated = "CLIENT_TODO_CREATED";
+  final todoEdited = "CLIENT_TODO_EDITED";
   late TextEditingController controller;
   bool isSubmitVisible = true;
 
@@ -37,10 +40,13 @@ class _AddTodoScreenState extends ConsumerState<AddTodoScreen> {
     void saveTodo() {
       if (widget.todo == null) {
         ref.read(todoControllerProvider).addTodo(controller.text.trim());
+        Statsig.logEvent(todoCreated);
       } else {
         ref
             .read(todoControllerProvider)
             .editTodo(widget.todo!.id, controller.text.trim());
+
+        Statsig.logEvent(todoEdited);
       }
       context.pop();
     }
