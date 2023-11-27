@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../models/todo.dart';
+import '../network/network_api.dart';
 import '../repositories/todo_repository.dart';
 
 class TodoController {
@@ -17,9 +19,27 @@ class TodoController {
     if (title == '') {
       return;
     }
-    DateTime time = DateTime.now();
-    final todo = Todo(title: title, id: time.toString(), time: time);
-    ref.read(todoRepositoryProvider.notifier).addTodo(todo);
+    final formattedDate =
+        DateFormat('yyyy-mm-dd hh:mm:ss').format(DateTime.now());
+    final formattedDateObj = DateTime.parse(formattedDate);
+    final todo = Todo(
+        task: title,
+        description: title,
+        id: formattedDateObj.millisecondsSinceEpoch,
+        createdDate: formattedDateObj,
+        modifiedDate: formattedDateObj);
+
+    print("time $formattedDate formattedDateObj $formattedDateObj "
+        "todo id ${todo.id} task ${todo.task} "
+        "mod date${todo.modifiedDate} "
+        "created date ${todo.createdDate} "
+        "Epoch milli ${DateTime.parse(formattedDate).millisecondsSinceEpoch}");
+
+    NetworkApi().postTodo(todo);
+    ref.read(todoRepositoryProvider.notifier).fetchTodoList();
+    //ref.read(todoRepositoryProvider.notifier).addTodo(todo);
+
+
   }
 
   void removeTodo(String id) {

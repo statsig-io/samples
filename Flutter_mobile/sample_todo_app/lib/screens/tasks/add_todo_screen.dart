@@ -26,7 +26,7 @@ class _AddTodoScreenState extends ConsumerState<AddTodoScreen> {
   @override
   void initState() {
     super.initState();
-    controller = TextEditingController(text: widget.todo?.title ?? '');
+    controller = TextEditingController(text: widget.todo?.task ?? '');
   }
 
   void canSubmit() {
@@ -44,7 +44,7 @@ class _AddTodoScreenState extends ConsumerState<AddTodoScreen> {
       } else {
         ref
             .read(todoControllerProvider)
-            .editTodo(widget.todo!.id, controller.text.trim());
+            .editTodo(widget.todo!.id.toString(), controller.text.trim());
 
         Statsig.logEvent(todoEdited);
       }

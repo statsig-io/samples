@@ -20,6 +20,8 @@ dependencies:
   shared_preferences: ^2.1.2
   riverpod_lint: ^2.3.2
   statsig: ^0.4.0
+  http: any
+  intl: 0.18.1
 
 dev_dependencies:
   flutter_lints: ^2.0.0
