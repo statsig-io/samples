@@ -53,7 +53,9 @@ class TodoListTile extends ConsumerWidget {
           leading: Checkbox(
             value: todos[index].completed,
             onChanged: (_) {
-              ref.read(todoControllerProvider).toggleTodo(todos[index]);
+              final todoData = todos[index];
+              todoData.completed = !todos[index].completed;
+              ref.read(todoControllerProvider).toggleTodo(todoData);
               if (todos[index].completed) {
                 Statsig.logEvent(todoCompleted);
               }

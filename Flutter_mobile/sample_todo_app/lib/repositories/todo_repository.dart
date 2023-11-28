@@ -35,6 +35,13 @@ class TodoRepository extends StateNotifier<List<Todo>> {
     return fetchedTodoList;
   }
 
+  Future<void> updateTodo(Todo todo) async {
+    var response = await NetworkApi().updateTodo(todo);
+    if (response != null && response.statusCode == 200) {
+      loadTodos();
+    }
+  }
+
   @override
   set state(List<Todo> newState) {
     super.state = newState;

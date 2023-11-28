@@ -30,15 +30,18 @@ class NetworkApi {
     }
   }
 
-  Future<void> updateTodo(Todo todo) async {
+  Future<http.Response?> updateTodo(Todo todo) async {
     try {
       final requestBody = jsonEncode(todo.toMapJson());
-      await http.put(Uri.parse(baseURL),
+      return await http.put(Uri.parse(baseURL),
           headers: {
             "Accept": "application/json",
             "Content-type": "application/json"
           },
           body: requestBody);
-    } catch (e, stacktrace) {}
+      return response;
+    } catch (e, stacktrace) {
+      return null;
+    }
   }
 }

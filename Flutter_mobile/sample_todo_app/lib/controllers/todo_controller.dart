@@ -8,11 +8,6 @@ class TodoController {
 
   TodoController(this.ref);
 
-  List<Todo> getTodos() {
-    List<Todo> todos = ref.watch(todoRepositoryProvider);
-    return todos;
-  }
-
   void addTodo(Todo todo) {
     ref.read(todoRepositoryProvider.notifier).postTodoEntry(todo);
   }
@@ -26,7 +21,7 @@ class TodoController {
   }
 
   void toggleTodo(Todo todo) {
-    ref.read(todoRepositoryProvider.notifier).toggleTodo(todo.id.toString());
+    ref.read(todoRepositoryProvider.notifier).updateTodo(todo);
   }
 }
 
