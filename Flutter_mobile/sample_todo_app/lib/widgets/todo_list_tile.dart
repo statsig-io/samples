@@ -42,7 +42,9 @@ class TodoListTile extends ConsumerWidget {
         ),
         direction: DismissDirection.endToStart,
         onDismissed: (_) {
-          ref.read(todoControllerProvider).removeTodo(todos[index].id.toString());
+          ref
+              .read(todoControllerProvider)
+              .removeTodo(todos[index].id.toString());
         },
         child: ListTile(
           onTap: () {
@@ -51,7 +53,7 @@ class TodoListTile extends ConsumerWidget {
           leading: Checkbox(
             value: todos[index].completed,
             onChanged: (_) {
-              ref.read(todoControllerProvider).toggleTodo(todos[index].id.toString());
+              ref.read(todoControllerProvider).toggleTodo(todos[index]);
               if (todos[index].completed) {
                 Statsig.logEvent(todoCompleted);
               }

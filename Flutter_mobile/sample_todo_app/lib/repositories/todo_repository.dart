@@ -12,18 +12,8 @@ class TodoRepository extends StateNotifier<List<Todo>> {
   }
 
   Future<void> loadTodos() async {
-    /*final prefs = await SharedPreferences.getInstance();
-    final encodedTodos = prefs.getString('todos');
-    if (encodedTodos != null) {
-      final decodedTodos = jsonDecode(encodedTodos) as List<dynamic>;
-      state = decodedTodos.map((json) => Todo.fromJson(json)).toList();
-    }*/
-
-    final prefs = await fetchTodoList();
-    var json = jsonEncode(prefs.map((e) => e.toJson()).toList());
-    final decodedTodos = jsonDecode(json) as List<dynamic>;
-    state = decodedTodos.map((json) => Todo.fromJson(json)).toList();
-
+    final todoList = await fetchTodoList();
+    state = todoList;
   }
 
   Future<void> saveTodos(List<Todo> todos) async {
@@ -33,9 +23,15 @@ class TodoRepository extends StateNotifier<List<Todo>> {
     await prefs.setString('todos', encodedTodos);
   }
 
+  Future<void> postTodoEntry(Todo todo) async {
+    var response = await NetworkApi().postTodo(todo);
+    if (response != null && response.statusCode == 200) {
+      loadTodos();
+    }
+  }
+
   Future<List<Todo>> fetchTodoList() async {
     List<Todo> fetchedTodoList = await NetworkApi().fetchTodoList();
-    print("fetchedTodoList $fetchedTodoList");
     return fetchedTodoList;
   }
 
