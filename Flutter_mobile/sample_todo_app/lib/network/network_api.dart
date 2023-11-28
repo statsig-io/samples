@@ -4,10 +4,14 @@ import 'package:http/http.dart' as http;
 import 'package:sample_todo_app/models/todo.dart';
 
 class NetworkApi {
-  final String baseURL = "http://192.168.0.101:8080/todos";
+  final Uri requestUrlUri = Uri.parse("http://localhost:8080/todos");
+  final Map<String, String> requestHeader = {
+    "Accept": "application/json",
+    "Content-type": "application/json"
+  };
 
   Future<List<Todo>> fetchTodoList() async {
-    http.Response res = await http.get(Uri.parse(baseURL));
+    http.Response res = await http.get(requestUrlUri);
     if (res.statusCode == 200) {
       List jsonResponse = json.decode(res.body);
       return jsonResponse.map((data) => Todo.fromJson(data)).toList();
@@ -19,12 +23,8 @@ class NetworkApi {
   Future<http.Response?> postTodo(Todo todo) async {
     try {
       final requestBody = jsonEncode(todo.toMapJson());
-      return await http.post(Uri.parse(baseURL),
-          headers: {
-            "Accept": "application/json",
-            "Content-type": "application/json"
-          },
-          body: requestBody);
+      return await http.post(requestUrlUri,
+          headers: requestHeader, body: requestBody);
     } catch (e, stacktrace) {
       return null;
     }
@@ -33,12 +33,21 @@ class NetworkApi {
   Future<http.Response?> updateTodo(Todo todo) async {
     try {
       final requestBody = jsonEncode(todo.toMapJson());
-      return await http.put(Uri.parse(baseURL),
-          headers: {
-            "Accept": "application/json",
-            "Content-type": "application/json"
-          },
-          body: requestBody);
+      return await http.put(requestUrlUri,
+          headers: requestHeader, body: requestBody);
+    } catch (e, stacktrace) {
+      return null;
+    }
+  }
+
+  Future<http.Response?> deleteTodo(String id) async {
+    try {
+      return await http.delete(
+        Uri.parse("http://localhost:8080/todos/$id"),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
     } catch (e, stacktrace) {
       return null;
     }

@@ -13,7 +13,7 @@ class TodoController {
   }
 
   void removeTodo(String id) {
-    ref.read(todoRepositoryProvider.notifier).removeTodo(id);
+    ref.read(todoRepositoryProvider.notifier).deleteTodo(id);
   }
 
   void editTodo(String id, String title) {

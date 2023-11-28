@@ -19,7 +19,7 @@ class TodoRepository extends StateNotifier<List<Todo>> {
   Future<void> saveTodos(List<Todo> todos) async {
     final prefs = await SharedPreferences.getInstance();
     final encodedTodos =
-        jsonEncode(todos.map((todo) => todo.toJson()).toList());
+    jsonEncode(todos.map((todo) => todo.toJson()).toList());
     await prefs.setString('todos', encodedTodos);
   }
 
@@ -37,6 +37,13 @@ class TodoRepository extends StateNotifier<List<Todo>> {
 
   Future<void> updateTodo(Todo todo) async {
     var response = await NetworkApi().updateTodo(todo);
+    if (response != null && response.statusCode == 200) {
+      loadTodos();
+    }
+  }
+
+  Future<void> deleteTodo(String id) async {
+    var response = await NetworkApi().deleteTodo(id);
     if (response != null && response.statusCode == 200) {
       loadTodos();
     }
@@ -62,7 +69,8 @@ class TodoRepository extends StateNotifier<List<Todo>> {
   void editTodo(String id, String title) {
     state = [
       for (final todo in state)
-        if (todo.id == int.parse(id)) todo.copyWith(task: title) else todo
+        if (todo.id == int.parse(id)) todo.copyWith(task: title) else
+          todo
     ];
   }
 
@@ -78,7 +86,7 @@ class TodoRepository extends StateNotifier<List<Todo>> {
 }
 
 final todoRepositoryProvider =
-    StateNotifierProvider<TodoRepository, List<Todo>>((ref) {
+StateNotifierProvider<TodoRepository, List<Todo>>((ref) {
   return TodoRepository();
 });
 
