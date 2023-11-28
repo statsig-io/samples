@@ -4,7 +4,8 @@ import 'package:http/http.dart' as http;
 import 'package:sample_todo_app/models/todo.dart';
 
 class NetworkApi {
-  final Uri requestUrlUri = Uri.parse("http://localhost:8080/todos");
+  static const String baseUrl = "http://localhost:8080/todos";
+  final Uri requestUrlUri = Uri.parse(baseUrl);
   final Map<String, String> requestHeader = {
     "Accept": "application/json",
     "Content-type": "application/json"
@@ -43,7 +44,7 @@ class NetworkApi {
   Future<http.Response?> deleteTodo(String id) async {
     try {
       return await http.delete(
-        Uri.parse("http://localhost:8080/todos/$id"),
+        Uri.parse("$baseUrl/$id"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
