@@ -39,7 +39,6 @@ class NetworkApi {
             "Content-type": "application/json"
           },
           body: requestBody);
-      return response;
     } catch (e, stacktrace) {
       return null;
     }
