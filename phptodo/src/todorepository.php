@@ -1,9 +1,16 @@
 <?php
-class TodoRepository implements Todo {
-    private $filePath;
 
-    public function __construct($filePath) {
-        $this->filePath = $filePath;
+class TodoRepository {
+    private $filePath = 'todos.json';
+
+
+    public function __construct() {
+        if (!file_exists($this->filePath)) {
+            touch($this->filePath);
+            // Optionally, you can set file permissions using chmod()
+            // chmod($filePath, 0644);
+        }
+        
     }
 
     public function getAllTodos() {
@@ -23,8 +30,10 @@ class TodoRepository implements Todo {
 
     public function createTodo($task, $description, $completed, $edited, $serialNumber, $lastViewed, $createdDate, $modifiedDate) {
         $todos = json_decode(file_get_contents($this->filePath), true);
+        $count = count($todos ?? []);
+       
         $newTodo = [
-            'id' => count($todos) + 1,
+            'id' => $count + 1,
             'task' => $task,
             'description' => $description,
             'completed' => $completed,
