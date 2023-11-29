@@ -8,30 +8,20 @@ class TodoController {
 
   TodoController(this.ref);
 
-  List<Todo> getTodos() {
-    List<Todo> todos = ref.watch(todoRepositoryProvider);
-    return todos;
-  }
-
-  void addTodo(String title) {
-    if (title == '') {
-      return;
-    }
-    DateTime time = DateTime.now();
-    final todo = Todo(title: title, id: time.toString(), time: time);
-    ref.read(todoRepositoryProvider.notifier).addTodo(todo);
+  void addTodo(Todo todo) {
+    ref.read(todoRepositoryProvider.notifier).postTodoEntry(todo);
   }
 
   void removeTodo(String id) {
-    ref.read(todoRepositoryProvider.notifier).removeTodo(id);
+    ref.read(todoRepositoryProvider.notifier).deleteTodo(id);
   }
 
   void editTodo(String id, String title) {
     ref.read(todoRepositoryProvider.notifier).editTodo(id, title);
   }
 
-  void toggleTodo(String id) {
-    ref.read(todoRepositoryProvider.notifier).toggleTodo(id);
+  void toggleTodo(Todo todo) {
+    ref.read(todoRepositoryProvider.notifier).updateTodo(todo);
   }
 }
 

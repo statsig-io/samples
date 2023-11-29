@@ -28,7 +28,7 @@ class TodoListTile extends ConsumerWidget {
     return Visibility(
       visible: isVisible,
       child: Dismissible(
-        key: Key(todos[index].id),
+        key: Key(todos[index].id.toString()),
         background: Container(
           padding: const EdgeInsets.only(right: 16.0),
           color: Colors.redAccent.shade700,
@@ -42,7 +42,9 @@ class TodoListTile extends ConsumerWidget {
         ),
         direction: DismissDirection.endToStart,
         onDismissed: (_) {
-          ref.read(todoControllerProvider).removeTodo(todos[index].id);
+          ref
+              .read(todoControllerProvider)
+              .removeTodo(todos[index].id.toString());
         },
         child: ListTile(
           onTap: () {
@@ -51,14 +53,16 @@ class TodoListTile extends ConsumerWidget {
           leading: Checkbox(
             value: todos[index].completed,
             onChanged: (_) {
-              ref.read(todoControllerProvider).toggleTodo(todos[index].id);
+              final todoData = todos[index];
+              todoData.completed = !todos[index].completed;
+              ref.read(todoControllerProvider).toggleTodo(todoData);
               if (todos[index].completed) {
                 Statsig.logEvent(todoCompleted);
               }
             },
           ),
           title: Text(
-            todos[index].title,
+            todos[index].task,
             style: lineThrough
                 ? const TextStyle(decoration: TextDecoration.lineThrough)
                 : null,
@@ -69,7 +73,7 @@ class TodoListTile extends ConsumerWidget {
                   onPressed: () {
                     ref
                         .read(todoControllerProvider)
-                        .removeTodo(todos[index].id);
+                        .removeTodo(todos[index].id.toString());
                     Statsig.logEvent(todoDeleted);
                   },
                 )

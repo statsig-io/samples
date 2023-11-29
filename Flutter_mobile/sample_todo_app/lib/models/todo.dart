@@ -1,52 +1,115 @@
-import 'dart:convert';
-
 class Todo {
-  final String title;
-  final String id;
-  final DateTime time;
+  final int id;
+  final int serialNumber;
+  final String task;
+  final String description;
+  final DateTime createdDate;
+  final DateTime modifiedDate;
   bool completed;
+  bool edited;
+  bool lastViewed;
 
   Todo({
-    required this.title,
     required this.id,
-    required this.time,
+    required this.serialNumber,
+    required this.task,
+    required this.description,
+    required this.createdDate,
+    required this.modifiedDate,
     this.completed = false,
+    this.edited = false,
+    this.lastViewed = false,
   });
 
   Todo copyWith({
-    String? title,
-    String? id,
-    DateTime? time,
+    int? id,
+    int? serialNumber,
+    String? task,
+    String? description,
+    DateTime? createdDate,
+    DateTime? modifiedDate,
     bool? completed,
+    bool? edited,
+    bool? lastViewed,
   }) {
     return Todo(
-      title: title ?? this.title,
       id: id ?? this.id,
-      time: time ?? this.time,
+      serialNumber: serialNumber ?? this.serialNumber,
+      task: task ?? this.task,
+      description: description ?? this.description,
+      createdDate: createdDate ?? this.createdDate,
+      modifiedDate: modifiedDate ?? this.modifiedDate,
       completed: completed ?? this.completed,
+      edited: edited ?? this.edited,
+      lastViewed: lastViewed ?? this.lastViewed,
     );
   }
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'title': title,
       'id': id,
-      'time': time.millisecondsSinceEpoch,
+      'serialNumber': serialNumber,
+      'task': task,
+      'description': description,
+      'createdDate': createdDate.toIso8601String(),
+      'modifiedDate': modifiedDate.toIso8601String(),
       'completed': completed,
+      'edited': edited,
+      'lastViewed': lastViewed,
     };
   }
 
   factory Todo.fromMap(Map<String, dynamic> map) {
     return Todo(
-      title: map['title'] as String,
-      id: map['id'] as String,
-      time: DateTime.fromMillisecondsSinceEpoch(map['time'] as int),
+      id: map['id'] as int,
+      serialNumber: map['serialNumber'] as int,
+      task: map['task'] as String,
+      description: map['description'] as String,
+      createdDate: DateTime.parse(map['createdDate']),
+      modifiedDate: DateTime.parse(map['modifiedDate']),
       completed: map['completed'] as bool,
+      edited: map['edited'] as bool,
+      lastViewed: map['lastViewed'] as bool,
     );
   }
 
-  String toJson() => json.encode(toMap());
+  Map toJson() => {
+        'id': id,
+        'serialNumber': serialNumber,
+        'task': task,
+        'description': description,
+        'createdDate': createdDate.toIso8601String(),
+        'modifiedDate': modifiedDate.toIso8601String(),
+        'completed': completed,
+        'edited': edited,
+        'lastViewed': lastViewed,
+      };
 
-  factory Todo.fromJson(String source) =>
-      Todo.fromMap(json.decode(source) as Map<String, dynamic>);
+  Map<String, dynamic> toMapJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['serialNumber'] = serialNumber;
+    data['task'] = task;
+    data['description'] = description;
+    data['modifiedDate'] = modifiedDate.toIso8601String();
+    data['createdDate'] = createdDate.toIso8601String();
+    data['completed'] = completed;
+    data['edited'] = edited;
+    data['lastViewed'] = lastViewed;
+    return data;
+  }
+
+  factory Todo.fromJson(Map<String, dynamic> json) {
+    return Todo(
+      id: json['id'] as int,
+      serialNumber: json['serialNumber'] as int,
+      task: json['task'] as String,
+      description: json['description'] as String,
+      createdDate: DateTime.parse(json['createdDate']),
+      modifiedDate: DateTime.parse(json['modifiedDate']),
+      completed: json['completed'] as bool,
+      edited: json['edited'] as bool,
+      lastViewed: json['lastViewed'] as bool,
+    );
+  }
 }

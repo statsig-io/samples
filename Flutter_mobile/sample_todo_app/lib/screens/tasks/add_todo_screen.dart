@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:sample_todo_app/controllers/todo_controller.dart';
 import 'package:statsig/statsig.dart';
 
@@ -22,11 +23,12 @@ class _AddTodoScreenState extends ConsumerState<AddTodoScreen> {
   final todoEdited = "CLIENT_TODO_EDITED";
   late TextEditingController controller;
   bool isSubmitVisible = true;
+  static int srNoCounter = 0;
 
   @override
   void initState() {
     super.initState();
-    controller = TextEditingController(text: widget.todo?.title ?? '');
+    controller = TextEditingController(text: widget.todo?.task ?? '');
   }
 
   void canSubmit() {
@@ -39,12 +41,23 @@ class _AddTodoScreenState extends ConsumerState<AddTodoScreen> {
   Widget build(BuildContext context) {
     void saveTodo() {
       if (widget.todo == null) {
-        ref.read(todoControllerProvider).addTodo(controller.text.trim());
+        final formattedDate =
+        DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(DateTime.now());
+        final formattedDateObj = DateTime.parse(formattedDate);
+        final todo = Todo(
+            task: controller.text.trim(),
+            description: controller.text.trim(),
+            id: formattedDateObj.millisecondsSinceEpoch,
+            serialNumber: srNoCounter,
+            createdDate: formattedDateObj,
+            modifiedDate: formattedDateObj);
+        srNoCounter++;
+        ref.read(todoControllerProvider).addTodo(todo);
         Statsig.logEvent(todoCreated);
       } else {
         ref
             .read(todoControllerProvider)
-            .editTodo(widget.todo!.id, controller.text.trim());
+            .editTodo(widget.todo!.id.toString(), controller.text.trim());
 
         Statsig.logEvent(todoEdited);
       }
