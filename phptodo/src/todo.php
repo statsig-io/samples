@@ -1,5 +1,6 @@
 <?php
-class Todo {
+class Todo
+{
   public $id;
   public $task;
   public $description;
@@ -10,7 +11,8 @@ class Todo {
   public $createdDate;
   public $modifiedDate;
 
-  public function __construct($id, $task, $description, $completed, $edited, $serialNumber, $lastViewed, $createdDate, $modifiedDate) {
+  public function __construct($id, $task, $description, $completed, $edited, $serialNumber, $lastViewed, $createdDate, $modifiedDate)
+  {
     $this->id = $id;
     $this->task = $task;
     $this->description = $description;
@@ -22,4 +24,3 @@ class Todo {
     $this->modifiedDate = $modifiedDate;
   }
 }
-?>

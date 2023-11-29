@@ -1,8 +1,8 @@
 <?php
 
 require_once __DIR__ . '/vendor/autoload.php'; // path to installation folder
-require __DIR__.'/src/TodoController.php';
-require __DIR__.'/src/TodoRepository.php';
+require __DIR__ . '/src/TodoController.php';
+require __DIR__ . '/src/TodoRepository.php';
 
 use Statsig\StatsigServer;
 use Statsig\StatsigOptions;
@@ -11,16 +11,18 @@ use Statsig\Adapters\LocalFileLoggingAdapter;
 use Statsig\StatsigUser;
 use Statsig\StatsigEvent;
 
-class Main {
+class Main
+{
     private $statsig;
     private $deleteFeature;
     private $user;
     private $fileName;
     private $todo_controller;
     private $todo_repository;
-   
 
-    public function __construct() {
+
+    public function __construct()
+    {
         $config_adapter = new LocalFileDataAdapter();
         $logging_adapter = new LocalFileLoggingAdapter();
         $options = new StatsigOptions($config_adapter, $logging_adapter);
@@ -28,24 +30,25 @@ class Main {
         $this->user = StatsigUser::withUserID("php_user");
         $this->user->setEmail("user_php@statsig.com");
         $this->user->setCountry("IN");
-
     }
 
-    public function run() {
+    public function run()
+    {
         // Main functionality of the application
         $config = $this->statsig->getConfig($this->user, "warning_banner");
-       // error_log("The value of variable is: " . $config);
+        // error_log("The value of variable is: " . $config);
         print_r($config);
         $jsonString = json_encode($config);
         print_r($jsonString);
-        
+
         $repository = new TodoRepository();
         $this->todo_controller = new TodoController($repository);
-      //  $this->todo_controller->handleRequest();
+        //  $this->todo_controller->handleRequest();
 
     }
 
-    public function getExperiment(){
+    public function getExperiment()
+    {
         $todo_experiment = $this->statsig->getExperiment($this->user, "item_sorting");
         print_r($todo_experiment);
         print_r($todo_experiment->getName());
@@ -53,10 +56,10 @@ class Main {
 
         $jsonString = json_encode($todo_experiment);
         print_r($jsonString);
-
     }
 
-    public function logEvent(){
+    public function logEvent()
+    {
         $event = new StatsigEvent("TODO_CREATE");
         $event->setUser($this->user);
         $event->setValue("TODO");
@@ -64,7 +67,8 @@ class Main {
         $this->statsig->logEvent($event);
     }
 
-    public function flush(){
+    public function flush()
+    {
         $this->statsig->flush();
     }
 }
@@ -76,6 +80,4 @@ $main->logEvent();
 $main->flush();
 
 phpinfo()
-
-
 ?>

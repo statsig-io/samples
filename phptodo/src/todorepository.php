@@ -1,24 +1,25 @@
 <?php
 
-class TodoRepository {
+class TodoRepository
+{
     private $filePath = 'todos.json';
 
 
-    public function __construct() {
+    public function __construct()
+    {
         if (!file_exists($this->filePath)) {
             touch($this->filePath);
-            // Optionally, you can set file permissions using chmod()
-            // chmod($filePath, 0644);
         }
-        
     }
 
-    public function getAllTodos() {
+    public function getAllTodos()
+    {
         $todos = json_decode(file_get_contents($this->filePath), true);
         return $todos;
     }
 
-    public function getTodoById($id) {
+    public function getTodoById($id)
+    {
         $todos = json_decode(file_get_contents($this->filePath), true);
         foreach ($todos as $todo) {
             if ($todo['id'] == $id) {
@@ -28,10 +29,11 @@ class TodoRepository {
         return null;
     }
 
-    public function createTodo($task, $description, $completed, $edited, $serialNumber, $lastViewed, $createdDate, $modifiedDate) {
+    public function createTodo($task, $description, $completed, $edited, $serialNumber, $lastViewed, $createdDate, $modifiedDate)
+    {
         $todos = json_decode(file_get_contents($this->filePath), true);
         $count = count($todos ?? []);
-       
+
         $newTodo = [
             'id' => $count + 1,
             'task' => $task,
@@ -45,10 +47,14 @@ class TodoRepository {
         ];
         $todos[] = $newTodo;
         file_put_contents($this->filePath, json_encode($todos));
+        return $newTodo;
     }
 
-    public function updateTodo($id, $task, $description, $completed, $edited, $serialNumber, $lastViewed, $createdDate, $modifiedDate) {
+    public function updateTodo($id, $task, $description, $completed, $edited, $serialNumber, $lastViewed, $createdDate, $modifiedDate)
+    {
         $todos = json_decode(file_get_contents($this->filePath), true);
+        $tempTodo = null;
+        error_log($id);
         foreach ($todos as &$todo) {
             if ($todo['id'] == $id) {
                 $todo['task'] = $task;
@@ -59,13 +65,16 @@ class TodoRepository {
                 $todo['lastViewed'] = $lastViewed;
                 $todo['createdDate'] = $createdDate;
                 $todo['modifiedDate'] = $modifiedDate;
+                $tempTodo = $todo;
                 break;
             }
         }
         file_put_contents($this->filePath, json_encode($todos));
+        return $tempTodo;
     }
 
-    public function deleteTodo($id) {
+    public function deleteTodo($id)
+    {
         $todos = json_decode(file_get_contents($this->filePath), true);
         foreach ($todos as $key => $todo) {
             if ($todo['id'] == $id) {
@@ -76,4 +85,3 @@ class TodoRepository {
         file_put_contents($this->filePath, json_encode(array_values($todos)));
     }
 }
-?>
