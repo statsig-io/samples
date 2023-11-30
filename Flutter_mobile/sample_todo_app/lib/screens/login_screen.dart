@@ -3,8 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:sample_todo_app/routing/go_router.dart';
 import 'package:statsig/statsig.dart';
 
-import '../api_key.dart';
-
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -19,8 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       isLoading = true;
     });
-    await Statsig.initialize(
-        statsigApiKey, StatsigUser(userId: "flutter_dummy_user_id"));
+    await Statsig.updateUser(StatsigUser(userId: "flutter_dummy_user_id"));
     Future.delayed(const Duration(milliseconds: 3000), () {
       setState(() {
         isLoading = false;
