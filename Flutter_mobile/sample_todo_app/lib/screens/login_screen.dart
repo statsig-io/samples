@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sample_todo_app/routing/go_router.dart';
+import 'package:statsig/statsig.dart';
+
+import '../api_key.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -10,6 +13,22 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  bool isLoading = false;
+
+  void updateStatsigUser(BuildContext context) async {
+    setState(() {
+      isLoading = true;
+    });
+    await Statsig.initialize(
+        statsigApiKey, StatsigUser(userId: "flutter_dummy_user_id"));
+    Future.delayed(const Duration(milliseconds: 3000), () {
+      setState(() {
+        isLoading = false;
+      });
+      context.pushNamed(AppRoute.homeScreen.name);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,24 +39,22 @@ class _LoginScreenState extends State<LoginScreen> {
             const Padding(
               padding:
                   EdgeInsets.only(left: 30.0, right: 30.0, top: 220, bottom: 0),
-              //padding: EdgeInsets.symmetric(horizontal: 15),
               child: TextField(
                 decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Email',
-                    hintText: 'Enter valid email like abc@gmail.com'),
+                  border: OutlineInputBorder(),
+                  labelText: 'Username',
+                ),
               ),
             ),
             const Padding(
               padding:
                   EdgeInsets.only(left: 30.0, right: 30.0, top: 15, bottom: 0),
-              //padding: EdgeInsets.symmetric(horizontal: 15),
               child: TextField(
                 obscureText: true,
                 decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Password',
-                    hintText: 'Enter secure password'),
+                  border: OutlineInputBorder(),
+                  labelText: 'Password',
+                ),
               ),
             ),
             SizedBox(
@@ -53,8 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.circular(5),
                       )),
                   onPressed: () {
-                    print('Successfully log in ');
-                    context.pushNamed(AppRoute.homeScreen.name);
+                    updateStatsigUser(context);
                   },
                   child: const Text(
                     'Log in ',
@@ -63,6 +79,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
             ),
+            Visibility(
+                visible: isLoading,
+                child: const Padding(
+                    padding: EdgeInsets.only(top: 30),
+                    child: SizedBox(
+                      height: 50,
+                      width: 50,
+                      child: CircularProgressIndicator(),
+                    )))
           ],
         ),
       ),
