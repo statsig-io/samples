@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:statsig/statsig.dart';
 
 import '../models/todo.dart';
 import '../network/network_api.dart';
@@ -12,14 +13,36 @@ class TodoRepository extends StateNotifier<List<Todo>> {
   }
 
   Future<void> loadTodos() async {
+    final sortingVal =
+        Statsig.getExperiment("item_sorting").get("sort_order", 0);
     final todoList = await fetchTodoList();
+    switch (sortingVal) {
+      case 1:
+        todoList.sort((a, b) {
+          return a.task.toLowerCase().compareTo(b.task.toLowerCase());
+        });
+        break;
+      case 2:
+        todoList.sort((a, b) {
+          return a.createdDate.compareTo(b.createdDate);
+        });
+        break;
+      case 3:
+        todoList.sort((a, b) {
+          return b.createdDate.compareTo(a.createdDate);
+        });
+        break;
+      default:
+        todoList;
+        break;
+    }
     state = todoList;
   }
 
   Future<void> saveTodos(List<Todo> todos) async {
     final prefs = await SharedPreferences.getInstance();
     final encodedTodos =
-    jsonEncode(todos.map((todo) => todo.toJson()).toList());
+        jsonEncode(todos.map((todo) => todo.toJson()).toList());
     await prefs.setString('todos', encodedTodos);
   }
 
@@ -69,8 +92,7 @@ class TodoRepository extends StateNotifier<List<Todo>> {
   void editTodo(String id, String title) {
     state = [
       for (final todo in state)
-        if (todo.id == int.parse(id)) todo.copyWith(task: title) else
-          todo
+        if (todo.id == int.parse(id)) todo.copyWith(task: title) else todo
     ];
   }
 
@@ -86,7 +108,7 @@ class TodoRepository extends StateNotifier<List<Todo>> {
 }
 
 final todoRepositoryProvider =
-StateNotifierProvider<TodoRepository, List<Todo>>((ref) {
+    StateNotifierProvider<TodoRepository, List<Todo>>((ref) {
   return TodoRepository();
 });
 
