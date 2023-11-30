@@ -1,9 +1,7 @@
 <?php
 //TODO: This file changes are in progress
 
-require_once __DIR__ . '/vendor/autoload.php'; // path to installation folder
-require __DIR__ . '/src/TodoController.php';
-require __DIR__ . '/src/TodoRepository.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 use Statsig\StatsigServer;
 use Statsig\StatsigOptions;
@@ -12,15 +10,10 @@ use Statsig\Adapters\LocalFileLoggingAdapter;
 use Statsig\StatsigUser;
 use Statsig\StatsigEvent;
 
-class Main
+class Util
 {
     private $statsig;
-    private $deleteFeature;
     private $user;
-    private $fileName;
-    private $todo_controller;
-    private $todo_repository;
-
 
     public function __construct()
     {
@@ -35,17 +28,10 @@ class Main
 
     public function run()
     {
-        // Main functionality of the application
         $config = $this->statsig->getConfig($this->user, "warning_banner");
-        // error_log("The value of variable is: " . $config);
         print_r($config);
         $jsonString = json_encode($config);
         print_r($jsonString);
-
-        $repository = new TodoRepository();
-        $this->todo_controller = new TodoController($repository);
-        //  $this->todo_controller->handleRequest();
-
     }
 
     public function getExperiment()
@@ -74,11 +60,4 @@ class Main
     }
 }
 
-$main = new Main();
-$main->run();
-$main->getExperiment();
-$main->logEvent();
-$main->flush();
-
-phpinfo()
 ?>
