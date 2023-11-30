@@ -1,0 +1,19 @@
+{
+    "name": "statsig/phptodo",
+    "description": "A PHP Todo project",
+    "type": "project",
+    "require": {
+        "statsig/statsigsdk": "^2.2",
+        "doctrine/dbal": "^3.7",
+        "slim/slim": "4.*",
+        "tuupola/cors-middleware": "*",
+        "psr/http-message": "^1.0",
+        "selective/basepath": "*"
+
+    },
+    "autoload": {
+        "psr-4": {
+            "Statsig\\Phptodo\\": "src/"
+        }
+    }
+}
