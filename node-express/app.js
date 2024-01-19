@@ -12,7 +12,10 @@ app.engine('.hbs', engine({ extname: '.hbs' }));
 app.set('view engine', '.hbs');
 app.set('views', './views');
 
-// global middleware to set a cookie if it doesn't exist
+/**
+* global middleware to set a cookie if it doesn't exist
+* passes the uuid down to route handlers on req object
+*/
 app.use(async (req, res, next) => {
   let statsigDeviceID;
   if (req.cookies['statsig_uuid']) {
