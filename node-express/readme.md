@@ -9,7 +9,8 @@ This sample app shows how to integrate Statsig's [Node SDK](https://docs.statsig
 * You should create a `.env` file with `STATSIG_SERVER_KEY=YOUR-KEY` or run the process with the that environment variable set. 
 
 ### Running the app
-Running this on the CLI will start the all at `http://localhost:3000/`
+Running this on the CLI will start the app at _http://localhost:3000_
+
 `npm start` or `npm run dev` for live reloads
 
 ![App pic](docs/app.png)
