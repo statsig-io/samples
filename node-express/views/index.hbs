@@ -1,0 +1,12 @@
+<body{{#if backgroundFeatureEnabled}} class="has-bg"{{/if}}>
+<div id="main">
+    <h1>Statsig sample Express app</h1>
+    <h3>You are in "{{testGroup}}"</h3>
+    <h3>
+        {{#if backgroundFeatureEnabled}}
+        You are in the <code>express_app_bg</code> feature gate. (Statsig page background)
+        {{else}}
+        You are not in the <code>express_app_bg</code> feature gate (no page background) 
+        {{/if}}
+    </h3>
+</div>
